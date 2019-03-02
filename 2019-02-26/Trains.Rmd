@@ -6,7 +6,7 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
-trains <- read.csv ("https://github.com/rfordatascience/tidytuesday/blob/master/data/2019/2019-02-26/full_trains.csv")
+trains_1 <- read.csv ("https://github.com/rfordatascience/tidytuesday/blob/master/data/2019/2019-02-26/full_trains.csv")
 
 
 ```
