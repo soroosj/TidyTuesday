@@ -6,8 +6,35 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
-trains_2 <- read.csv ("https://github.com/rfordatascience/tidytuesday/blob/master/data/2019/2019-02-26/full_trains.csv")
+library(tidyverse)
 
+trains_raw <- read_csv ("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-02-26/full_trains.csv")
+
+trains <- trains_raw %>%
+   select (year, month, departure_station, arrival_station, journey_time_avg, total_num_trips) %>%
+   arrange (-total_num_trips)
+
+departures <- trains %>%
+  distinct(departure_station) %>%
+  rename(station = departure_station)
+
+arrivals <- trains %>%
+  distinct(arrival_station) %>%
+  rename(station = arrival_station)
+
+nodes <- full_join(departures, arrivals, by = "station") %>%
+    rowid_to_column("id")
+
+per_route <- trains %>%  
+  group_by(departure_station, arrival_station) %>%
+  summarise(weight = n()) %>% 
+  ungroup()
+
+edges <- per_route %>% 
+  left_join(nodes, by = c("departure_station" = "station")) %>% 
+  rename(from = id) %>% 
+  left_join(nodes, by = c("arrival_station" = "station")) %>% 
+  rename(to = id)
 
 ```
 
