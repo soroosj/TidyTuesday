@@ -7,6 +7,9 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 
 library (tidyverse)
+library (cowplot)
+library (ggthemes)
+library (magick)
 
 ```
 
@@ -22,20 +25,40 @@ pets <- pets_raw %>%
 ## R Markdown
 
 
-```{r pets}
-   
-pets %>%
-   group_by (animals_name, species) %>%
-   summarize (n = n ()) %>%
-   arrange (-n) 
-
-```
-
 ```{r breeds}
 
-pets %>%
+pets_bar <- pets %>%
    filter (species == "Dog") %>%
    group_by (primary_breed) %>%
    summarize (n = n ()) %>%
-   arrange (-n)
+   arrange (-n) %>%
+   head (5) %>%
+   ggplot(aes(x=reorder(primary_breed,n), y=n)) +
+      geom_bar(stat="identity") + 
+      theme_economist ()+
+      theme(
+         axis.title.x=element_blank(),
+         axis.title.y=element_blank(),
+         axis.text.y=element_blank()) +
+      labs(
+         title = "Most popular Seattle dog breeds",
+         subtitle = "April 2017 - September 2018",
+         caption = "Source: City of Seattle") +
+      coord_flip ()
+
+pets_bar  
+```
+
+
+
+```{r image}
+
+pets_image <- axis_canvas(pets_bar, axis = 'x') + 
+  draw_image("https://www.petinsurancereview.com/sites/default/files/inline-images/Labrador%20Retriever%202.jpg", y = 4.92, scale = 0.85) +
+  draw_image("http://www.allsmalldogbreeds.com/breeds/chihuahua-short-coat.jpg", y = 4.0, scale = 0.9) +
+  draw_image("https://s3.amazonaws.com/cdn-origin-etr.akc.org/wp-content/uploads/2017/11/12133017/Golden-Care.jpg", y = 3.0, scale = 0.9) +
+  draw_image("https://bowwowinsurance.com.au/wp-content/uploads/2018/10/australian-aussie-terrier-700x700.jpg", y = 2.1, scale = 0.79) +
+  draw_image("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRjJqstuFnEQYpXeNbb3Sqv6l5EHxE1TWrEkFwnsW8zMwiIEiwn", y = 1.1, scale = 0.9)
+
+ggdraw(insert_xaxis_grob(pets_bar, pets_image, position = "bottom"))
 ```
