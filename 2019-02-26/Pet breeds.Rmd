@@ -1,0 +1,41 @@
+---
+title: "Seattle Pets"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library (tidyverse)
+
+```
+
+## Source data
+```{r import, include=FALSE}
+pets_raw <- read.csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-03-26/seattle_pets.csv")
+
+pets <- pets_raw %>%
+   drop_na () %>%
+   filter (species != "Goat")
+```
+
+## R Markdown
+
+
+```{r pets}
+   
+pets %>%
+   group_by (animals_name, species) %>%
+   summarize (n = n ()) %>%
+   arrange (-n) 
+
+```
+
+```{r breeds}
+
+pets %>%
+   filter (species == "Dog") %>%
+   group_by (primary_breed) %>%
+   summarize (n = n ()) %>%
+   arrange (-n)
+```
