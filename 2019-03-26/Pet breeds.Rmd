@@ -3,7 +3,8 @@ title: "Seattle Pets"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
+### 1. Load packages
+```{r setup}
 knitr::opts_chunk$set(echo = TRUE)
 
 library (tidyverse)
@@ -13,8 +14,8 @@ library (magick)
 
 ```
 
-## Source data
-```{r import, include=FALSE}
+### 2. Source data
+```{r import, echo = TRUE}
 pets_raw <- read.csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-03-26/seattle_pets.csv")
 
 pets <- pets_raw %>%
@@ -22,10 +23,9 @@ pets <- pets_raw %>%
    filter (species != "Goat")
 ```
 
-## R Markdown
 
-
-```{r breeds}
+### 3. Create base chart 
+```{r base_chart}
 
 pets_bar <- pets %>%
    filter (species == "Dog") %>%
@@ -51,14 +51,17 @@ pets_bar
 
 
 
-```{r image}
+### 4. Add dog breed images
+```{r add_images}
 
 pets_image <- axis_canvas(pets_bar, axis = 'x') + 
   draw_image("https://www.petinsurancereview.com/sites/default/files/inline-images/Labrador%20Retriever%202.jpg", y = 4.92, scale = 0.85) +
   draw_image("http://www.allsmalldogbreeds.com/breeds/chihuahua-short-coat.jpg", y = 4.0, scale = 0.9) +
   draw_image("https://s3.amazonaws.com/cdn-origin-etr.akc.org/wp-content/uploads/2017/11/12133017/Golden-Care.jpg", y = 3.0, scale = 0.9) +
-  draw_image("https://bowwowinsurance.com.au/wp-content/uploads/2018/10/australian-aussie-terrier-700x700.jpg", y = 2.1, scale = 0.79) +
+  draw_image("https://bowwowinsurance.com.au/wp-content/uploads/2018/10/australian-aussie-terrier-700x700.jpg", y = 2.0, scale = 0.79) +
   draw_image("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRjJqstuFnEQYpXeNbb3Sqv6l5EHxE1TWrEkFwnsW8zMwiIEiwn", y = 1.1, scale = 0.9)
 
-ggdraw(insert_xaxis_grob(pets_bar, pets_image, position = "bottom"))
+pets_final <- ggdraw(insert_xaxis_grob(pets_bar, pets_image, position = "bottom"))
+
+ggsave("breeds.png",pets_final)
 ```
