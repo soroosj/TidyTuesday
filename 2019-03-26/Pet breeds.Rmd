@@ -63,5 +63,7 @@ pets_image <- axis_canvas(pets_bar, axis = 'x') +
 
 pets_final <- ggdraw(insert_xaxis_grob(pets_bar, pets_image, position = "bottom"))
 
+pets_final
+
 ggsave("breeds.png",pets_final)
 ```
