@@ -10,60 +10,65 @@ knitr::opts_chunk$set(echo = TRUE)
 library (tidyverse)
 library (cowplot)
 library (ggthemes)
+library (ggtextures)
 library (magick)
+library (rsvg)
 
 ```
 
 ### 2. Source data
 ```{r import, echo = TRUE}
-pets_raw <- read.csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-03-26/seattle_pets.csv")
+pets <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-03-26/seattle_pets.csv")
 
-pets <- pets_raw %>%
-   drop_na () %>%
-   filter (species != "Goat")
 ```
 
+### 3. Identify most popular dog breeds
+```{r popular}
 
-### 3. Create base chart 
-```{r base_chart}
-
-pets_bar <- pets %>%
+pets_summ <- pets %>%
+   drop_na () %>%
    filter (species == "Dog") %>%
    group_by (primary_breed) %>%
-   summarize (n = n ()) %>%
-   arrange (-n) %>%
-   head (5) %>%
-   ggplot(aes(x=reorder(primary_breed,n), y=n)) +
-      geom_bar(stat="identity") + 
-      theme_economist ()+
+   summarize (count = n ()) %>%
+   arrange (-count) %>%
+   head (5)
+
+```
+
+### 4. Load dog images
+```{r images}
+
+pets_summ$image <- list (
+   image_read ("https://www.petinsurancereview.com/sites/default/files/inline-images/Labrador%20Retriever%202.jpg"),
+   image_read ("http://www.allsmalldogbreeds.com/breeds/chihuahua-short-coat.jpg"),
+   image_read ("https://s3.amazonaws.com/cdn-origin-etr.akc.org/wp-content/uploads/2017/11/12133017/Golden-Care.jpg"),
+   image_read ("https://bowwowinsurance.com.au/wp-content/uploads/2018/10/australian-aussie-terrier-700x700.jpg"),
+   image_read ("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRjJqstuFnEQYpXeNbb3Sqv6l5EHxE1TWrEkFwnsW8zMwiIEiwn")
+      )
+
+``` 
+
+### 5. Create chart 
+```{r chart}
+
+pets_bar <- ggplot(pets_summ, aes(x=reorder(primary_breed,count), y=count, image = image)) +
+      geom_textured_col (img_height = grid::unit(1,"null"), img_width = NULL, ncol = 1, nrow = 1, hjust = 0, vjust = 0.5, fill = "light blue") + 
+      theme_economist () +
       theme(
          axis.title.x=element_blank(),
          axis.title.y=element_blank(),
          axis.text.y=element_blank()) +
       labs(
-         title = "Most popular Seattle dog breeds",
+         title = "Most dog breeds adopted in Seattle",
          subtitle = "April 2017 - September 2018",
          caption = "Source: City of Seattle") +
       coord_flip ()
 
+ggsave("breeds.png", pets_bar)
 pets_bar  
+
 ```
 
 
 
-### 4. Add dog breed images
-```{r add_images}
 
-pets_image <- axis_canvas(pets_bar, axis = 'x') + 
-  draw_image("https://www.petinsurancereview.com/sites/default/files/inline-images/Labrador%20Retriever%202.jpg", y = 4.92, scale = 0.85) +
-  draw_image("http://www.allsmalldogbreeds.com/breeds/chihuahua-short-coat.jpg", y = 4.0, scale = 0.9) +
-  draw_image("https://s3.amazonaws.com/cdn-origin-etr.akc.org/wp-content/uploads/2017/11/12133017/Golden-Care.jpg", y = 3.0, scale = 0.9) +
-  draw_image("https://bowwowinsurance.com.au/wp-content/uploads/2018/10/australian-aussie-terrier-700x700.jpg", y = 2.0, scale = 0.79) +
-  draw_image("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRjJqstuFnEQYpXeNbb3Sqv6l5EHxE1TWrEkFwnsW8zMwiIEiwn", y = 1.1, scale = 0.9)
-
-pets_final <- ggdraw(insert_xaxis_grob(pets_bar, pets_image, position = "bottom"))
-
-pets_final
-
-ggsave("breeds.png",pets_final)
-```
