@@ -59,7 +59,7 @@ pets_summ$image <- list (
 ```{r chart}
 
 pets_bar <- ggplot(pets_summ, aes(x=reorder(primary_breed,count), y=count, image = image)) +
-      geom_textured_col (img_height = grid::unit(1,"null"), img_width = grid::unit(0.6,"cm"), ncol = 1, nrow = 1, hjust = 0, vjust = 0.5, fill = "light blue") + 
+      geom_textured_col (img_height = grid::unit(1,"null"), img_width = grid::unit(1.05,"cm"), ncol = 1, nrow = 1, hjust = 0, vjust = 0.5, fill = "light blue") + 
       theme_economist () +
       theme(
          axis.title.x=element_blank(),
