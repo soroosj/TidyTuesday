@@ -8,11 +8,9 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 
 library (tidyverse)
-library (cowplot)
 library (ggthemes)
 library (ggtextures)
 library (magick)
-library (rsvg)
 
 ```
 
