@@ -14,7 +14,7 @@ library (magick)
 
 ```
 
-### 2. Source data
+### 2. Source data 
 ```{r import, echo = TRUE} 
 pets <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-03-26/seattle_pets.csv")
 
