@@ -1,5 +1,5 @@
 ---
-title: "Tennis"
+title: "Grand Slam"
 output: html_document
 ---
 
@@ -15,7 +15,7 @@ library (ggrepel)
 ```
 
 ### 2. Source data 
-```{r import, warning=TRUE}
+```{r source, warning=TRUE}
 tennis_raw <- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-04-09/grand_slam_timeline.csv")
 
 tennis <- tennis_raw %>%
@@ -33,24 +33,36 @@ tennis <- tennis_raw %>%
      )) %>%
    #str_remove (player, "// ") %>%
    drop_na
+
+tennis %>%
+   head (10)
    
 ```
 
 
-```{r}
+```{r aggregate}
   
 tennis_avg <- tennis %>%
    group_by (player) %>%
    summarize (
       avg = round(mean (outcome_num),2),
       st_dev = round(sd (outcome_num),2),
-      count = n ()
+      n = n ()
       ) %>%
-   arrange (avg)
+   arrange (avg) %>%
+   drop_na ()
+
+tennis_avg %>%
+   arrange (-avg) %>%
+   head (10)
+
+tennis_avg %>%
+   arrange (-st_dev) %>%
+   head (10)
 ```
 
 
-```{r analyze}
+```{r chart}
 
 ggplot (tennis_avg, aes (avg, st_dev, label = player)) +
    geom_point () +
@@ -60,11 +72,14 @@ ggplot (tennis_avg, aes (avg, st_dev, label = player)) +
       aes(label=ifelse(avg>6,as.character(player),'')),
       box.padding   = 0.35, 
       point.padding = 0.5,
+      size = 3,
       segment.color = 'grey50') +
    labs(
-      title = "Average vs. Standard Deviation of Tennis Grand Slam Titles",
-      subtitle = "1968 - 2019",
-      caption = "Source:Wikipedia"
-      )
+      title = "Tennis Grand Slam Outcome by Player (1968-2019)",
+      subtitle = "Win = 8, 1st Round = 1",
+      caption = "Source:Wikipedia",
+      x = "Average",
+      y = "St Dev"
+      ) 
 
 ```
