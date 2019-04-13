@@ -1,0 +1,37 @@
+---
+title: "Tennis"
+output: html_document
+---
+
+### 1. Load packages
+```{r setup}
+knitr::opts_chunk$set(echo = TRUE)
+
+library (tidyverse)
+library (janitor)
+
+```
+
+### 2. Source data 
+```{r import, echo=, warning=TRUE}
+tennis_raw <- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-04-09/grand_slam_timeline.csv")
+
+tennis <- tennis_raw %>%
+   drop_na %>%
+   clean_names()
+   
+
+```
+```{r}
+
+tennis %>%
+   filter (year > 2011) %>%
+   tabyl (tournament,year) %>%
+   adorn_totals(c("row", "col")) %>%
+   adorn_percentages("col") %>% 
+   adorn_pct_formatting(rounding = "half up", digits = 1) %>%
+   #adorn_ns() %>%
+   adorn_title("combined") %>%
+   knitr::kable()
+
+```
