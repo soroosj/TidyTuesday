@@ -9,29 +9,62 @@ knitr::opts_chunk$set(echo = TRUE)
 
 library (tidyverse)
 library (janitor)
+library (ggthemes)
+library (ggrepel)
 
 ```
 
 ### 2. Source data 
-```{r import, echo=, warning=TRUE}
+```{r import, warning=TRUE}
 tennis_raw <- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-04-09/grand_slam_timeline.csv")
 
 tennis <- tennis_raw %>%
-   drop_na %>%
-   clean_names()
+   clean_names() %>%
+   mutate(
+     outcome_num = case_when(
+        outcome == "Won" ~ 8,
+        outcome == "Finalist" ~ 7,
+        outcome == "Semi-finalist" ~ 6,
+        outcome == "Quarterfinalist" ~ 5,
+        outcome == "4th Round" ~ 4,
+        outcome == "3rd Round" ~ 3,
+        outcome == "2nd Round" ~ 2,
+        outcome == "1st Round" ~ 1
+     )) %>%
+   #str_remove (player, "// ") %>%
+   drop_na
    
-
 ```
-```{r}
 
-tennis %>%
-   filter (year > 2011) %>%
-   tabyl (tournament,year) %>%
-   adorn_totals(c("row", "col")) %>%
-   adorn_percentages("col") %>% 
-   adorn_pct_formatting(rounding = "half up", digits = 1) %>%
-   #adorn_ns() %>%
-   adorn_title("combined") %>%
-   knitr::kable()
+
+```{r}
+  
+tennis_avg <- tennis %>%
+   group_by (player) %>%
+   summarize (
+      avg = round(mean (outcome_num),2),
+      st_dev = round(sd (outcome_num),2),
+      count = n ()
+      ) %>%
+   arrange (avg)
+```
+
+
+```{r analyze}
+
+ggplot (tennis_avg, aes (avg, st_dev, label = player)) +
+   geom_point () +
+   theme_economist () +
+   scale_y_continuous(trans = "reverse") +
+   geom_label_repel(
+      aes(label=ifelse(avg>6,as.character(player),'')),
+      box.padding   = 0.35, 
+      point.padding = 0.5,
+      segment.color = 'grey50') +
+   labs(
+      title = "Average vs. Standard Deviation of Tennis Grand Slam Titles",
+      subtitle = "1968 - 2019",
+      caption = "Source:Wikipedia"
+      )
 
 ```
