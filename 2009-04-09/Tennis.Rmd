@@ -11,6 +11,7 @@ library (tidyverse)
 library (janitor)
 library (ggthemes)
 library (ggrepel)
+library (stringr)
 
 ```
 
@@ -30,9 +31,12 @@ tennis <- tennis_raw %>%
         outcome == "3rd Round" ~ 3,
         outcome == "2nd Round" ~ 2,
         outcome == "1st Round" ~ 1
-     )) %>%
+         )
+     )  %>%
    #str_remove (player, "// ") %>%
-   drop_na
+   drop_na ()
+
+
 
 tennis %>%
    head (10)
@@ -66,7 +70,7 @@ tennis_avg %>%
 
 ggplot (tennis_avg, aes (avg, st_dev, label = player)) +
    geom_point () +
-   theme_economist () +
+   theme_tufte () +
    scale_y_continuous(trans = "reverse") +
    geom_label_repel(
       aes(label=ifelse(avg>6,as.character(player),'')),
@@ -75,11 +79,16 @@ ggplot (tennis_avg, aes (avg, st_dev, label = player)) +
       size = 3,
       segment.color = 'grey50') +
    labs(
-      title = "Tennis Grand Slam Outcome by Player (1968-2019)",
+      title = "Average and Dispersion of Grand Slam Outcomes (1968-2018)",
       subtitle = "Win = 8, 1st Round = 1",
       caption = "Source:Wikipedia",
       x = "Average",
-      y = "St Dev"
-      ) 
+      y = "Standard Deviation"
+      ) +
+   theme(
+      axis.title.x=element_text(size=9),
+      axis.title.y=element_text(size=9)
+   )
+      
 
 ```
