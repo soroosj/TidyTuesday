@@ -15,7 +15,7 @@ library (stringr)
 
 ```
 
-### 2. Source data 
+### 2. Source data, convert outcome to numeric
 ```{r source, warning=TRUE}
 tennis_raw <- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-04-09/grand_slam_timeline.csv")
 
@@ -35,15 +35,10 @@ tennis <- tennis_raw %>%
      )  %>%
    #str_remove (player, "// ") %>%
    drop_na ()
-
-
-
-tennis %>%
-   head (10)
    
 ```
 
-
+### 3. Calculate average outcomes
 ```{r aggregate}
   
 tennis_avg <- tennis %>%
@@ -56,21 +51,14 @@ tennis_avg <- tennis %>%
    arrange (avg) %>%
    drop_na ()
 
-tennis_avg %>%
-   arrange (-avg) %>%
-   head (10)
-
-tennis_avg %>%
-   arrange (-st_dev) %>%
-   head (10)
 ```
 
-
+### 4. Create visualization
 ```{r chart}
 
-ggplot (tennis_avg, aes (avg, st_dev, label = player)) +
+tennis_plot <- ggplot (tennis_avg, aes (avg, st_dev, label = player)) +
    geom_point () +
-   theme_tufte () +
+   theme_economist() +
    scale_y_continuous(trans = "reverse") +
    geom_label_repel(
       aes(label=ifelse(avg>6,as.character(player),'')),
@@ -89,6 +77,8 @@ ggplot (tennis_avg, aes (avg, st_dev, label = player)) +
       axis.title.x=element_text(size=9),
       axis.title.y=element_text(size=9)
    )
-      
+
+tennis_plot
+ggsave ("tennis.png", tennis_plot)
 
 ```
