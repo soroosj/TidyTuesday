@@ -4,8 +4,7 @@ output: html_document
 ---
 
 ### 1. Load packages
-```{r setup}
-knitr::opts_chunk$set(echo = TRUE)
+```{r setup, warning = FALSE, results = FALSE, message = FALSE}
 
 library (tidyverse)
 library (janitor)
@@ -15,9 +14,14 @@ library (stringr)
 
 ```
 
-### 2. Source data, convert outcome to numeric
-```{r source, warning=TRUE}
-tennis_raw <- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-04-09/grand_slam_timeline.csv")
+### 2. Source data
+```{r source, warning = FALSE, results = FALSE, message = FALSE }
+
+tennis_raw <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-04-09/grand_slam_timeline.csv")
+   
+```
+### 3. Convert outcomes to numeric
+```{r}
 
 tennis <- tennis_raw %>%
    clean_names() %>%
@@ -31,14 +35,18 @@ tennis <- tennis_raw %>%
         outcome == "3rd Round" ~ 3,
         outcome == "2nd Round" ~ 2,
         outcome == "1st Round" ~ 1
-         )
+         ),
+     player = str_remove (player, "// "),
+     player = str_replace (player, "Seleš", "Seles")
      )  %>%
-   #str_remove (player, "// ") %>%
    drop_na ()
-   
+
+tennis %>%
+   head (10)
+
 ```
 
-### 3. Calculate average outcomes
+### 4. Calculate average outcomes
 ```{r aggregate}
   
 tennis_avg <- tennis %>%
@@ -48,9 +56,12 @@ tennis_avg <- tennis %>%
       st_dev = round(sd (outcome_num),2),
       n = n ()
       ) %>%
-   arrange (avg) %>%
+   arrange (-avg) %>%
+   filter (n>9) %>%
    drop_na ()
 
+tennis_avg %>%
+   head (10)
 ```
 
 ### 4. Create visualization
@@ -61,7 +72,7 @@ tennis_plot <- ggplot (tennis_avg, aes (avg, st_dev, label = player)) +
    theme_economist() +
    scale_y_continuous(trans = "reverse") +
    geom_label_repel(
-      aes(label=ifelse(avg>6,as.character(player),'')),
+      aes(label=ifelse(avg>5.8,as.character(player),'')),
       box.padding   = 0.35, 
       point.padding = 0.5,
       size = 3,
