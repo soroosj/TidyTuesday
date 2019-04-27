@@ -42,18 +42,18 @@ anime <- anime_raw %>%
 anime %>%
    select (source,score) %>%
    group_by (source) %>%
-   summarise_all(
-      list(~median, ~sd)
-      ) %>%
+   summarise_all(list(~median, ~mean, ~mad, ~sd, ~IQR,~n())) %>%
    arrange (desc(median)) %>%
+   mutate_if (is.numeric,~round(., 2)) %>%
    mutate (
-      median = round(median,2),
       median = ifelse(median> 7,
-                  cell_spec(median, "html", background = "green", color = "white", align = "center"),
-                  cell_spec(median, "html", background = "red", color = "white", align = "center"))
+                  cell_spec(median, "html", background = "green", color = "white", align = "left"),
+                  cell_spec(median, "html", background = "red", color = "white", align = "left"))
       )%>%
    kable (escape =F) %>%
-   kable_styling (bootstrap_options = "striped", full_width = F)
+   kable_styling (bootstrap_options = "striped", full_width = F) %>%
+   add_header_above(c(" " = 1, "Location" = 2, "Dispersion" = 3," " = 1)) %>%
+   add_header_above(c(" " = 1, "Statistics" = 6))
 
 ```    
 
