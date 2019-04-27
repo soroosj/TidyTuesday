@@ -1,0 +1,59 @@
+---
+title: "Anime"
+output:
+  html_document: default
+---
+
+### 1. Load packages
+```{r setup, warning = FALSE, results = FALSE, message = FALSE}
+
+library (tidyverse)
+library (janitor)
+library (stringr)
+library (gt)
+library (kableExtra)
+
+
+```
+
+### 2. Source data
+```{r source, warning = FALSE, results = FALSE, message = FALSE }
+
+anime_raw <- 
+   read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-04-23/raw_anime.csv") %>%
+   clean_names () %>%
+   drop_na()
+   
+```
+### 3. Transform data
+
+```{r analyze}
+anime <- anime_raw %>%
+   select (name, source, studio, score, episodes) %>%
+   mutate (
+      studio = str_remove_all (studio, "\\[|\\]|'")
+      )
+
+```
+
+## 4. Transform data
+
+```{r analyze}
+anime %>%
+   select (source,score) %>%
+   group_by (source) %>%
+   summarise_all(
+      list(~median, ~sd)
+      ) %>%
+   arrange (desc(median)) %>%
+   mutate (
+      median = round(median,2),
+      median = ifelse(median> 7,
+                  cell_spec(median, "html", background = "green", color = "white", align = "center"),
+                  cell_spec(median, "html", background = "red", color = "white", align = "center"))
+      )%>%
+   kable (escape =F) %>%
+   kable_styling (bootstrap_options = "striped", full_width = F)
+
+```    
+
