@@ -6,7 +6,6 @@ output:
 
 ### 1. Load packages
 ```{r setup, warning = FALSE, results = FALSE, message = FALSE}
-
    library (tidyverse)
    library (janitor)
    library (stringr)
@@ -15,13 +14,12 @@ output:
 
 ### 2. Source data
 ```{r source, warning = FALSE, results = FALSE, message = FALSE }
-
    anime_raw <- 
       read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-04-23/raw_anime.csv") %>%
       clean_names ()
 ```
 
-### 3. Transform data
+### 3. Tidy data
 ```{r analyze}
    anime <- anime_raw %>%
       drop_na () %>%
@@ -32,7 +30,6 @@ output:
 
 ## 4. Create table
 ```{r analyze}
-
    anime %>%
       select (source,score) %>%
       group_by (source) %>%
