@@ -7,53 +7,51 @@ output:
 ### 1. Load packages
 ```{r setup, warning = FALSE, results = FALSE, message = FALSE}
 
-library (tidyverse)
-library (janitor)
-library (stringr)
-library (kableExtra)
-
+   library (tidyverse)
+   library (janitor)
+   library (stringr)
+   library (kableExtra)
 ```
 
 ### 2. Source data
 ```{r source, warning = FALSE, results = FALSE, message = FALSE }
 
-anime_raw <- 
-   read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-04-23/raw_anime.csv") %>%
-   clean_names ()
-
+   anime_raw <- 
+      read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-04-23/raw_anime.csv") %>%
+      clean_names ()
 ```
+
 ### 3. Transform data
 ```{r analyze}
-anime <- anime_raw %>%
-   drop_na () %>%
-   mutate (
-      studio = str_remove_all (studio, "\\[|\\]|'")
-      )
-
+   anime <- anime_raw %>%
+      drop_na () %>%
+      mutate (
+         studio = str_remove_all (studio, "\\[|\\]|'")
+         )
 ```
 
 ## 4. Create table
 ```{r analyze}
-anime %>%
-   select (source,score) %>%
-   group_by (source) %>%
-   summarise_all (list(~median, ~mean, ~mad, ~sd, ~IQR,~n())) %>%
-   arrange (desc(median)) %>%
-   mutate_if (is.numeric,~round(., 2)) %>%
-   mutate (
-      median = ifelse(median> 7.3,
-                  cell_spec(median, "html", background = "green", color = "white", align = "left"),
-                  cell_spec(median, "html", background = "red", color = "white", align = "left"))
-      )%>%
-   kable (escape =F) %>%
-   kable_styling (bootstrap_options = "striped", full_width = F) %>%
-   add_header_above (c(" " = 1, " " = 6)) %>%
-   add_header_above (
-      c("Anime Rating Summary Statistics by Source" = 7),
-      align = "c",
-      font_size = 16
-      ) %>%
-   save_kable ("anime.png")
 
+   anime %>%
+      select (source,score) %>%
+      group_by (source) %>%
+      summarise_all (list(~median, ~mean, ~mad, ~sd, ~IQR,~n())) %>%
+      arrange (desc(median)) %>%
+      mutate_if (is.numeric,~round(., 2)) %>%
+      mutate (
+         median = ifelse(median> 7.3,
+                     cell_spec(median, "html", background = "green", color = "white", align = "left"),
+                     cell_spec(median, "html", background = "red", color = "white", align = "left"))
+         )%>%
+      kable (escape =F) %>%
+      kable_styling (bootstrap_options = "striped", full_width = F) %>%
+      add_header_above (c(" " = 1, " " = 6)) %>%
+      add_header_above (
+         c("Anime Rating Summary Statistics by Source" = 7),
+         align = "c",
+         font_size = 16
+         ) %>%
+      save_kable ("anime.png")
 ```    
 
