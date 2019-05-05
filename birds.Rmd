@@ -1,0 +1,48 @@
+---
+title: "Birds"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+### 1. Load packages
+```{r setup, warning = FALSE, results = FALSE, message = FALSE}
+
+library (tidyverse)
+library (lubridate)
+library (janitor)
+library (ggthemes)
+library (ggrepel)
+library (ggridges)
+library (stringr)
+
+```
+
+### 2. Source data
+```{r source, warning = FALSE, results = FALSE, message = FALSE }
+
+birds_raw <- read_delim(
+   "https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-04-30/bird_call.csv",
+   delim = " "
+   )%>%
+   clean_names() 
+   
+```
+### 3. Explore data
+```{r}
+
+birds <- birds_raw %>%
+   drop_na () %>%
+   filter (flight > 1000)
+
+   
+```
+
+
+### 4. Create visualization
+```{r chart}
+
+ggplot (data = birds, aes(x = flight, y = stratum)) +
+  geom_density_ridges ()
+
+```

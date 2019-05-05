@@ -40,7 +40,7 @@ output:
          median = ifelse(median> 7.3,
                      cell_spec(median, "html", background = "green", color = "white", align = "left"),
                      cell_spec(median, "html", background = "red", color = "white", align = "left"))
-         )%>%
+         ) %>%
       kable (escape =F) %>%
       kable_styling (bootstrap_options = "striped", full_width = F) %>%
       add_header_above (c(" " = 1, " " = 6)) %>%
