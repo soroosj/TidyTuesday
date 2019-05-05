@@ -1,0 +1,119 @@
+---
+title: "U.S. Government R&D Budget"
+output:
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+    source_code: embed
+  html_document:
+    df_print: paged
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(tidyverse)
+library(ggthemes)
+library(scales)
+library(cluster)
+library(dendextend)
+library(ggdendro)
+
+govt_raw <- read_csv ("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-02-12/fed_r_d_spending.csv")
+
+govt_clean <- govt_raw %>%
+   drop_na() %>%
+   mutate_at (3:6, funs(round(./1000000000,1))) 
+   
+
+head(govt_clean,10)
+```
+
+
+
+Column {data-width=500}
+-----------------------------------------------------------------------
+
+### 1. R&D budget by department in 2017 ($b)
+
+```{r}
+govt_clean %>%
+   filter (year == "2017") %>%
+   ggplot(aes(x=reorder(department, rd_budget), y=rd_budget)) +
+      geom_bar(stat='identity') +
+      coord_flip() +
+      theme_economist () +
+      theme(axis.title.x = element_blank(),
+            axis.title.y = element_blank(),
+            legend.title = element_blank()) +
+      labs(caption = "Source: American Association for the Advancement of Science")
+```
+
+
+
+### 3. R&D budget over time by department ($b)
+
+```{r}
+govt_clean %>%
+   ggplot(aes(x=year, y=rd_budget, color=department)) +
+      geom_point() +
+      theme_economist () +
+      theme(axis.title.x = element_blank(),
+            axis.title.y = element_blank(),
+            legend.title = element_blank(),
+            legend.position = "right",
+            legend.text=element_text(size=8)) +
+      labs(caption = "Source: American Association for the Advancement of Science")
+```
+
+Column {data-width=500}
+-----------------------------------------------------------------------
+### 2. Dept of Defense R&D budget by presidential party 1976-2017 ($b)
+
+```{r}
+govt_clean %>%
+   filter (department == "DOD") %>%
+   ggplot () +
+      geom_rect(aes(xmin=1974, xmax=1977, ymin=0,ymax=Inf, fill="Republican"), alpha=0.2) +
+      geom_rect(aes(xmin=1977, xmax=1981, ymin=0,ymax=Inf, fill="Democrat"), alpha=0.2) +
+      geom_rect(aes(xmin=1981, xmax=1993, ymin=0,ymax=Inf, fill="Republican"), alpha=0.2) +
+      geom_rect(aes(xmin=1993, xmax=2001, ymin=0,ymax=Inf, fill="Democrat"), alpha=0.2) +
+      geom_rect(aes(xmin=2001, xmax=2009, ymin=0,ymax=Inf, fill="Republican"), alpha=0.2) +
+      geom_rect(aes(xmin=2009, xmax=2017, ymin=0,ymax=Inf, fill="Democrat"), alpha=0.2) +
+      scale_fill_manual (values = c('blue','red')) +
+   
+      geom_line(aes (year, rd_budget)) +
+   
+      scale_x_continuous(breaks = seq(1976, 2017,4)) +
+      theme_economist() +
+      theme(axis.title.x = element_blank(),
+            axis.title.y = element_blank(),
+            legend.title = element_blank()) +
+      labs(caption = "Source: American Association for the Advancement of Science")
+```
+
+### 4. R&D budget by department over time cluster analysis
+
+```{r}
+govt_spread <- govt_clean %>%
+   select (department, year, rd_budget) %>%
+   spread (year, rd_budget) %>%
+   column_to_rownames("department")
+
+govt_dist <- govt_spread %>%
+   dist(method = 'euclidean') 
+
+govt_clust <- govt_dist %>%
+   hclust (method = 'complete') %>%
+   as.dendrogram() %>%
+   dendro_data(type="rectangle")
+
+#ggplot(segment(govt_clust),labels=rownames(govt_clust)) + 
+  #geom_segment(aes(x=x, y=y, xend=xend, yend=yend)) + 
+  #theme_dendro() +
+  #coord_flip() +
+  #scale_x_reverse()
+
+ggdendrogram(govt_clust)
+```
+
