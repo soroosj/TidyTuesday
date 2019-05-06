@@ -46,9 +46,4 @@ tabyl (birds, collisions)
 ggplot (data = birds, aes(x = flight, y = collisions)) +
   geom_density_ridges ()
 
-
-ggplot (data = birds, aes(x = flight, y = collisions)) +
-  geom_boxplot ()
-
-
 ```

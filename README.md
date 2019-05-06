@@ -1,6 +1,12 @@
 #Lessons learned from Tidy Tuesday
 
 
+#### 4/30/19 (Birds)
+
+   + Ggridges package to create ridged charts.  Realized not a great data set to practice as largely categorical variables.
+   + Importing space-delimited files with read_delim
+
+
 #### 4/23/19 (Anime)
 
    + KableExtra table creation
