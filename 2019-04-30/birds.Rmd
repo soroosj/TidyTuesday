@@ -9,10 +9,8 @@ output:
 ```{r setup, warning = FALSE, results = FALSE, message = FALSE}
 
 library (tidyverse)
-library (lubridate)
 library (janitor)
 library (ggthemes)
-library (ggrepel)
 library (ggridges)
 library (stringr)
 
@@ -33,7 +31,10 @@ birds_raw <- read_delim(
 
 birds <- birds_raw %>%
    drop_na () %>%
-   filter (flight > 1000)
+   group_by (species) %>%
+   filter (flight > 50)
+
+tabyl (birds, collisions)
 
    
 ```
@@ -42,7 +43,12 @@ birds <- birds_raw %>%
 ### 4. Create visualization
 ```{r chart}
 
-ggplot (data = birds, aes(x = flight, y = stratum)) +
+ggplot (data = birds, aes(x = flight, y = collisions)) +
   geom_density_ridges ()
+
+
+ggplot (data = birds, aes(x = flight, y = collisions)) +
+  geom_boxplot ()
+
 
 ```
