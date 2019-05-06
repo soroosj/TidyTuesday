@@ -6,13 +6,14 @@
    + KableExtra table creation
    + summarize_all
    + mutate_if
-   
+
    
 #### 4/9/19 (Tennis)
 
    + Add text labels in chart via ggrepel
    + Case_when for creating new categorical variable
    + Reverse y-axis
+   + Altering strings must be assigned to a variable via mutate
 
 
 #### 3/26/19 (Seattle Pets)
