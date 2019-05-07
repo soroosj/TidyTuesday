@@ -1,0 +1,45 @@
+---
+title: "Student Ratio"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+### 1. Load packages
+```{r setup, warning = FALSE, results = FALSE, message = FALSE}
+
+library (tidyverse)
+library (janitor)
+library (ggthemes)
+library (ggridges)
+library (stringr)
+
+```
+
+### 2. Source data
+```{r source, warning = FALSE, results = FALSE, message = FALSE }
+
+student_raw <- read_csv(
+   "https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-05-07/student_teacher_ratio.csv"
+   )%>%
+   clean_names()
+   
+```
+### 3. Explore data
+```{r}
+
+student <- student_raw %>%
+   select (country_code, country, year, student_ratio) %>%
+   drop_na ()
+
+   
+```
+
+
+### 4. Create visualization
+```{r chart}
+
+ggplot (data = student, aes(x = student_ratio, y = year, group = year)) +
+  geom_density_ridges ()
+
+```
