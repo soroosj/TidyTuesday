@@ -12,34 +12,48 @@ library (tidyverse)
 library (janitor)
 library (ggthemes)
 library (ggridges)
-library (stringr)
 
 ```
 
 ### 2. Source data
 ```{r source, warning = FALSE, results = FALSE, message = FALSE }
 
-student_raw <- read_csv(
-   "https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-05-07/student_teacher_ratio.csv"
-   )%>%
+student_raw <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-05-07/student_teacher_ratio.csv")%>%
    clean_names()
+
+country_raw <- read_csv("https://pkgstore.datahub.io/JohnSnowLabs/country-and-continent-codes-list/country-and-continent-codes-list-csv_csv/data/b7876b7f496677669644f3d1069d3121/country-and-continent-codes-list-csv_csv.csv") %>%
+   clean_names ()
    
 ```
-### 3. Explore data
+
+### 3. Transform data
 ```{r}
 
-student <- student_raw %>%
-   select (country_code, country, year, student_ratio) %>%
-   drop_na ()
+country <- country_raw %>%
+   rename (country_code = three_letter_country_code,
+           continent = continent_name) %>%
+   select (country_code, continent)
 
-   
+student <- student_raw %>%
+   filter (year == 2016) %>%  
+   select (country_code, country, indicator, year, student_ratio) 
+
+dat <- left_join (student, country, by = "country_code") 
+
 ```
 
 
 ### 4. Create visualization
 ```{r chart}
 
-ggplot (data = student, aes(x = student_ratio, y = year, group = year)) +
-  geom_density_ridges ()
+ggplot (data = student, aes(x = student_ratio, y = indicator, group = indicator)) +
+   geom_density_ridges () +
+   labs(
+      title = "Average and Dispersion of Grand Slam Outcomes (1968-2018)",
+      subtitle = "Win = 8, 1st Round = 1",
+      caption = "Source:Wikipedia
+      Visualization: Joel Soroos",
+      x = "Average",
+      y = "Standard Deviation")
 
 ```
