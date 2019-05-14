@@ -39,13 +39,12 @@ student <-
    select (continent, country_code, country, indicator, year, student_ratio) %>%
    filter (
       year == 2016,
-      continent == "Asia") %>%  
+      continent == "Europe") %>%  
    mutate (
       indicator = str_replace (indicator, " Education", ""),
       indicator = as.factor(indicator),
-      indicator = fct_relevel(indicator, c("Pre-Primary", "Primary", "Lower Secondary", "Secondary", "Upper Secondary", "Tertiary", "Post-Secondary Non-Tertiary"))
+      indicator = fct_relevel(indicator, c("Pre-Primary", "Primary", "Lower Secondary", "Secondary", "Upper Secondary", "Post-Secondary Non-Tertiary", "Tertiary"))
       )%>%
-
    drop_na ()
 
 ```
