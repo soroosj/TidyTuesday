@@ -34,11 +34,19 @@ country <- country_raw %>%
            continent = continent_name) %>%
    select (country_code, continent)
 
-student <- student_raw %>%
-   filter (year == 2016) %>%  
-   select (country_code, country, indicator, year, student_ratio) 
+student <- 
+   left_join (student_raw, country, by = "country_code") %>%
+   select (continent, country_code, country, indicator, year, student_ratio) %>%
+   filter (
+      year == 2016,
+      continent == "Asia") %>%  
+   mutate (
+      indicator = str_replace (indicator, " Education", ""),
+      indicator = as.factor(indicator),
+      indicator = fct_relevel(indicator, c("Pre-Primary", "Primary", "Lower Secondary", "Secondary", "Upper Secondary", "Tertiary", "Post-Secondary Non-Tertiary"))
+      )%>%
 
-dat <- left_join (student, country, by = "country_code") 
+   drop_na ()
 
 ```
 
@@ -49,11 +57,10 @@ dat <- left_join (student, country, by = "country_code")
 ggplot (data = student, aes(x = student_ratio, y = indicator, group = indicator)) +
    geom_density_ridges () +
    labs(
-      title = "Average and Dispersion of Grand Slam Outcomes (1968-2018)",
-      subtitle = "Win = 8, 1st Round = 1",
-      caption = "Source:Wikipedia
-      Visualization: Joel Soroos",
-      x = "Average",
-      y = "Standard Deviation")
+      title = "Student/Teacher Ratio by Education Level in Asia (2016)",
+      caption = "Source:UNESCO Institute of Statistics  |  R4DS Tidy Tuesday
+      Visualization: Joel Soroos @soroosj",
+      x = "",
+      y = "") 
 
 ```
