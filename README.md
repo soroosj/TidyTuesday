@@ -1,10 +1,11 @@
-#Lessons learned from Tidy Tuesday
+## Lessons learned from Tidy Tuesday
 
 
-#### 4/30/19 (Birds)
+#### 5/7/19 (Student/Teacher Ratio)
 
-   + Ggridges package to create ridged charts.  Realized not a great data set to practice as largely categorical variables.
-   + Importing space-delimited files with read_delim
+   + Ggridges package to create ridgeline charts
+   + Sourcing the external country_code data set to filter by continent name
+   + Removing axis titles by using lables = ""
 
 
 #### 4/23/19 (Anime)
