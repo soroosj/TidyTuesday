@@ -10,6 +10,7 @@ output:
 library (tidyverse)
 library (janitor)
 library (ggridges)
+library (ggthemes)
 library (countrycode)
 
 ```
@@ -47,13 +48,14 @@ continent_plot <- student %>%
       indicator == "Upper Secondary"
       ) %>%
    ggplot (aes(x = student_ratio, y = reorder(continent,desc(continent)), group = continent)) +
-   geom_density_ridges (fill = "blue") +
-   #scale_x_discrete(limits = rev(levels(continent))) +
+   geom_density_ridges (fill = "skyblue") +
+   theme_economist() +
    labs(
-      title = "Student/Teacher Ratio for Upper Secondary Schools by Continent (2016)",
-      caption = "Source:UNESCO Institute of Statistics  |  R4DS Tidy Tuesday
-      Visualization: Joel Soroos @soroosj",
-      x = "",
+      title = "Upper Secondary Student/Teacher Ratio by Continent (2016)",
+      subtitle = "Oceania has the most dispersion, Europe the least.",
+      caption = "\n Source:UNESCO Institute of Statistics  |  R4DS Tidy Tuesday
+      Visualization: Joel Soroos (Twitter @soroosj)",
+      x = "Student Teacher Ratio",
       y = "") 
 
 ggsave ("continent.png", continent_plot)
@@ -61,7 +63,6 @@ ggsave ("continent.png", continent_plot)
 continent_plot
 
 ```
-
 
 ### 4b. Create ridgeline chart by continent
 ```{r plot2}
@@ -74,7 +75,7 @@ indicator_plot <- student %>%
    ggplot (aes(x = student_ratio, y = reorder(indicator,desc(indicator)), group = indicator)) +
    geom_density_ridges (fill = "blue") +
    labs(
-      title = "Student/Teacher Ratio by Education Level in Europe (2016)",
+      title = "Student/Teacher Ratio by Education Level in Asia (2016)",
       caption = "Source:UNESCO Institute of Statistics  |  R4DS Tidy Tuesday
       Visualization: Joel Soroos @soroosj",
       x = "",
