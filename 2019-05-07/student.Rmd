@@ -9,8 +9,8 @@ output:
 
 library (tidyverse)
 library (janitor)
-library (countrycode)
 library (ggridges)
+library (countrycode)
 
 ```
 
