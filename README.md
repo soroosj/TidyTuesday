@@ -1,5 +1,9 @@
 ## Lessons learned from Tidy Tuesday
 
+| Week | Lesson | Function | Package 
+| :---: | :---: | :--- | :--- |
+| `2019-05-07` (Student/Teacher) | Map countries to continents | countrycode | countrycode |
+| `2019-05-07` (Student/Teacher) | Factors to custom sort a field | fct_relevel | forcats |
 
 #### 5/7/19 (Student/Teacher Ratio)
 
