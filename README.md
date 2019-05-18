@@ -13,24 +13,15 @@
 |`2019-04-23`| Tennis | Text labels on charts | geom_label_repel | ggrepel |
 |`2019-04-23`| Tennis | Create categorical variables from numeric variables | case_when | dplyr |
 |`2019-04-23`| Tennis | Reverse y-axis points | trans = "reverse" | ggplot2 |
+|`2019-03-26`| Pets | Reverse y-axis points | trans = "reverse" | ggplot2 |
+|`2019-03-26`| Pets | Reverse y-axis points | trans = "reverse" | ggplot2 |
+|`2019-02-12`| Govt | Multiple charts at once | flexdashboard | flexdashboard |
+|`2019-02-12`| Govt | create border part of chart | geom_rect | ggplot2 |
+|`2019-02-12`| Govt | Apply function to specific columns | mutate_at | dplyr |
 
-   
-#### 4/9/19 (Tennis)
-
-   + Add text labels in chart via ggrepel
-   + Case_when for creating new categorical variable
-   + Reverse y-axis
-   + Altering strings must be assigned to a variable via mutate
 
 
 #### 3/26/19 (Seattle Pets)
 
    + Adding images as axis label via ggtextures package
    + Importing images
-
-   
-#### 2/12/19 (U.S. Government Spending)
-
-   + Flex_Dashboard to combine several charts/tables into one visual
-   + Geom_Rect to create border around specific part of chart 
-   + Mutate_at function to apply round function to several columns
