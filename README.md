@@ -6,6 +6,8 @@
    + Sourcing continent names from individual countries
    + Creating factors to custom sort a data set
    + Removing axis titles by labels = ""
+   + Adding blank row to chart captions via \n
+   
    
 #### 4/30/19 (Birds)
 
