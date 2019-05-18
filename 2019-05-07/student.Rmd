@@ -64,7 +64,7 @@ continent_plot
 
 ```
 
-### 4b. Create ridgeline chart by continent
+### 4b. Create ridgeline chart by indicator
 ```{r plot2}
 
 indicator_plot <- student %>%
@@ -73,7 +73,8 @@ indicator_plot <- student %>%
       continent == "Asia"
       ) %>%
    ggplot (aes(x = student_ratio, y = reorder(indicator,desc(indicator)), group = indicator)) +
-   geom_density_ridges (fill = "blue") +
+   geom_density_ridges (fill = "skyblue") +
+   theme_economist() %>%
    labs(
       title = "Student/Teacher Ratio by Education Level in Asia (2016)",
       caption = "Source:UNESCO Institute of Statistics  |  R4DS Tidy Tuesday
