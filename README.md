@@ -4,7 +4,6 @@
 | :---: | :---: | :--- | :--- | :--- |
 |`2019-05-07`| Class size | Map countries to continents | countrycode | countrycode |
 |`2019-05-07`| Class size | Factors to custom sort a field | fct_relevel | forcats |
-|`2019-05-07`| Class size | Remove axis labels | labs | ggplot |
 |`2019-04-30`| Birds | Ridgeline charts for multiple distributions | geom_density_ridges | ggridges |
 |`2019-04-30`| Birds | Categorical variable levels, frequencies | tabyl | janitor |
 |`2019-04-23`| Anime | Aestheticly-pleasing tables | kable | KableExtra |
