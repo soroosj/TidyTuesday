@@ -3,9 +3,14 @@
 
 #### 5/7/19 (Student/Teacher Ratio)
 
+   + Sourcing continent names from individual countries
+   + Creating factors to custom sort a data set
+   + Removing axis titles by labels = ""
+   
+#### 4/30/19 (Birds)
+
    + Ggridges package to create ridgeline charts
-   + Sourcing the external country_code data set to filter by continent name
-   + Removing axis titles by using lables = ""
+   + Tabyl function to identify categorical variable levels and relative frequencies
 
 
 #### 4/23/19 (Anime)
