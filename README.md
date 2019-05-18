@@ -13,15 +13,8 @@
 |`2019-04-23`| Tennis | Text labels on charts | geom_label_repel | ggrepel |
 |`2019-04-23`| Tennis | Create categorical variables from numeric variables | case_when | dplyr |
 |`2019-04-23`| Tennis | Reverse y-axis points | trans = "reverse" | ggplot2 |
-|`2019-03-26`| Pets | Reverse y-axis points | trans = "reverse" | ggplot2 |
-|`2019-03-26`| Pets | Reverse y-axis points | trans = "reverse" | ggplot2 |
+|`2019-03-26`| Pets | Image as axis label | geom_textured_col | ggtextures |
+|`2019-03-26`| Pets | Import images | image_read | magick |
 |`2019-02-12`| Govt | Multiple charts at once | flexdashboard | flexdashboard |
 |`2019-02-12`| Govt | create border part of chart | geom_rect | ggplot2 |
 |`2019-02-12`| Govt | Apply function to specific columns | mutate_at | dplyr |
-
-
-
-#### 3/26/19 (Seattle Pets)
-
-   + Adding images as axis label via ggtextures package
-   + Importing images
