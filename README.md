@@ -6,7 +6,7 @@
 |`2019-05-07`| Class size | Factors to custom sort a field | fct_relevel | forcats |
 |`2019-05-07`| Class size | Remove axis labels | labs | ggplot |
 |`2019-04-30`| Birds | Ridgeline charts for multiple distributions | geom_density_ridges | ggridges |
-|`2019-04-30`| Birds | Identify categorical variable levels, frequencies | tabyl | janitor |
+|`2019-04-30`| Birds | Categorical variable levels, frequencies | tabyl | janitor |
 |`2019-04-23`| Anime | Aestheticly-pleasing tables | kable | KableExtra |
 |`2019-04-23`| Anime | Summary statistics on all fields | summarize_all | dplyr |
 |`2019-04-23`| Anime | Function on fields with specific formats | mutate_if | dplyr |
