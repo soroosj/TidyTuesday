@@ -1,16 +1,11 @@
 ## Lessons learned from Tidy Tuesday
 
-| Week | Lesson | Function | Package 
-| :---: | :---: | :--- | :--- |
-| `2019-05-07` (Student/Teacher) | Map countries to continents | countrycode | countrycode |
-| `2019-05-07` (Student/Teacher) | Factors to custom sort a field | fct_relevel | forcats |
-
-#### 5/7/19 (Student/Teacher Ratio)
-
-   + Sourcing continent names from individual countries
-   + Creating factors to custom sort a data set
-   + Removing axis titles by labels = ""
-   + Adding blank row to chart captions via \n
+| Week | Data Set | Lesson | Function | Package 
+| :---: | :---: | :--- | :--- | :--- |
+| `2019-05-07` | Student/Teacher | Map countries to continents | countrycode | countrycode |
+| `2019-05-07` | Student/Teacher | Factors to custom sort a field | fct_relevel | forcats |
+| `2019-05-07` | Student/Teacher | Remove axis labels | labs | ggplot |
+| `2019-04-30` |(Birds) | Ridgeline charts for multiple distributions | geom_density_ridges | ggridges |
    
    
 #### 4/30/19 (Birds)
