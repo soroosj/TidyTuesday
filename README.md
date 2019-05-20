@@ -1,36 +1,22 @@
-## Lessons learned from Tidy Tuesday
+## Lessons from Tidy Tuesday
+Tidy Tuesday is a terrific opportunity to practice wrangling data and chart visualizations in R.  Interesting data sets are available each week.  Other R enthusiasts provide feedback and seeing their charts generates ideas.
 
+Below are lessons that I have learned from my submissions.
 
-#### 5/7/19 (Student/Teacher Ratio)
-
-   + Ggridges package to create ridgeline charts
-   + Sourcing the external country_code data set to filter by continent name
-   + Removing axis titles by using lables = ""
-
-
-#### 4/23/19 (Anime)
-
-   + KableExtra table creation
-   + summarize_all
-   + mutate_if
-
-   
-#### 4/9/19 (Tennis)
-
-   + Add text labels in chart via ggrepel
-   + Case_when for creating new categorical variable
-   + Reverse y-axis
-   + Altering strings must be assigned to a variable via mutate
-
-
-#### 3/26/19 (Seattle Pets)
-
-   + Adding images as axis label via ggtextures package
-   + Importing images
-
-   
-#### 2/12/19 (U.S. Government Spending)
-
-   + Flex_Dashboard to combine several charts/tables into one visual
-   + Geom_Rect to create border around specific part of chart 
-   + Mutate_at function to apply round function to several columns
+| Week | Data Set | Lesson | Function | Package 
+| :---: | :---: | :--- | :--- | :--- |
+|`2019-05-07`| Class size | Map countries to continents | countrycode | countrycode |
+|`2019-05-07`| Class size | Factors to custom sort a field | fct_relevel | forcats |
+|`2019-04-30`| Birds | Ridgeline charts for multiple distributions | geom_density_ridges | ggridges |
+|`2019-04-30`| Birds | Categorical variable levels, frequencies | tabyl | janitor |
+|`2019-04-23`| Anime | Aestheticly-pleasing tables | kable | KableExtra |
+|`2019-04-23`| Anime | Summary statistics on all fields | summarize_all | dplyr |
+|`2019-04-23`| Anime | Function on fields of specific format | mutate_if | dplyr |
+|`2019-04-23`| Tennis | Text labels on charts | geom_label_repel | ggrepel |
+|`2019-04-23`| Tennis | Create categorical variables from numeric | case_when | dplyr |
+|`2019-04-23`| Tennis | Reverse y-axis points | trans = "reverse" | ggplot2 |
+|`2019-03-26`| Pets | Image as chart axis label | geom_textured_col | ggtextures |
+|`2019-03-26`| Pets | Import images | image_read | magick |
+|`2019-02-12`| Govt | Multiple charts at once | flexdashboard | flexdashboard |
+|`2019-02-12`| Govt | Create border in specific chart section | geom_rect | ggplot2 |
+|`2019-02-12`| Govt | Apply function to specific columns | mutate_at | dplyr |
