@@ -9,6 +9,7 @@ output:
 
 library (tidyverse)
 library (janitor)
+library (inspectdf)
 library (ggridges)
 library (ggthemes)
 library (countrycode)
@@ -20,6 +21,11 @@ library (countrycode)
 
 student_raw <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-05-07/student_teacher_ratio.csv")%>%
    clean_names()
+
+inspect_cat (student_raw, show_plot = T)
+inspect_num (student_raw, show_plot = T)
+inspect_na (student_raw, show_plot = T)
+
    
 ```
 
@@ -58,7 +64,7 @@ continent_plot <- student %>%
       x = "Student Teacher Ratio",
       y = "") 
 
-ggsave ("continent.png", continent_plot)
+ggsave ("plots/continent.png", continent_plot)
 
 continent_plot
 
@@ -82,7 +88,7 @@ indicator_plot <- student %>%
       x = "",
       y = "")
 
-ggsave ("indicator.png", indicator_plot)
+ggsave ("plots/indicator.png", indicator_plot)
 
 indicator_plot
 
