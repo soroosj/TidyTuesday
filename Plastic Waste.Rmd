@@ -36,6 +36,10 @@ waste <- waste_raw %>%
       gdp_per_capita = gdp_per_capita_ppp_constant_2011_international_rate,
       population = total_population_gapminder
       )%>%
+   mutate (
+      waste_per_capita = waste_per_capita * 100,
+      population = population / 1000000
+      ) %>%
    select (country_name, waste_per_capita, gdp_per_capita, population) %>%
    arrange (country_name) %>%
    drop_na (waste_per_capita)
@@ -46,7 +50,7 @@ waste <- waste_raw %>%
 ### 4. Create ridgeline chart by continent
 ```{r plot}
 
-ggplot (waste,
+plot1 <- ggplot (waste,
    aes(x = gdp_per_capita, y = waste_per_capita, size = population)) +
    geom_point () +
    geom_smooth () +
@@ -55,23 +59,34 @@ ggplot (waste,
       labels = comma
       ) +
    scale_y_continuous(trans = log10_trans()) +
-   geom_text_repel(
+   scale_size_continuous(breaks = c(50, 100, 500, 1500)) +
+   theme_economist_white () +
+   geom_label_repel(
       aes (label = country_name),
       data = subset (waste, 
-                     waste_per_capita > 0.17 |
-                     waste_per_capita < .002 |
+                     waste_per_capita > 20 |
+                     waste_per_capita < .2 |
                      country_name == "India"
                      ),
-      box.padding   = 0.5, 
+      box.padding = 0.5, 
       point.padding = 0.5,
+      alpha = 0.6,
       size = 3,
-      segment.color = 'grey50') +
-   theme_economist () +
+      segment.color = 'grey50'
+      ) +
+   theme(
+      legend.title = element_text(colour="black", size=9),
+      legend.text = element_text(colour="black", size=9)
+      ) +
    labs(
       title = "Mismanaged waste decreases as GDP increases (2010)",
       caption = "\n Source:National Geographic  |  R4DS Tidy Tuesday
       Visualization: Joel Soroos (Twitter: @soroosj)",
       x = "GDP per capita ($)",
-      y = "Mismanaged Waste Per Capita (kg/day)") 
+      y = "Mismanaged waste per capita (100kg/day)",
+      size = "Population (millions): "
+      )
 
+plot1
+ggsave("plot1.png",plot1)
 ```
