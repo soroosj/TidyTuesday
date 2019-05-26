@@ -67,23 +67,30 @@ head(waste)
 ### 5. Visualize
 ```{r plot}
 
-plot1 <- ggplot (waste,
+ggplot (waste,
    aes(x = gdp_per_capita, y = waste_per_coastal_capita, size = population)) +
    geom_point () +
    geom_smooth () +
-   scale_x_continuous(
-      trans = log10_trans(),
-      labels = comma
+   #scales
+      scale_x_continuous(
+         trans = log10_trans(),
+         labels = comma
+         ) +
+      scale_y_continuous(trans = log10_trans()) +
+      scale_size_continuous(breaks = c(10, 100, 1000)) +
+  guides(size = guide_legend(override.aes = list(linetype = 0))) +
+  labs(
+      title = "Mismanaged waste decreases as GDP increases (2010)",
+      caption = "\n Source:National Geographic  |  R4DS Tidy Tuesday
+      Visualization: Joel Soroos (Twitter: @soroosj)",
+      x = "GDP per capita ($)",
+      y = "Mismanaged waste per capita (100kg/day)",
+      size = "Population (millions): "
       ) +
-   scale_y_continuous(trans = log10_trans()) +
-   scale_size_continuous(breaks = c(10, 100, 1000)) +
    theme_economist () +
    geom_label_repel(
-      aes (label = country_name),
-      data = subset (waste, 
-                     waste_per_coastal_capita > 6 |
-                     country_name == "India"
-                     ),
+      aes (label = "India's mismanaged waste of XXX.X \nis lower than predicted \nfor its per capita income"),
+      data = subset (waste, country_name == "India"),
       box.padding = 0.5, 
       point.padding = 0.5,
       alpha = 0.6,
@@ -94,18 +101,9 @@ plot1 <- ggplot (waste,
       legend.title = element_text(colour="black", size=9),
       legend.text = element_text(colour="black", size=9),
       legend.position = "right"
-      ) +
-  guides(size = guide_legend(override.aes = list(linetype = 0))) +
-  labs(
-      title = "Mismanaged waste decreases as GDP increases (2010)",
-      caption = "\n Source:National Geographic  |  R4DS Tidy Tuesday
-      Visualization: Joel Soroos (Twitter: @soroosj)",
-      x = "GDP per capita ($)",
-      y = "Mismanaged waste per capita (100kg/day)",
-      size = "Population (millions): "
-      )
+      ) 
 
-plot1
-ggsave("plots/plot1.png",plot1)
+#@plot1
+#ggsave("plots/plot1.png",plot1)
 
 ```
