@@ -1,7 +1,7 @@
 ---
 title: "Plastic Waste"
 output:
-  html_document: default
+  pdf_document: default
   author: Joel Soroos
 ---
 
@@ -56,15 +56,7 @@ head(waste)
 ```
 
 
-### 4. Model data
-```{r}
-
-#waste_model <- augment(lm(waste_per_capita ~ gdp_per_capita, waste))
-
-```
-
-
-### 5. Visualize
+### 4. Visualize
 ```{r plot}
 
 ggplot (waste,
@@ -74,34 +66,37 @@ ggplot (waste,
    #scales
       scale_x_continuous(
          trans = log10_trans(),
-         labels = comma
+         label = unit_format(unit = "K", scale = 1e-3, sep = "")
          ) +
       scale_y_continuous(trans = log10_trans()) +
       scale_size_continuous(breaks = c(10, 100, 1000)) +
   guides(size = guide_legend(override.aes = list(linetype = 0))) +
   labs(
-      title = "Mismanaged waste decreases as GDP increases (2010)",
-      caption = "\n Source:National Geographic  |  R4DS Tidy Tuesday
+      title = "Mismanaged waste decreases as GDP above $10K per capita",
+      caption = "\n Sources: National Geographic, Gapminder, R4DS Tidy Tuesday
       Visualization: Joel Soroos (Twitter: @soroosj)",
       x = "GDP per capita ($)",
-      y = "Mismanaged waste per capita (100kg/day)",
+      y = "Mismanaged waste per coastal capita (100 kg/day)",
       size = "Population (millions): "
       ) +
-   theme_economist () +
+   theme_hc () +
    geom_label_repel(
-      aes (label = "India's mismanaged waste of XXX.X \nis lower than predicted \nfor its per capita income"),
+      aes (label = "India's mismanaged waste \nlower than predicted \nfor its per capita GDP"),
       data = subset (waste, country_name == "India"),
       box.padding = 0.5, 
       point.padding = 0.5,
-      alpha = 0.6,
+      alpha = 0.7,
       size = 3,
       segment.color = 'grey50'
       ) +
    theme(
       legend.title = element_text(colour="black", size=9),
       legend.text = element_text(colour="black", size=9),
-      legend.position = "right"
-      ) 
+      legend.position = "top",
+      axis.title=element_text(size=10),
+      panel.grid.major = element_line(size = 0.3, linetype = 'solid'),
+      plot.caption = element_text(colour="black", size=8)
+      )
 
 #@plot1
 #ggsave("plots/plot1.png",plot1)
