@@ -13,45 +13,62 @@ output:
    library (ggthemes)
    library (ggrepel)
    library (scales)
-   library (countrycode)
-
+   
 ```
+
 
 ### 2. Get data
 ```{r source, warning = TRUE, results = FALSE, message = FALSE}
 
-waste_raw <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-05-21/per-capita-mismanaged-plastic-waste-vs-gdp-per-capita.csv") %>%
+mismanaged_vs_gdp<- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-05-21/per-capita-mismanaged-plastic-waste-vs-gdp-per-capita.csv") %>%
    clean_names()
-   
+
+coast_vs_waste <- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-05-21/coastal-population-vs-mismanaged-plastic.csv") %>%
+   clean_names()
+
 ```
+
 
 ### 3. Transform data
 ```{r transform}
 
+waste_raw <- left_join (mismanaged_vs_gdp, coast_vs_waste, by = c("code", "year")) %>%
+   filter (year == 2010)
+
 waste <- waste_raw %>%
+   filter (year == 2010) %>%
+   drop_na () %>%
    rename (
-      country_name = entity,
-      country_code = code,
-      waste_per_capita = per_capita_mismanaged_plastic_waste_kilograms_per_person_per_day,
+      country_name = entity.x,
+      waste = mismanaged_plastic_waste_tonnes,
       gdp_per_capita = gdp_per_capita_ppp_constant_2011_international_rate,
-      population = total_population_gapminder
+      population = total_population_gapminder.x
       )%>%
    mutate (
-      waste_per_capita = waste_per_capita * 100,
-      population = population / 1000000
+       waste_per_coastal_capita = waste / coastal_population * 100,
+       population = population / 1000000
       ) %>%
-   select (country_name, waste_per_capita, gdp_per_capita, population) %>%
-   arrange (country_name) %>%
-   drop_na (waste_per_capita)
+   select (country_name, waste, coastal_population, waste_per_coastal_capita,  gdp_per_capita, population) %>%
+   arrange (-waste_per_coastal_capita)
+
+head(waste)
 
 ```
 
 
-### 4. Create ridgeline chart by continent
+### 4. Model data
+```{r}
+
+#waste_model <- augment(lm(waste_per_capita ~ gdp_per_capita, waste))
+
+```
+
+
+### 5. Visualize
 ```{r plot}
 
 plot1 <- ggplot (waste,
-   aes(x = gdp_per_capita, y = waste_per_capita, size = population)) +
+   aes(x = gdp_per_capita, y = waste_per_coastal_capita, size = population)) +
    geom_point () +
    geom_smooth () +
    scale_x_continuous(
@@ -59,13 +76,12 @@ plot1 <- ggplot (waste,
       labels = comma
       ) +
    scale_y_continuous(trans = log10_trans()) +
-   scale_size_continuous(breaks = c(50, 100, 500, 1500)) +
-   theme_economist_white () +
+   scale_size_continuous(breaks = c(10, 100, 1000)) +
+   theme_economist () +
    geom_label_repel(
       aes (label = country_name),
       data = subset (waste, 
-                     waste_per_capita > 20 |
-                     waste_per_capita < .2 |
+                     waste_per_coastal_capita > 6 |
                      country_name == "India"
                      ),
       box.padding = 0.5, 
@@ -76,9 +92,11 @@ plot1 <- ggplot (waste,
       ) +
    theme(
       legend.title = element_text(colour="black", size=9),
-      legend.text = element_text(colour="black", size=9)
+      legend.text = element_text(colour="black", size=9),
+      legend.position = "right"
       ) +
-   labs(
+  guides(size = guide_legend(override.aes = list(linetype = 0))) +
+  labs(
       title = "Mismanaged waste decreases as GDP increases (2010)",
       caption = "\n Source:National Geographic  |  R4DS Tidy Tuesday
       Visualization: Joel Soroos (Twitter: @soroosj)",
@@ -88,5 +106,6 @@ plot1 <- ggplot (waste,
       )
 
 plot1
-ggsave("plot1.png",plot1)
+ggsave("plots/plot1.png",plot1)
+
 ```
