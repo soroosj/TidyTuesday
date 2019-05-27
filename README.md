@@ -5,6 +5,8 @@ Below are lessons that I have learned from my submissions.
 
 | Week | Data Set | Lesson | Function | Package 
 | :---: | :---: | :--- | :--- | :--- |
+|`2019-05-21`| Plastic waste | LOESS regression line | geom_smooth | ggplot |
+|`2019-05-21`| Plastic waste | Logarithimic scales | log10_trans | ggplot |
 |`2019-05-07`| Class size | Map countries to continents | countrycode | countrycode |
 |`2019-05-07`| Class size | Factors to custom sort a field | fct_relevel | forcats |
 |`2019-04-30`| Birds | Ridgeline charts for multiple distributions | geom_density_ridges | ggridges |
