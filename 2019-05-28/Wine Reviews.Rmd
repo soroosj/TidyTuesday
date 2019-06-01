@@ -1,0 +1,69 @@
+---
+title: "Wine Reviews"
+author: "Joel Soroos"
+date: "May 31, 2019"
+output: pdf_document:
+---
+
+### 1. Get data
+```{r source, warning = TRUE, results = FALSE, message = FALSE}
+
+   library (janitor)  
+   library (tidyverse)
+
+   wine_raw <- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-05-28/winemag-data-130k-v2.csv") %>%
+      clean_names ()
+
+```
+
+
+### 2. Transform data
+```{r transform, message = F}
+
+   wine <- wine_raw %>%
+      drop_na (variety, price) %>%
+      mutate (
+         price_norm = price/points,
+         variety = as.factor(variety)
+         ) %>%
+      select (country, variety, price, points, price_norm) 
+      
+   variety_large <- wine %>%
+      group_by (variety) %>%
+      summarize (n = n()) %>%
+      arrange (-n) %>%
+      top_n (10) %>%
+      select (-n)
+   
+   variety_large <-variety_large$variety
+
+```
+
+### 4. Visualize
+```{r plot}
+
+library (scales)
+library (ggthemes)
+
+   ggplot (
+         data = subset (wine, variety %in% variety_large),
+         aes (x = reorder(variety, price, median), y = price)
+           ) +
+      geom_violin(draw_quantiles = c(.25,.50,.75)) +
+      scale_y_continuous (trans = log10_trans()) +
+      theme_hc () +
+      theme (
+          plot.title = element_text(hjust = 0, size = 14),
+          plot.caption = element_text(hjust = 1)
+         ) +
+      coord_flip () +
+       labs(
+         title = "Mismanaged waste decreases as nations reach middle income",
+         caption = "\n Sources: National Geographic, Gapminder, R4DS Tidy Tuesday
+         Visualization: Joel Soroos (Twitter: @soroosj)",
+         x = "",
+         y = "Price per 750ml bottle"
+         ) +
+   ggsave("wine.png")
+
+```
