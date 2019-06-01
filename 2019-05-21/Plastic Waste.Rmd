@@ -1,8 +1,9 @@
 ---
 title: "Plastic Waste"
-author: Joel Soroos
-date: May 26, 2019
+author: "Joel Soroos"
+date: "May 26, 2019"
 output:
+  pdf_document: default
   html_document: default
 ---
 
@@ -86,9 +87,9 @@ output:
          aes (label = "India's waste lower than predicted \nfor its per capita GDP"),
          data = subset (waste, country_name == "India"),
          box.padding = 0.8, 
-         point.padding = 0.6,
+         point.padding = 0.7,
          size = 3,
-         alpha = .7,
+         alpha = .8,
          segment.color = 'grey50'
          ) +
        labs(
