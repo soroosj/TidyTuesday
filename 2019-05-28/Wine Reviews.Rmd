@@ -2,7 +2,7 @@
 title: "Wine Reviews"
 author: "Joel Soroos"
 date: "May 31, 2019"
-output: pdf_document:
+output: pdf_document
 ---
 
 ### 1. Get data
@@ -13,13 +13,12 @@ output: pdf_document:
 
    wine_raw <- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-05-28/winemag-data-130k-v2.csv") %>%
       clean_names ()
-
 ```
 
 ### 2. Transform data
 ```{r transform, message = F}
 
-   variety_large <- wine_raw %>%
+   wine_group <- wine_raw %>%
       group_by (variety) %>%
       summarize (n = n()) %>%
       arrange (-n) %>%
@@ -30,7 +29,7 @@ output: pdf_document:
       drop_na (variety, price) %>%
       mutate (
          variety = as.factor(variety),
-         popularity = ifelse (variety %in% variety_large$variety, "High", "Low"),
+         popularity = ifelse (variety %in% wine_group$variety, "High", "Low"),
          color = case_when(
             variety %in% c("Pinot Noir", "Cabernet Sauvignon", "Red Blend", "Bordeaux-style Red Blend", "Syrah", "Merlot") ~ "red4",
             variety %in% c("Pinot Noir", "Chardonnay", "Riesling", "Sauvignon Blanc") ~ "Oldlace",
@@ -41,11 +40,7 @@ output: pdf_document:
          popularity == "High",
          price < 300
          ) %>%
-      select (variety, color, price) %>%
-      group_by (variety) %>%
-      mutate(quartile = ntile(price, 4)) %>%
-      ungroup ()
-
+      select (variety, color, price) 
 ```
 
 ### 3. Visualize data
@@ -81,5 +76,4 @@ output: pdf_document:
          y = "Price per 750ml bottle"
          ) +
    ggsave("wine.png")
-
 ```
