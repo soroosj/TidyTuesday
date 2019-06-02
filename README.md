@@ -5,6 +5,8 @@ Below are lessons that I have learned from my submissions.
 
 | Week | Data Set | Lesson | Function | Package 
 | :---: | :---: | :--- | :--- | :--- |
+|`2019-05-28`| Wine reviews | Violin charts | geom_violin | ggplot |
+|`2019-05-28`| Wine reviews | Black background | dark_mode | ggdark |
 |`2019-05-21`| Plastic waste | LOESS regression line | geom_smooth | ggplot |
 |`2019-05-21`| Plastic waste | Logarithimic scales | log10_trans | ggplot |
 |`2019-05-07`| Class size | Map countries to continents | countrycode | countrycode |
