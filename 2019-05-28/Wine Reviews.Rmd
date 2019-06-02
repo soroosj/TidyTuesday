@@ -16,7 +16,6 @@ output: pdf_document:
 
 ```
 
-
 ### 2. Transform data
 ```{r transform, message = F}
 
@@ -49,12 +48,11 @@ output: pdf_document:
 
 ```
 
-
 ### 3. Visualize data
 ```{r plot}
 
-library (scales)
-library (ggdark)
+   library (scales)
+   library (ggdark)
 
    ggplot (
          data = wine,
@@ -71,7 +69,7 @@ library (ggdark)
           plot.title = element_text(hjust = 0, size = 15),
           plot.caption = element_text(hjust = 0, size = 9),
           axis.title=element_text(size=9),
-          axis.text=element_text(size=9),
+          axis.text=element_text(size=9, face = "bold"),
           axis.ticks = element_blank()
          ) +
       coord_flip () +
