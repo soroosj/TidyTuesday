@@ -5,7 +5,7 @@ date: "May 31, 2019"
 output: pdf_document
 ---
 
-### 1. Get data
+### 1. Source data
 ```{r source, warning = TRUE, results = FALSE, message = FALSE}
 
    library (tidyverse)
