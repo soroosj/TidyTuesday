@@ -8,8 +8,8 @@ output: pdf_document
 ### 1. Get data
 ```{r source, warning = TRUE, results = FALSE, message = FALSE}
 
-   library (janitor)  
    library (tidyverse)
+   library (janitor)  
 
    wine_raw <- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-05-28/winemag-data-130k-v2.csv") %>%
       clean_names ()
@@ -46,8 +46,8 @@ output: pdf_document
 ### 3. Visualize data
 ```{r plot}
 
-   library (scales)
    library (ggdark)
+   library (scales)
 
    ggplot (
          data = wine,
@@ -59,6 +59,7 @@ output: pdf_document
          trans = log10_trans(),
          label = unit_format(prefix = "$", unit = "")
             ) +
+      coord_flip () +
       dark_mode(theme_minimal()) +
       theme (
           plot.title = element_text(hjust = 0, size = 15),
@@ -67,10 +68,8 @@ output: pdf_document
           axis.text=element_text(size=9, face = "bold"),
           axis.ticks = element_blank()
          ) +
-      coord_flip () +
       labs(
          title = "Open your wallet wide if you prefer red wine!",
-         subtitle = "",
          caption = "\nVertical line within violin represents median wine bottle price for that grape variety. \nVarietals with 10 most reviews displayed.  Excludes wines priced > $300 per bottle. \nSource: Wine Enthusiast via Kaggle via R4DS Tidy Tuesday       |       Visualization: Joel Soroos @soroosj",
          x = "",
          y = "Price per 750ml bottle"
