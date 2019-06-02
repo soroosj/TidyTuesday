@@ -22,11 +22,11 @@ output: pdf_document:
 
    wine <- wine_raw %>%
       drop_na (variety, price) %>%
-      mutate (
-         price_norm = price/points,
-         variety = as.factor(variety)
-         ) %>%
-      select (country, variety, price, points, price_norm) 
+      mutate (variety = as.factor(variety)) %>%
+      select (variety, price) %>%
+      group_by (variety) %>%
+         mutate(quartile = ntile(price, 4)) %>%
+      ungroup ()
       
    variety_large <- wine %>%
       group_by (variety) %>%
@@ -44,23 +44,25 @@ output: pdf_document:
 
 library (scales)
 library (ggthemes)
+library (ggdark)
 
    ggplot (
          data = subset (wine, variety %in% variety_large),
-         aes (x = reorder(variety, price, median), y = price)
+         aes (x = reorder(variety, price, median), y = price, fill = quartile)
            ) +
       geom_violin(draw_quantiles = c(.25,.50,.75)) +
+      scale_x_discrete(position = "top") +
       scale_y_continuous (trans = log10_trans()) +
-      theme_hc () +
+      dark_mode(theme_minimal()) +
       theme (
-          plot.title = element_text(hjust = 0, size = 14),
-          plot.caption = element_text(hjust = 1)
+          plot.title = element_text(hjust = 0, size = 12),
+          plot.caption = element_text(hjust = 0, size = 9),
+          axis.ticks = element_blank()
          ) +
       coord_flip () +
-       labs(
-         title = "Mismanaged waste decreases as nations reach middle income",
-         caption = "\n Sources: National Geographic, Gapminder, R4DS Tidy Tuesday
-         Visualization: Joel Soroos (Twitter: @soroosj)",
+      labs(
+         title = "Wine prices per varietal",
+         caption = "\nSources: Wine Enthusiast, Kaggle, R4DS Tidy Tuesday\nVisualization: Joel Soroos (Twitter: @soroosj)",
          x = "",
          y = "Price per 750ml bottle"
          ) +
