@@ -18,14 +18,14 @@ output: pdf_document
 ### 2. Transform data
 ```{r transform, message = F}
 
-   wine_group <- wine_raw %>%
+   wine_raw %>%
       group_by (variety) %>%
       summarize (n = n()) %>%
       arrange (-n) %>%
       top_n (10) %>%
-      select (-n)
+      select (-n) -> wine_group
 
-   wine <- wine_raw %>%
+   wine_raw %>%
       drop_na (variety, price) %>%
       mutate (
          variety = as.factor(variety),
@@ -40,7 +40,7 @@ output: pdf_document
          popularity == "High",
          price < 300
          ) %>%
-      select (variety, color, price) 
+      select (variety, color, price) -> wine
 ```
 
 ### 3. Visualize data
