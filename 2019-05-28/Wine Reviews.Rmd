@@ -20,49 +20,65 @@ output: pdf_document:
 ### 2. Transform data
 ```{r transform, message = F}
 
-   wine <- wine_raw %>%
-      drop_na (variety, price) %>%
-      mutate (variety = as.factor(variety)) %>%
-      select (variety, price) %>%
-      group_by (variety) %>%
-         mutate(quartile = ntile(price, 4)) %>%
-      ungroup ()
-      
-   variety_large <- wine %>%
+   variety_large <- wine_raw %>%
       group_by (variety) %>%
       summarize (n = n()) %>%
       arrange (-n) %>%
       top_n (10) %>%
       select (-n)
-   
-   variety_large <-variety_large$variety
+
+   wine <- wine_raw %>%
+      drop_na (variety, price) %>%
+      mutate (
+         variety = as.factor(variety),
+         popularity = ifelse (variety %in% variety_large$variety, "High", "Low"),
+         color = case_when(
+            variety %in% c("Pinot Noir", "Cabernet Sauvignon", "Red Blend", "Bordeaux-style Red Blend", "Syrah", "Merlot") ~ "red4",
+            variety %in% c("Pinot Noir", "Chardonnay", "Riesling", "Sauvignon Blanc") ~ "Oldlace",
+            variety %in% c("Rosé") ~ "Deeppink"
+            )
+         ) %>%
+      filter (
+         popularity == "High",
+         price < 300
+         ) %>%
+      select (variety, color, price) %>%
+      group_by (variety) %>%
+      mutate(quartile = ntile(price, 4)) %>%
+      ungroup ()
 
 ```
 
-### 4. Visualize
+
+### 3. Visualize data
 ```{r plot}
 
 library (scales)
-library (ggthemes)
 library (ggdark)
 
    ggplot (
-         data = subset (wine, variety %in% variety_large),
-         aes (x = reorder(variety, price, median), y = price, fill = quartile)
+         data = wine,
+         aes (x = reorder(variety, price, median), y = price, fill = I(color))
            ) +
-      geom_violin(draw_quantiles = c(.25,.50,.75)) +
+      geom_violin(draw_quantiles = c(.50)) +
       scale_x_discrete(position = "top") +
-      scale_y_continuous (trans = log10_trans()) +
+      scale_y_continuous (
+         trans = log10_trans(),
+         label = unit_format(prefix = "$", unit = "")
+            ) +
       dark_mode(theme_minimal()) +
       theme (
-          plot.title = element_text(hjust = 0, size = 12),
+          plot.title = element_text(hjust = 0, size = 15),
           plot.caption = element_text(hjust = 0, size = 9),
+          axis.title=element_text(size=9),
+          axis.text=element_text(size=9),
           axis.ticks = element_blank()
          ) +
       coord_flip () +
       labs(
-         title = "Wine prices per varietal",
-         caption = "\nSources: Wine Enthusiast, Kaggle, R4DS Tidy Tuesday\nVisualization: Joel Soroos (Twitter: @soroosj)",
+         title = "Open your wallet wide if you prefer red wine!",
+         subtitle = "",
+         caption = "\nVertical line within violin represents median wine bottle price for that grape variety. \nVarietals with 10 most reviews displayed.  Excludes wines priced > $300 per bottle. \nSource: Wine Enthusiast via Kaggle via R4DS Tidy Tuesday       |       Visualization: Joel Soroos @soroosj",
          x = "",
          y = "Price per 750ml bottle"
          ) +
