@@ -1,0 +1,60 @@
+---
+title: "Wine Reviews"
+author: "Joel Soroos"
+date: "May 31, 2019"
+output: pdf_document
+---
+
+### 1. Source data
+```{r source, warning = TRUE, results = FALSE, message = FALSE}
+
+   library (tidyverse)
+   library (janitor)  
+
+   ufo_raw<- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-06-25/ufo_sightings.csv") %>%
+      clean_names ()
+```
+
+### 2. Transform data
+```{r transform, message = F}
+
+  ufo_raw %>%
+      select (date_time, city_area, latitude, longitude, country, ufo_shape) %>%
+      count (country, sort = TRUE)
+
+
+```
+
+### 3. Visualize data
+```{r plot}
+
+   library (ggdark)
+   library (scales)
+
+   ggplot (
+         data = wine,
+         aes (x = reorder(variety, price, median), y = price, fill = I(color))
+           ) +
+      geom_violin(draw_quantiles = c(.50)) +
+      scale_x_discrete(position = "top") +
+      scale_y_continuous (
+         trans = log10_trans(),
+         label = unit_format(prefix = "$", unit = "")
+            ) +
+      coord_flip () +
+      dark_mode(theme_minimal()) +
+      theme (
+          plot.title = element_text(hjust = 0, size = 15),
+          plot.caption = element_text(hjust = 0, size = 9),
+          axis.title=element_text(size=9),
+          axis.text=element_text(size=9, face = "bold"),
+          axis.ticks = element_blank()
+         ) +
+      labs(
+         title = "Open your wallet wide if you prefer red wine!",
+         caption = "\nVertical line within violin represents median wine bottle price for that grape variety. \nVarietals with 10 most reviews displayed.  Excludes wines priced > $300 per bottle. \nSource: Wine Enthusiast via Kaggle via R4DS Tidy Tuesday       |       Visualization: Joel Soroos @soroosj",
+         x = "",
+         y = "Price per 750ml bottle"
+         ) +
+   ggsave("wine.png")
+```
