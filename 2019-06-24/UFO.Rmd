@@ -1,7 +1,7 @@
 ---
-title: "Wine Reviews"
+title: "UFO Sightings"
 author: "Joel Soroos"
-date: "May 31, 2019"
+date: "June 27, 2019"
 output: pdf_document
 ---
 
@@ -9,52 +9,54 @@ output: pdf_document
 ```{r source, warning = TRUE, results = FALSE, message = FALSE}
 
    library (tidyverse)
-   library (janitor)  
+   library (janitor) 
 
    ufo_raw<- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-06-25/ufo_sightings.csv") %>%
       clean_names ()
+   
+   map_coordinates <- 
+      map_data("state", region = NULL) %>%
+      filter (region == "north carolina")  
+   
 ```
 
-### 2. Transform data
+### 2a.  Transform data
 ```{r transform, message = F}
 
-  ufo_raw %>%
-      select (date_time, city_area, latitude, longitude, country, ufo_shape) %>%
-      count (country, sort = TRUE)
-
-
+  ufo <- ufo_raw %>%
+      select (date_time, city_area, state, latitude, longitude, encounter_length) %>%
+      filter (
+         state == "nc",
+         latitude > 30,
+         latitude < 37,
+         longitude < -75
+         ) 
+  
 ```
 
 ### 3. Visualize data
 ```{r plot}
 
    library (ggdark)
-   library (scales)
 
-   ggplot (
-         data = wine,
-         aes (x = reorder(variety, price, median), y = price, fill = I(color))
-           ) +
-      geom_violin(draw_quantiles = c(.50)) +
-      scale_x_discrete(position = "top") +
-      scale_y_continuous (
-         trans = log10_trans(),
-         label = unit_format(prefix = "$", unit = "")
-            ) +
-      coord_flip () +
+   ggplot () +
+      geom_polygon (data = map_coordinates, aes(x = long, y = lat, group = group), color = "black", fill = "#303030", size = 1.15) +
+      geom_point (data = ufo, aes (x = longitude, y = latitude, size = encounter_length), color = "red") +
+      coord_fixed(1.3) +
       dark_mode(theme_minimal()) +
+      scale_size_continuous(breaks = c(10, 100, 1000)) +
       theme (
           plot.title = element_text(hjust = 0, size = 15),
           plot.caption = element_text(hjust = 0, size = 9),
-          axis.title=element_text(size=9),
-          axis.text=element_text(size=9, face = "bold"),
-          axis.ticks = element_blank()
+          legend.position = "bottom",
+          axis.title = element_blank(),
+          axis.ticks = element_blank(),
+          axis.text = element_blank()
+
          ) +
       labs(
          title = "Open your wallet wide if you prefer red wine!",
-         caption = "\nVertical line within violin represents median wine bottle price for that grape variety. \nVarietals with 10 most reviews displayed.  Excludes wines priced > $300 per bottle. \nSource: Wine Enthusiast via Kaggle via R4DS Tidy Tuesday       |       Visualization: Joel Soroos @soroosj",
-         x = "",
-         y = "Price per 750ml bottle"
+         caption = "\nVertical line within violin represents median wine bottle price for that grape variety. \nSource: Wine Enthusiast via Kaggle via R4DS Tidy Tuesday       |       Visualization: Joel Soroos @soroosj"
          ) +
-   ggsave("wine.png")
+      ggsave("wine.png")
 ```
