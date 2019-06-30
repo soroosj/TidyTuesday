@@ -56,12 +56,10 @@ output: pdf_document
       geom_curve(
          aes(x = -82, y = 34.6, xend = -81.39, yend = 35.1),
          arrow = arrow(length = unit(0.2, "cm")), 
-         size = 0.4,
-         color = "white", 
-         curvature = -0.3
+         size = 0.4, color = "green", curvature = -0.3
          ) +
       annotate("text",
-         label = "120 hour UFO contact in Gastonia in 1993.",
+         label = "120 hour contact\nin Gastonia in 1993.",
          size = 3.5, hjust = 0, color = "green", family = "Rockwell",
          x = -83.7, y = 34.5, xmax = -83.5
          ) +
@@ -69,22 +67,22 @@ output: pdf_document
       scale_size_continuous(breaks = c(1, 10, 100)) +
       dark_mode(theme_minimal()) +
       theme (
-          plot.title = element_text(hjust = 0.5, size = 15),
-          plot.subtitle = element_text(hjust = 0.5, size = 12),
-          plot.caption = element_text(hjust = 0, size = 9),
-          legend.position = c(0.84,0.25),
-          legend.justification=c(0, 1), 
-          legend.key.size = unit(0.1, 'lines'),
-          legend.title = element_text(size = 10, hjust = 0.5, vjust = 0.5),
-          legend.text = element_text(size = 9, hjust = 0.5, vjust = 0.5),
-          text = element_text(family = "Rockwell", color = "green"),
-          axis.title = element_blank(),
-          axis.ticks = element_blank(),
-          axis.text = element_blank()
+         text = element_text(family = "Rockwell", color = "green"),
+         plot.title = element_text(hjust = 0.5, size = 18),
+         plot.subtitle = element_text(hjust = 0.5, size = 10),
+         plot.caption = element_text(hjust = 0, size = 9),
+         legend.title = element_text(size = 10, hjust = 0.5, vjust = 0.5),
+         legend.text = element_text(size = 9, hjust = 0.5, vjust = 0.5),
+         legend.position = c(0.84,0.25),
+         legend.justification=c(0, 1), 
+         legend.key.size = unit(0.1, 'lines'),
+         axis.title = element_blank(),
+         axis.text = element_blank(),
+         axis.ticks = element_blank()
          ) +
       labs(
-         title = "UFOs over the North Carolina skies",
-         subtitle = "1945-2014",
+         title = "UFOs over North Carolina",
+         subtitle = "1862 encounters between 1945 and 2014",
          size = "Encounter (hrs)",
          caption = "\nEach dot represents a reported UFO sighting.  \nSource: The National UFO Reporting Center  | Visualization: Joel Soroos @soroosj"
          ) +
