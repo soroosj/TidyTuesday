@@ -5,7 +5,7 @@ date: "June 27, 2019"
 output: pdf_document
 ---
 
-### 1. Source data
+### 1a. Source UFO encounter data
 ```{r source, warning = TRUE, results = FALSE, message = FALSE}
 
    library (tidyverse)
@@ -13,31 +13,36 @@ output: pdf_document
 
    ufo_raw<- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-06-25/ufo_sightings.csv") %>%
       clean_names ()
+```
    
-   map_coordinates <- 
+   
+### 1b. Source North Carolina map borders 
+```{r source, warning = TRUE, results = FALSE, message = FALSE}
+   
+   map_borders <- 
       map_data("state", region = NULL) %>%
       filter (region == "north carolina")  
-   
 ```
 
-### 2a.  Transform data
+
+### 2.  Transform UFO data
 ```{r transform, message = F}
 
   library (lubridate)
 
    ufo <- ufo_raw %>%
       select (date_time, city_area, state, latitude, longitude, encounter_length) %>%
+      
       filter (
          state == "nc",
-         latitude > 30,
-         latitude < 37,
-         longitude < -75
+         latitude > 30,      # remove borders erroneously listed as NC outside of state borders
+         latitude < 37,      # remove borders erroneously listed as NC outside of state borders
+         longitude < -75     # remove borders erroneously listed as NC outside of state borders
          )  %>%
       mutate (
-         encounter_length = encounter_length/3600,
+         encounter_length = encounter_length/3600,              #convert seconds to hours
          date_time = as.Date(date_time, format = "%m/%d/%Y")
          )
-  
 ```
 
 ### 3. Visualize data
@@ -47,56 +52,54 @@ output: pdf_document
    library (extrafont)
 
    ggplot () +
-      geom_polygon (data = map_coordinates, aes(x = long, y = lat, group = group), color = "black", fill = "#303030", size = 1.15) +
+      geom_polygon (data = map_borders, aes(x = long, y = lat, group = group), color = "black", fill = "#303030", size = 1.15) +
       geom_point (
          data = ufo, 
          aes (x = longitude, y = latitude, size = encounter_length), 
          color = "green"
          ) +
-      #Gastonia annotation
+      #Deep Gap encounter annotation
          annotate("text",
-            label = "120 hour encounter\nin Gastonia in 1993.",
-            size = 3.1, hjust = 0, color = "green", family = "Rockwell",
-            x = -83.1, y = 34.5, xmax = -83.5
-            ) +
-         geom_curve(
-            aes(x = -82, y = 34.65, xend = -81.39, yend = 35.1),
-            arrow = arrow(length = unit(0.2, "cm")), 
-            size = 0.4, color = "green", curvature = -0.3
-            ) +
-      #Deep Gap annotation
-         annotate("text",
-            label = "30 hour encounter\nin Deep Gap in 2009.",
-            size = 3.1, hjust = 0, color = "green", family = "Rockwell",
+            label = "30 hour encounter\nin Deep Gap (2009)",
+            size = 3, hjust = 0, color = "green", family = "Rockwell",
             x = -84.9, y = 36.1
             ) +
          geom_curve(
-            aes(x = -83.2, y = 36.2, xend = -81.65, yend = 36.3),
+            aes(x = -83.25, y = 36.2, xend = -81.7, yend = 36.27),
             arrow = arrow(length = unit(0.2, "cm")), 
             size = 0.4, color = "green", curvature = -0.4
+            ) +
+      #Gastonia encounter annotation
+         annotate("text",
+            label = "120 hour encounter\nin Gastonia in 1993.",
+            size = 3, hjust = 0, color = "green", family = "Rockwell",
+            x = -83.1, y = 34.5, xmax = -83.5
+            ) +
+         geom_curve(
+            aes(x = -82.27, y = 34.65, xend = -81.37, yend = 35.2),
+            arrow = arrow(length = unit(0.2, "cm")), 
+            size = 0.4, color = "green", curvature = -0.3
             ) +
       coord_fixed(1.3) +
       scale_size_continuous(breaks = c(1, 10, 100)) +
       dark_mode(theme_minimal()) +
-      theme (
+      theme(
          text = element_text(family = "Rockwell", color = "green"),
          plot.title = element_text(hjust = 0.5, size = 18),
-         plot.subtitle = element_text(hjust = 0.5, size = 10),
-         plot.caption = element_text(hjust = 0, size = 9),
+         plot.caption = element_text(hjust = 0, size = 8),
          legend.title = element_text(size = 10, hjust = 0.5, vjust = 0.5),
          legend.text = element_text(size = 9, hjust = 0.5, vjust = 0.5),
-         legend.position = c(0.84,0.25),
+         legend.position = c(0.82,0.18),
          legend.justification=c(0, 1), 
          legend.key.size = unit(0.1, 'lines'),
          axis.title = element_blank(),
-         #axis.text = element_blank(),
+         axis.text = element_blank(),
          axis.ticks = element_blank()
          ) +
       labs(
-         title = "UFOs over North Carolina",
-         subtitle = "1945 - 2014",
+         title = "UFOs over North Carolina\n",
          size = "Encounter (hrs)",
-         caption = "\nEach dot represents a reported UFO sighting.  \nSource: The National UFO Reporting Center  | Visualization: Joel Soroos @soroosj"
+         caption = "\nEach dot represents a reported UFO sighting between 1995 and 2014.  \nSource: National UFO Reporting Center  | Visualization: Joel Soroos @soroosj"
          ) +
-      ggsave("ufo.png")
+      ggsave("ufo.png", height =3.85)
 ```
