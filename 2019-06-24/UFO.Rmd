@@ -23,7 +23,9 @@ output: pdf_document
 ### 2a.  Transform data
 ```{r transform, message = F}
 
-  ufo <- ufo_raw %>%
+  library (lubridate)
+
+   ufo <- ufo_raw %>%
       select (date_time, city_area, state, latitude, longitude, encounter_length) %>%
       filter (
          state == "nc",
@@ -32,7 +34,9 @@ output: pdf_document
          longitude < -75
          )  %>%
       mutate (
-         encounter_length = encounter_length/3600)
+         encounter_length = encounter_length/3600,
+         date_time = as.Date(date_time, format = "%m/%d/%Y")
+         )
   
 ```
 
@@ -40,13 +44,14 @@ output: pdf_document
 ```{r plot}
 
    library (ggdark)
+   library (extrafont)
 
    ggplot () +
       geom_polygon (data = map_coordinates, aes(x = long, y = lat, group = group), color = "black", fill = "#303030", size = 1.15) +
       geom_point (
          data = ufo, 
          aes (x = longitude, y = latitude, size = encounter_length), 
-         color = "red"
+         color = "green"
          ) +
       geom_curve(
          aes(x = -82, y = 34.6, xend = -81.39, yend = 35.1),
@@ -56,27 +61,31 @@ output: pdf_document
          curvature = -0.3
          ) +
       annotate("text",
-         x = -83.7, y = 34.5, xmax = -83.5, size = 3.5, hjust = 0,
-         label = "120 hour UFO contact in Gastonia in 1993.") +
+         label = "120 hour UFO contact in Gastonia in 1993.",
+         size = 3.5, hjust = 0, color = "green", family = "Rockwell",
+         x = -83.7, y = 34.5, xmax = -83.5
+         ) +
       coord_fixed(1.5) +
       scale_size_continuous(breaks = c(1, 10, 100)) +
-      scale_fill_continuous(guide = guide_legend(reverse=TRUE)) +
       dark_mode(theme_minimal()) +
       theme (
           plot.title = element_text(hjust = 0.5, size = 15),
+          plot.subtitle = element_text(hjust = 0.5, size = 12),
           plot.caption = element_text(hjust = 0, size = 9),
           legend.position = c(0.84,0.25),
           legend.justification=c(0, 1), 
           legend.key.size = unit(0.1, 'lines'),
           legend.title = element_text(size = 10, hjust = 0.5, vjust = 0.5),
           legend.text = element_text(size = 9, hjust = 0.5, vjust = 0.5),
+          text = element_text(family = "Rockwell", color = "green"),
           axis.title = element_blank(),
           axis.ticks = element_blank(),
           axis.text = element_blank()
          ) +
       labs(
-         title = "UFO Sightings in North Carolina",
-         size = "Length (hrs)",
+         title = "UFOs over the North Carolina skies",
+         subtitle = "1945-2014",
+         size = "Encounter (hrs)",
          caption = "\nEach dot represents a reported UFO sighting.  \nSource: The National UFO Reporting Center  | Visualization: Joel Soroos @soroosj"
          ) +
       ggsave("ufo.png")
