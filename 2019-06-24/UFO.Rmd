@@ -31,7 +31,8 @@ output: pdf_document
          latitude < 37,
          longitude < -75
          )  %>%
-      mutate (encounter_length = encounter_length/60)
+      mutate (
+         encounter_length = encounter_length/3600)
   
 ```
 
@@ -42,31 +43,41 @@ output: pdf_document
 
    ggplot () +
       geom_polygon (data = map_coordinates, aes(x = long, y = lat, group = group), color = "black", fill = "#303030", size = 1.15) +
-      geom_point (data = ufo, aes (x = longitude, y = latitude, size = encounter_length), color = "red") +
-      coord_fixed(1.3) +
-      dark_mode(theme_minimal()) +
-      scale_size_continuous(breaks = c(100, 10000, 100000)) +
-      theme (
-          plot.title = element_text(hjust = 0, size = 15),
-          plot.caption = element_text(hjust = 1, size = 9),
-          legend.position = "bottom",
-          axis.title = element_blank(),
-          axis.ticks = element_blank(),
-          axis.text = element_blank()
+      geom_point (
+         data = ufo, 
+         aes (x = longitude, y = latitude, size = encounter_length), 
+         color = "red"
          ) +
       geom_curve(
-         aes(x = -82, y = 34.4, xend = -81.39, yend = 35.1),
-         arrow = arrow(length = unit(0.3, "cm")), 
+         aes(x = -82, y = 34.6, xend = -81.39, yend = 35.1),
+         arrow = arrow(length = unit(0.2, "cm")), 
          size = 0.4,
          color = "white", 
          curvature = -0.3
          ) +
-      annotate("text", x = -83.7, y = 34.2, size = 3.5, hjust = 0,
-         label = "UFO contact of 2 hours in Gastonia in 1993.") +
-      labs(
-         title = "Open your wallet wide if you prefer red wine!",
-         caption = "Each dot represents a reported UFO sighting. \nSource: The National UFO Reporting Center  | Visualization: Joel Soroos @soroosj"
+      annotate("text",
+         x = -83.7, y = 34.5, xmax = -83.5, size = 3.5, hjust = 0,
+         label = "120 hour UFO contact in Gastonia in 1993.") +
+      coord_fixed(1.5) +
+      scale_size_continuous(breaks = c(1, 10, 100)) +
+      scale_fill_continuous(guide = guide_legend(reverse=TRUE)) +
+      dark_mode(theme_minimal()) +
+      theme (
+          plot.title = element_text(hjust = 0.5, size = 15),
+          plot.caption = element_text(hjust = 0, size = 9),
+          legend.position = c(0.84,0.25),
+          legend.justification=c(0, 1), 
+          legend.key.size = unit(0.1, 'lines'),
+          legend.title = element_text(size = 10, hjust = 0.5, vjust = 0.5),
+          legend.text = element_text(size = 9, hjust = 0.5, vjust = 0.5),
+          axis.title = element_blank(),
+          axis.ticks = element_blank(),
+          axis.text = element_blank()
          ) +
-      
-      ggsave("wine.png")
+      labs(
+         title = "UFO Sightings in North Carolina",
+         size = "Length (hrs)",
+         caption = "\nEach dot represents a reported UFO sighting.  \nSource: The National UFO Reporting Center  | Visualization: Joel Soroos @soroosj"
+         ) +
+      ggsave("ufo.png")
 ```
