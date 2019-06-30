@@ -15,7 +15,6 @@ output: pdf_document
       clean_names ()
 ```
    
-   
 ### 1b. Source North Carolina map borders 
 ```{r source, warning = TRUE, results = FALSE, message = FALSE}
    
@@ -23,7 +22,6 @@ output: pdf_document
       map_data("state", region = NULL) %>%
       filter (region == "north carolina")  
 ```
-
 
 ### 2.  Transform UFO data
 ```{r transform, message = F}
@@ -65,7 +63,7 @@ output: pdf_document
             x = -84.9, y = 36.1
             ) +
          geom_curve(
-            aes(x = -83.25, y = 36.2, xend = -81.7, yend = 36.27),
+            aes(x = -83.2, y = 36.2, xend = -81.7, yend = 36.27),
             arrow = arrow(length = unit(0.2, "cm")), 
             size = 0.4, color = "green", curvature = -0.4
             ) +
