@@ -50,7 +50,9 @@ output: pdf_document
    library (extrafont)
 
    ggplot () +
+      #plot North Carolina borders
       geom_polygon (data = map_borders, aes(x = long, y = lat, group = group), color = "black", fill = "#303030", size = 1.15) +
+      #plot UFO encounters
       geom_point (
          data = ufo, 
          aes (x = longitude, y = latitude, size = encounter_length), 
