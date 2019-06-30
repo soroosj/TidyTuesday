@@ -53,17 +53,29 @@ output: pdf_document
          aes (x = longitude, y = latitude, size = encounter_length), 
          color = "green"
          ) +
-      geom_curve(
-         aes(x = -82, y = 34.6, xend = -81.39, yend = 35.1),
-         arrow = arrow(length = unit(0.2, "cm")), 
-         size = 0.4, color = "green", curvature = -0.3
-         ) +
-      annotate("text",
-         label = "120 hour contact\nin Gastonia in 1993.",
-         size = 3.5, hjust = 0, color = "green", family = "Rockwell",
-         x = -83.7, y = 34.5, xmax = -83.5
-         ) +
-      coord_fixed(1.5) +
+      #Gastonia annotation
+         annotate("text",
+            label = "120 hour encounter\nin Gastonia in 1993.",
+            size = 3.1, hjust = 0, color = "green", family = "Rockwell",
+            x = -83.1, y = 34.5, xmax = -83.5
+            ) +
+         geom_curve(
+            aes(x = -82, y = 34.65, xend = -81.39, yend = 35.1),
+            arrow = arrow(length = unit(0.2, "cm")), 
+            size = 0.4, color = "green", curvature = -0.3
+            ) +
+      #Deep Gap annotation
+         annotate("text",
+            label = "30 hour encounter\nin Deep Gap in 2009.",
+            size = 3.1, hjust = 0, color = "green", family = "Rockwell",
+            x = -84.9, y = 36.1
+            ) +
+         geom_curve(
+            aes(x = -83.2, y = 36.2, xend = -81.65, yend = 36.3),
+            arrow = arrow(length = unit(0.2, "cm")), 
+            size = 0.4, color = "green", curvature = -0.4
+            ) +
+      coord_fixed(1.3) +
       scale_size_continuous(breaks = c(1, 10, 100)) +
       dark_mode(theme_minimal()) +
       theme (
@@ -77,12 +89,12 @@ output: pdf_document
          legend.justification=c(0, 1), 
          legend.key.size = unit(0.1, 'lines'),
          axis.title = element_blank(),
-         axis.text = element_blank(),
+         #axis.text = element_blank(),
          axis.ticks = element_blank()
          ) +
       labs(
          title = "UFOs over North Carolina",
-         subtitle = "1862 encounters between 1945 and 2014",
+         subtitle = "1945 - 2014",
          size = "Encounter (hrs)",
          caption = "\nEach dot represents a reported UFO sighting.  \nSource: The National UFO Reporting Center  | Visualization: Joel Soroos @soroosj"
          ) +
