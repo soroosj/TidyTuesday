@@ -1,8 +1,8 @@
 ---
-title: "UFO Sightings"
-author: "Joel Soroos"
-date: "June 27, 2019"
-output: pdf_document
+   title: "UFO Sightings"
+   author: "Joel Soroos"
+   date: "June 27, 2019"
+   output: pdf_document
 ---
 
 ### 1a. Source UFO encounter data
@@ -18,9 +18,7 @@ output: pdf_document
 ### 1b. Source North Carolina map borders 
 ```{r source, warning = TRUE, results = FALSE, message = FALSE}
    
-   map_borders <- 
-      map_data("state", region = NULL) %>%
-      filter (region == "north carolina")  
+   map_borders <- map_data("state", region = "north carolina") 
 ```
 
 ### 2.  Transform UFO data
@@ -30,7 +28,6 @@ output: pdf_document
 
    ufo <- ufo_raw %>%
       select (date_time, city_area, state, latitude, longitude, encounter_length) %>%
-      
       filter (
          state == "nc",
          latitude > 30,      # remove borders erroneously listed as NC outside of state borders
@@ -47,17 +44,12 @@ output: pdf_document
 ```{r plot}
 
    library (ggdark)
-   library (extrafont)
 
    ggplot () +
       #plot North Carolina borders
       geom_polygon (data = map_borders, aes(x = long, y = lat, group = group), color = "black", fill = "#303030", size = 1.15) +
       #plot UFO encounters
-      geom_point (
-         data = ufo, 
-         aes (x = longitude, y = latitude, size = encounter_length), 
-         color = "green"
-         ) +
+      geom_point (data = ufo, aes (x = longitude, y = latitude, size = encounter_length), color = "green") +
       #Deep Gap encounter annotation
          annotate("text",
             label = "30 hour encounter\nin Deep Gap (2009)",
