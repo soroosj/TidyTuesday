@@ -1,0 +1,117 @@
+---
+   title: "Media franchise"
+   author: "Joel Soroos"
+   date: "July 7, 2019"
+   output: pdf_document
+---
+
+### 1. Source data
+```{r source, warning = TRUE, results = FALSE, message = FALSE}
+
+   library (tidyverse)
+   library (janitor) 
+
+   franchise_raw <- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-07-02/media_franchises.csv") %>%
+      clean_names ()
+```
+   
+### 2.  Transform UFO data
+```{r transform, message = F}
+
+   franchise <- franchise_raw %>%
+      select (franchise, original_media, revenue_category, revenue) %>%
+      mutate (
+         franchise = as_factor (franchise),
+         revenue_category = fct_lump (revenue_category,5)
+         ) %>%
+      arrange (franchise, desc(revenue))
+ 
+   (franchise_top <- franchise %>%
+      group_by (franchise) %>%
+      summarize (sum = sum(revenue)) %>%
+      arrange (-sum) %>%
+      top_n (10))
+
+```
+
+### 3. Visualize data
+#2d.  Prepare counts for waffle chart
+```{r}
+   franchise %>% 
+      count(franchise) -> franchise_ct
+
+```
+
+
+#2d.  Prepare waffle chart colors
+```{r}
+
+   continent_colors <- c("Start (10/10/2013)" = "chartreuse",
+                         "Current (20/1/2019)" = "red2", 
+                         "New Country" = "gray21", 
+                         "At Sea" = "#cbd5e8",
+                         "Africa" = "#f4cae4", 
+                         "Americas" = "#f1e2cc", 
+                         "Asia" = "#fff2ae", 
+                         "Europe" = "#fdcdac"
+                         )
+
+   continent_order <- c("Start (10/10/2013)", "Current (20/1/2019)", "New Country", "Africa", "Americas", "Asia", "Europe", "At Sea") 
+
+```
+
+
+#3.  Create chart
+```{r chart, warning = TRUE, results = FALSE, message = FALSEmessage =F}
+
+   library (waffle)
+   library (ggthemes)
+   library (hrbrthemes)
+
+   ggplot(franchise_ct, aes(fill=continent_2, values=n)) + 
+     geom_waffle(color = "white", size=.25, n_rows = 7, flip = T, show.legend = T) +
+     facet_wrap(~year, nrow=1, strip.position = "bottom") +
+     #scales
+         scale_x_discrete(
+            expand=c(0,0)
+            ) +
+         scale_y_continuous(
+            breaks = function(x) seq(5, max(x), by = 5), 
+            labels = function(x) x * 7, # make this multiplier the same as n_rows
+            expand = c(0,0)
+            ) +
+         scale_fill_manual(
+            values = continent_colors,
+            limits = continent_order
+            ) +
+     #themes
+        theme_minimal() +
+        theme(
+           panel.grid = element_blank(),
+           axis.title=element_text(size=8),
+           axis.title.x = element_blank(),
+           axis.text.x=element_text(size=8),
+           axis.title.y = element_text(hjust=1),
+           axis.text.y=element_text(size=8),
+           axis.ticks.y = element_line(),
+           legend.title = element_text(size=8),
+           legend.text = element_text(size=8),
+           legend.key.size = unit(0.5, "cm"),
+           plot.title = element_text(hjust = 0.5, size = 12, face = "bold"),
+           plot.caption = element_text(hjust = 0, size = 7, vjust = 1)
+            ) +
+         coord_equal() +
+     labs(
+        title = "Once Upon a franchise Journey",
+        y = "Day",
+        fill = "",
+        caption = "Each square represents one day. Each row is one week.  Each group is one year."
+        ) 
+   
+      ggsave("plots/franchise.png")
+```
+
+
+
+
+```
