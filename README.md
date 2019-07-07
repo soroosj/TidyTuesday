@@ -18,7 +18,7 @@ Below are lessons that I have learned from my submissions.
 |`2019-05-07`| Class size | Countries to continents | countrycode | countrycode |
 |`2019-05-07`| Class size | Custom sort categorical field | fct_relevel | forcats |
 |`2019-04-30`| Birds | Ridgeline charts | geom_density_ridges | ggridges |
-|`2019-04-30`| Birds | Categorical variable levels, frequencies | tabyl | janitor |
+|`2019-04-30`| Birds | Categorical variable frequencies | tabyl | janitor |
 |`2019-04-23`| Anime | Aestheticly-pleasing tables | kable | KableExtra |
 |`2019-04-23`| Anime | Summary statistics on all fields | summarize_all | dplyr |
 |`2019-04-23`| Anime | Function on fields of specific format | mutate_if | dplyr |
@@ -28,5 +28,5 @@ Below are lessons that I have learned from my submissions.
 |`2019-03-26`| Pets | Image as axis label | geom_textured_col | ggtextures |
 |`2019-03-26`| Pets | Import images | image_read | magick |
 |`2019-02-12`| Govt | Multiple charts at once | flexdashboard | flexdashboard |
-|`2019-02-12`| Govt | Create border in specific chart section | geom_rect | ggplot2 |
+|`2019-02-12`| Govt | Border in specific chart section | geom_rect | ggplot2 |
 |`2019-02-12`| Govt | Apply function to specific columns | mutate_at | dplyr |
