@@ -109,5 +109,5 @@
         fill = "",
         caption = "\nEach square represents $100 million in revenues. Year below franchise signifies year of creation. \nSource: Wikipedia  |  Visualization: Joel Soroos @soroosj"
         ) +
-      ggsave("franchise.png")
+      ggsave("franchise.png", width = 15, height = 9.5, units = "cm")
 ```
