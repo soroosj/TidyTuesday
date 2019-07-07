@@ -15,75 +15,67 @@
       clean_names ()
 ```
    
-### 2.  Transform UFO data
+### 2a.  Transform UFO data
 ```{r transform, message = F}
 
    franchise <- franchise_raw %>%
-      select (franchise, original_media, revenue_category, revenue) %>%
+      filter (original_media == "Animated film") %>%
+      select (franchise, revenue_category, revenue) %>%
       mutate (
-         franchise = as_factor (franchise),
+         franchise = case_when (
+            franchise == "Despicable Me / Minions" ~ "Minions",
+            franchise == "The Lion King" ~ "Lion King",
+            TRUE ~ franchise
+            ),
+         franchise = fct_relevel(franchise, "Barbie", "Cars", "Toy Story", "Lion King", "Frozen", "Minions", "Aladdin"),
+         revenue = revenue * 10,
+         revenue_category = case_when (
+            revenue_category == "Home Video/Entertainment" ~ "Home Video",
+            revenue_category == "Video Games/Games" ~ "Video Games",
+            revenue_category == "Comic or Manga" ~ "Comics",
+            revenue_category == "Merchandise, Licensing & Retail" ~ "Merchandise",
+            TRUE ~ revenue_category
+            ),
          revenue_category = fct_lump (revenue_category,5)
          ) %>%
       arrange (franchise, desc(revenue))
  
    (franchise_top <- franchise %>%
       group_by (franchise) %>%
-      summarize (sum = sum(revenue)) %>%
-      arrange (-sum) %>%
-      top_n (10))
+      summarize (franchise_revenue = sum(revenue)) %>%
+      arrange (franchise_revenue) %>%
+      top_n (7))
 
 ```
 
-### 3. Visualize data
 #2d.  Prepare counts for waffle chart
 ```{r}
-   franchise %>% 
-      count(franchise) -> franchise_ct
-
+   franchise_sum <- franchise %>% 
+      group_by (franchise, revenue_category) %>%
+      summarize (sum = sum(revenue)) %>%
+      filter (franchise %in% franchise_top$franchise) %>%
+      arrange (franchise, sum)
 ```
-
-
-#2d.  Prepare waffle chart colors
-```{r}
-
-   continent_colors <- c("Start (10/10/2013)" = "chartreuse",
-                         "Current (20/1/2019)" = "red2", 
-                         "New Country" = "gray21", 
-                         "At Sea" = "#cbd5e8",
-                         "Africa" = "#f4cae4", 
-                         "Americas" = "#f1e2cc", 
-                         "Asia" = "#fff2ae", 
-                         "Europe" = "#fdcdac"
-                         )
-
-   continent_order <- c("Start (10/10/2013)", "Current (20/1/2019)", "New Country", "Africa", "Americas", "Asia", "Europe", "At Sea") 
-
-```
-
 
 #3.  Create chart
 ```{r chart, warning = TRUE, results = FALSE, message = FALSEmessage =F}
 
    library (waffle)
    library (ggthemes)
-   library (hrbrthemes)
 
-   ggplot(franchise_ct, aes(fill=continent_2, values=n)) + 
-     geom_waffle(color = "white", size=.25, n_rows = 7, flip = T, show.legend = T) +
-     facet_wrap(~year, nrow=1, strip.position = "bottom") +
+   ggplot(franchise_sum, aes(fill=revenue_category, values=sum)) + 
+     geom_waffle(color = "white", size=.3, n_rows = 7, flip = T, show.legend = T, make_proportional = T) +
+     facet_wrap(~franchise, nrow=1, strip.position = "bottom") +
      #scales
          scale_x_discrete(
             expand=c(0,0)
             ) +
          scale_y_continuous(
-            breaks = function(x) seq(5, max(x), by = 5), 
-            labels = function(x) x * 7, # make this multiplier the same as n_rows
+            breaks = seq(5, 50, by = 5), 
+            labels = function(x) x * .7, # make this multiplier the same as n_rows
             expand = c(0,0)
             ) +
-         scale_fill_manual(
-            values = continent_colors,
-            limits = continent_order
-            ) +
+        scale_fill_brewer(palette = "Set1") +
      #themes
         theme_minimal() +
         theme(
@@ -91,27 +83,23 @@
            axis.title=element_text(size=8),
            axis.title.x = element_blank(),
            axis.text.x=element_text(size=8),
-           axis.title.y = element_text(hjust=1),
+           axis.title.y = element_text(hjust=1, size = 9),
            axis.text.y=element_text(size=8),
            axis.ticks.y = element_line(),
            legend.title = element_text(size=8),
            legend.text = element_text(size=8),
            legend.key.size = unit(0.5, "cm"),
-           plot.title = element_text(hjust = 0.5, size = 12, face = "bold"),
-           plot.caption = element_text(hjust = 0, size = 7, vjust = 1)
+           legend.position = c(0.93,0.72),
+           plot.title = element_text(hjust = .75, size = 12, face = "bold"),
+           plot.caption = element_text(hjust = 1, size = 8, vjust = .5)
             ) +
+         guides(fill = guide_legend(ncol = 1)) +
          coord_equal() +
      labs(
-        title = "Once Upon a franchise Journey",
-        y = "Day",
+        title = "Animated Film Franchise Revenues by Media",
+        y = "Revenues ($B)",
         fill = "",
-        caption = "Each square represents one day. Each row is one week.  Each group is one year."
-        ) 
-   
-      ggsave("plots/franchise.png")
-```
-
-
-
-
+        caption = "Each square represents $100 million in revenues.\nSource: Wikipedia  |   Visualization: Joel Soroos @soroosj"
+        ) +
+      ggsave("franchise.png")
 ```
