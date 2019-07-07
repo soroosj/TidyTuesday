@@ -6,6 +6,7 @@ Below are lessons that I have learned from my submissions.
 | Week | Data Set | Lesson | Function | Package 
 | :---: | :---: | :--- | :--- | :--- |
 |`2019-07-02`| Franchises | Waffle chart | geom_waffle | waffle |
+|`2019-07-02`| Franchises | 2-row axis labels | paste | dplyr |
 |`2019-07-02`| Franchises | Other categories | fct_lump | forcats |
 |`2019-07-02`| Franchises | Custom fonts | element.text (family) | extrafont |
 |`2019-06-25`| UFOs | Annotate text | annotate | ggplot2 |
