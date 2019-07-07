@@ -15,7 +15,7 @@
       clean_names ()
 ```
    
-### 2a.  Convert franchise revenues to friendly names
+### 2a. Transform franchise data
 ```{r transform, message = F}
 
    franchise <- franchise_raw %>%
@@ -40,7 +40,7 @@
             ),
          revenue_category = fct_lump (revenue_category,6),
          #control revenue group order in chart
-         revenue_category = fct_relevel(revenue_category, "Box Office", "Home Video", "Music", "Video Games", "Merchandise", "Other")   
+         revenue_category = fct_relevel(revenue_category, "Box Office", "Home Video", "Music", "Video Games", "Merchandise")   
       ) 
 ```
 
