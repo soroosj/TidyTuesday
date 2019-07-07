@@ -1,13 +1,16 @@
 ## Lessons from Tidy Tuesday
-Tidy Tuesday is a terrific opportunity to practice wrangling data and chart visualizations in R.  Interesting data sets are available each week.  Other R enthusiasts provide feedback and seeing their charts generates ideas.
+Tidy Tuesday enables practicing wrangling data and chart visualizations in R.  Interesting data sets are available each week.  Other R enthusiasts provide feedback and seeing their charts generates ideas.
 
 Below are lessons that I have learned from my submissions.
 
 | Week | Data Set | Lesson | Function | Package 
 | :---: | :---: | :--- | :--- | :--- |
-|`2019-06-24`| UFOs | Annotate text | annotate | ggplot2 |
-|`2019-06-24`| UFOs | Annotate arrow | geom_curve | ggplot2 |
-|`2019-06-24`| UFOs | Customize legend position | legend.position | ggplot2 |
+|`2019-07-02`| Media franchises | Waffle chart | geom_waffle | waffle |
+|`2019-07-02`| Media franchises | Other categories | fct_lump | forcats |
+|`2019-07-02`| Media franchises | Custom fonts | element.text (family) | extrafont |
+|`2019-06-25`| UFOs | Annotate text | annotate | ggplot2 |
+|`2019-06-25`| UFOs | Annotate arrow | geom_curve | ggplot2 |
+|`2019-06-25`| UFOs | Customize legend position | legend.position | ggplot2 |
 |`2019-05-28`| Wine reviews | Violin charts | geom_violin | ggplot2 |
 |`2019-05-28`| Wine reviews | Black background | dark_mode | ggdark |
 |`2019-05-21`| Plastic waste | LOESS regression line | geom_smooth | ggplot2 |
