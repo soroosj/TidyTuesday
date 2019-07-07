@@ -29,7 +29,7 @@
             ),
          franchise_start = paste (franchise, "\n(", year_created, ")", sep = ""),
          franchise_start = fct_relevel(franchise_start,              #Control franchise order in chart
-            "Barbie\n(1987)", "Cars\n(2006)", "Toy Story\n(1995)", "Lion King\n(1994)", "Frozen\n(2013)", "Minions\n(2010)", "Aladdin\n(1992)"
+            "Barbie\n(1987)", "Cars\n(2006)", "Toy Story\n(1995)", "Lion King\n(1994)", "Frozen\n(2013)", "Minions\n(2010)", "Aladdin\n(1992)", "Ice Age\n(2002)" 
             ),
          revenue = revenue * 10,                 #Multiply by 10 to generate more boxes in waffle chart for additional granularity.
          revenue_category = case_when (
@@ -38,37 +38,23 @@
             revenue_category == "Merchandise, Licensing & Retail" ~ "Merchandise",
             TRUE ~ revenue_category
             ),
-         revenue_category = fct_lump (revenue_category,5),
-         revenue_category = fct_relevel(revenue_category, 
-            "Box Office", "Home Video", "Music", "Video Games", "Merchandise", "Other")   #control revenue group order in chart
-            ) %>%
-         arrange (franchise_start, revenue_category)
+         revenue_category = fct_lump (revenue_category,6),
+         #control revenue group order in chart
+         revenue_category = fct_relevel(revenue_category, "Box Office", "Home Video", "Music", "Video Games", "Merchandise", "Other")   
+      ) 
 ```
 
-### 2b.  Calculate revenue at franchise level
-```{r transform, message = F}
-
-   (franchise_top <- franchise %>%
-      group_by (franchise_start, revenue_category) %>%
-      summarize (franchise_revenue = sum(revenue)) %>%
-      arrange (franchise_start, revenue_category) %>%
-      top_n (8))
-```
-
-#2c.  Prepare counts for waffle chart
+#2b.  Prepare counts for waffle chart
 ```{r}
    franchise_sum <- franchise %>% 
       group_by (franchise_start, revenue_category) %>%
-      summarize (sum = sum(revenue)) %>%
-      filter (franchise_start %in% franchise_top$franchise_start) %>%
-      arrange (franchise_start, revenue_category)
+      summarize (sum = sum(revenue)) 
 ```
 
 #3.  Create chart
 ```{r chart, warning = TRUE, results = FALSE, message = FALSE}
 
    library (waffle)
-   library (ggthemes)
    library (ggdark)
 
    ggplot(franchise_sum, aes(fill=revenue_category, values=sum)) + 
@@ -85,7 +71,8 @@
      #themes
         dark_mode(theme_minimal()) +
         theme(
-           text = element_text(family = "Waltograph", color = "white"),
+           #download custom Waltograph font and then upload to R via extrafont package: packagehttps://www.dafont.com/waltograph.font
+           text = element_text(family = "Waltograph", color = "white"),   
            plot.title = element_text(hjust = .5, size = 22, face = "bold"),
            plot.caption = element_text(hjust = 1, size = 12, vjust = .5),
            axis.title=element_text(size=11),
