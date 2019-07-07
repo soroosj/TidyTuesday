@@ -15,19 +15,20 @@
       clean_names ()
 ```
    
-### 2a. Transform franchise data
+### 2. Transform franchise data
 ```{r transform, message = F}
 
    franchise <- franchise_raw %>%
       filter (original_media == "Animated film") %>%
-      select (franchise, revenue_category, revenue, year_created) %>%
+      select (franchise, year_created, revenue_category, revenue) %>%
       mutate (
          franchise = case_when (
             franchise == "Despicable Me / Minions" ~ "Minions",
             franchise == "The Lion King" ~ "Lion King",
             TRUE ~ franchise
             ),
-         franchise_start = paste (franchise, "\n(", year_created, ")", sep = ""),
+         #concatenate franchise and start date to enable two rows on x axis
+         franchise_start = paste (franchise, "\n(", year_created, ")", sep = ""), 
          franchise_start = fct_relevel(franchise_start,              #Control franchise order in chart
             "Barbie\n(1987)", "Cars\n(2006)", "Toy Story\n(1995)", "Lion King\n(1994)", "Frozen\n(2013)", "Minions\n(2010)", "Aladdin\n(1992)", "Ice Age\n(2002)" 
             ),
@@ -38,17 +39,9 @@
             revenue_category == "Merchandise, Licensing & Retail" ~ "Merchandise",
             TRUE ~ revenue_category
             ),
-         revenue_category = fct_lump (revenue_category,6),
          #control revenue group order in chart
-         revenue_category = fct_relevel(revenue_category, "Box Office", "Home Video", "Music", "Video Games", "Merchandise")   
-      ) 
-```
-
-#2b.  Prepare counts for waffle chart
-```{r}
-   franchise_sum <- franchise %>% 
-      group_by (franchise_start, revenue_category) %>%
-      summarize (sum = sum(revenue)) 
+         revenue_category = fct_relevel(revenue_category, "Box Office", "Home Video", "Music", "Video Games", "Merchandise")
+         ) 
 ```
 
 #3.  Create chart
@@ -57,7 +50,7 @@
    library (waffle)
    library (ggdark)
 
-   ggplot(franchise_sum, aes(fill=revenue_category, values=sum)) + 
+   ggplot(franchise, aes(fill=revenue_category, values=revenue)) + 
      geom_waffle(color = "white", size=.3, n_rows = 8, flip = T, show.legend = T, make_proportional = T) +
      facet_wrap(~franchise_start, nrow=1, strip.position = "bottom") +
      #scales
