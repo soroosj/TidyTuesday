@@ -15,7 +15,7 @@
       clean_names ()
 ```
    
-### 2. Transform franchise data
+### 2. Transform data
 ```{r transform, message = F}
 
    franchise <- franchise_raw %>%
@@ -32,7 +32,7 @@
          franchise_start = fct_relevel(franchise_start,              #Control franchise order in chart
             "Barbie\n(1987)", "Cars\n(2006)", "Toy Story\n(1995)", "Lion King\n(1994)", "Frozen\n(2013)", "Minions\n(2010)", "Aladdin\n(1992)", "Ice Age\n(2002)" 
             ),
-         revenue = revenue * 10,                 #Multiply by 10 to generate more boxes in waffle chart for additional granularity.
+         revenue = revenue * 10,          #Multiply by 10 to generate more boxes in waffle chart for additional granularity.
          revenue_category = case_when (
             revenue_category == "Home Video/Entertainment" ~ "Home Video",
             revenue_category == "Video Games/Games" ~ "Video Games",
@@ -51,8 +51,8 @@
    library (ggdark)
 
    ggplot(franchise, aes(fill=revenue_category, values=revenue)) + 
-     geom_waffle(color = "white", size=.3, n_rows = 8, flip = T, show.legend = T, make_proportional = T) +
-     facet_wrap(~franchise_start, nrow=1, strip.position = "bottom") +
+     geom_waffle(color = "white", size=.3, n_rows = 8, flip = T) +
+     facet_wrap(~franchise_start, nrow=1, strip.position = "bottom") +     #creates multiple waffle columns
      #scales
          scale_x_discrete(expand=c(0,0)) +
          scale_y_continuous(
@@ -68,21 +68,13 @@
            text = element_text(family = "Waltograph", color = "white"),   
            plot.title = element_text(hjust = .5, size = 22, face = "bold"),
            plot.caption = element_text(hjust = 1, size = 12, vjust = .5),
-           axis.title=element_text(size=11),
-           axis.title.x = element_blank(),
-           axis.text.x=element_text(size=11),
            axis.title.y = element_text(hjust=1, size = 12, face = "bold"),
            axis.text.y=element_text(size=12, face = "bold"),
-           axis.ticks.y = element_line(),
-           legend.title = element_text(size=12),
-           legend.text = element_text(size=12),
-           legend.key.size = unit(0.5, "cm"),
-           legend.position = c(0.92,0.67),
            strip.text = element_text(size = 13),
-           panel.grid = element_blank()
+           legend.position = c(0.92,0.67),
+           legend.text = element_text(size=12),
+           legend.key.size = unit(0.5, "cm")
            ) +
-         guides(fill = guide_legend(ncol = 1)) +
-         coord_equal() +
      labs(
         title = "Animated Film Franchise Revenues",
         y = "Revenues ($, billions)",
