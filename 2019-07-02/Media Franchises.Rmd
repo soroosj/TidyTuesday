@@ -71,7 +71,7 @@
      #themes
         dark_mode(theme_minimal()) +
         theme(
-           #download custom Waltograph font and then upload to R via extrafont package: packagehttps://www.dafont.com/waltograph.font
+           #download custom Waltograph font and then upload to R via extrafont package:https://www.dafont.com/waltograph.font
            text = element_text(family = "Waltograph", color = "white"),   
            plot.title = element_text(hjust = .5, size = 22, face = "bold"),
            plot.caption = element_text(hjust = 1, size = 12, vjust = .5),
