@@ -7,7 +7,6 @@ Below are lessons that I have learned from my submissions.
 | :---: | :---: | :--- | :--- | :--- |
 |`2019-07-02`| Franchises | Waffle chart | geom_waffle | waffle |
 |`2019-07-02`| Franchises | 2-row axis labels | paste | dplyr |
-|`2019-07-02`| Franchises | Other categories | fct_lump | forcats |
 |`2019-07-02`| Franchises | Custom fonts | element.text (family) | extrafont |
 |`2019-06-25`| UFOs | Annotate text | annotate | ggplot2 |
 |`2019-06-25`| UFOs | Annotate arrow | geom_curve | ggplot2 |
@@ -23,7 +22,7 @@ Below are lessons that I have learned from my submissions.
 |`2019-04-23`| Anime | Aestheticly-pleasing tables | kable | KableExtra |
 |`2019-04-23`| Anime | Summary statistics on all fields | summarize_all | dplyr |
 |`2019-04-23`| Anime | Function on mutliple fields | mutate_if | dplyr |
-|`2019-04-23`| Tennis | Text labels on charts | geom_label_repel | ggrepel |
+|`2019-04-23`| Tennis | Text labels in charts | geom_label_repel | ggrepel |
 |`2019-04-23`| Tennis | Categorical variables to numeric | case_when | dplyr |
 |`2019-04-23`| Tennis | Reverse y-axis points | trans = "reverse" | ggplot2 |
 |`2019-03-26`| Pets | Image as axis label | geom_textured_col | ggtextures |
