@@ -22,7 +22,7 @@
    teams_2019 <- outcomes_raw %>%
      filter (
         year == 2019,
-        round != "Third Place Playoff" 
+        round != "Third Place Playoff"  
         ) %>%
      mutate (
         win_status_num = 
