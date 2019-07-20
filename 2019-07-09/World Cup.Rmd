@@ -1,0 +1,81 @@
+----
+   title: "Womens World Cup"
+   author: "Joel Soroos"
+   date: "July 14, 2019"
+   output: pdf_document
+---
+
+### 1. Source data
+```{r source, warning = TRUE, results = FALSE, message = FALSE}
+
+   library (tidyverse)
+   library (janitor) 
+
+   squads_raw <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-07-09/squads.csv") %>%
+      clean_names()
+   
+   outcomes_raw <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-07-09/wwc_outcomes.csv") %>%
+      clean_names () 
+   
+```
+   
+### 2. Transform data
+```{r transform, message = F}
+
+  teams_2019 <- outcomes_raw %>%
+      filter (year == 2019) %>%
+      pull (team)
+
+  outcomes <- outcomes_raw %>%
+     filter (
+        year > 1990,
+        team %in% teams_2019,
+        round != "Third Place Playoff" 
+         ) %>%
+     mutate(
+        year = as.factor (year),
+        year = fct_relevel(year, "2019", "2015", "2011", "2007", "2003", "1999", "1995", "1991"), 
+        win_status = fct_relevel(win_status, "Lost", "Won", "Tie"), 
+        final = 1
+         ) %>%
+     group_by (year, team) %>%
+     mutate (
+        game_team_id = row_number()
+        ) 
+
+```
+
+```{r}
+
+   library (ggdark)
+
+   ggplot () +
+      geom_col (data = outcomes,
+             aes(x = game_team_id, y = final, fill = win_status)
+         ) +
+      facet_grid(team ~ year, switch = "y") +
+      dark_mode(theme_minimal()) +
+      theme (
+            strip.text.y = element_text(angle=180),
+            axis.text = element_blank(),
+            axis.ticks = element_blank(),
+            axis.title = element_blank(),
+            legend.position = "None"
+         )   +
+     labs(
+        title = "Animated Film Franchise Revenues",
+        y = "Revenues ($, billions)",
+        fill = "",
+        caption = "\nEach square represents one game.  Group games at left and final at right.  Green = win, blue = tie, red = loss. \nSource: Wikipedia  |  Visualization: Joel Soroos @soroosj"
+        ) +
+      ggsave("franchise.png", width = 15, height = 9.5, units = "cm")
+   
+
+```
+   
+```
+ 
+
+
+
+```
