@@ -56,12 +56,7 @@
 
 ```{r chart, warning = F, message = F}
 
-
    library (ggdark)
-   library (emo)
-   library (glue)
-   
-   title <- glue(ji("poop"), "2019 Women's World Cup Teams Historical Results\n")
 
    ggplot () +
       geom_col (data = outcomes,
@@ -69,10 +64,11 @@
          ) +
       facet_grid(team ~ year, switch = "both") +
       scale_fill_brewer(palette = "Set1") +
-      dark_mode(theme_minimal()) +
-      theme (
+      #themes
+         dark_mode(theme_minimal()) +
+         theme (
          plot.title = element_text(hjust = .5, size = 11, face = "bold"), 
-         text = element_text(family = "wqy-microhei", color = "white"),
+         text = element_text(family = "Arial", color = "grey"),
          strip.text.y = element_text(angle=180),
          plot.caption = element_text (size = 8),
          strip.text.x = element_text (size = 10),
