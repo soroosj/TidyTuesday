@@ -1,7 +1,7 @@
 ----
-   title: "Womens World Cup"
+   title: "Women's World Cup Historical Reslts"
    author: "Joel Soroos"
-   date: "July 14, 2019"
+   date: "July 20, 2019"
    output: pdf_document
 ---
 
@@ -20,18 +20,15 @@
 ```{r transform, message = F}
 
    teams_2019 <- outcomes_raw %>%
-     filter (
-        year == 2019,
-        round != "Third Place Playoff"  
-        ) %>%
+     filter (round != "Third Place Playoff") %>%
      mutate (
         win_status_num = 
            case_when (
              win_status == "Won" ~ 3,
              win_status == "Tie" ~ 2,
              win_status == "Lost" ~ 1
-         )
-      )%>%
+            )
+         )%>%
      group_by (team) %>%
      tally (win_status_num, sort = T) %>%
      pull (team)
@@ -39,16 +36,15 @@
 
 
 ### 2b. Transform game outcomes data
-```{r transform, message = F}
+```{r transform2, message = F}
   outcomes <- outcomes_raw %>%
      filter (
-        year > 1990,
-        team %in% teams_2019,
-        round != "Third Place Playoff" 
+        team %in% teams_2019,                             #only include teams in 2019 World Cup.  
+        round != "Third Place Playoff"
          ) %>%
      mutate(
         year = as.factor (year),
-        year = fct_relevel(year, "2019", "2015", "2011", "2007", "2003", "1999", "1995", "1991"),   #horizontal facet grid order left to right
+        year = fct_relevel(year, "2019", "2015", "2011", "2007", "2003", "1999", "1995", "1991"),  #horizontal facet grid order left to right
         team = fct_relevel(team, teams_2019),   #vertical facet grid chart sort order
         win_status = fct_relevel(win_status, "Lost", "Tie", "Won"),         #bar chart sort order
         final = 1           #consistent bar chart height.  Results signified by color.
@@ -58,25 +54,26 @@
 ```
 
 
-#3.  Visualize
+###3.  Visualize
 ```{r chart, warning = F, message = F}
 
    library (ggdark)
 
    ggplot () +
-      geom_col (data = outcomes,
-             aes(x = game_team_id, y = final, fill = win_status)
+      geom_col (
+         data = outcomes, 
+         aes(x = game_team_id, y = final, fill = win_status)
          ) +
       facet_grid(team ~ year, switch = "y") +
       scale_fill_brewer(palette = "Set1") +
       #themes
          dark_mode(theme_minimal()) +
          theme (
-            plot.title = element_text(hjust = .5, size = 14, face = "bold"), 
             text = element_text(family = "Arial", color = "grey"),
+            plot.title = element_text(hjust = .5, size = 14, face = "bold"), 
+            plot.caption = element_text (size = 7),
             strip.text.y = element_text(angle=180, size = 8),
             strip.text.x = element_text (size = 10),
-            plot.caption = element_text (size = 7),
             axis.text = element_blank(),
             axis.ticks = element_blank(),
             axis.title = element_blank(),
