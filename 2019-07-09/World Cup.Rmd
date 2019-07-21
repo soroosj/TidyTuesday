@@ -15,10 +15,10 @@
       clean_names () 
 ```
    
-### 2. Transform data
+   
+### 2a. Create list of teams in the 2019 world cup sorted by games played
 ```{r transform, message = F}
 
-  #create list of teams in the 2019 world cup sorted by games played
    teams_2019 <- outcomes_raw %>%
      filter (
         year == 2019,
@@ -35,7 +35,11 @@
      group_by (team) %>%
      tally (win_status_num, sort = T) %>%
      pull (team)
+```
 
+
+### 2b. Transform game outcomes data
+```{r transform, message = F}
   outcomes <- outcomes_raw %>%
      filter (
         year > 1990,
@@ -44,16 +48,17 @@
          ) %>%
      mutate(
         year = as.factor (year),
-        year = fct_relevel(year, "2019", "2015", "2011", "2007", "2003", "1999", "1995", "1991"), 
-        team = fct_relevel(team, teams_2019), 
-        win_status = fct_relevel(win_status, "Lost", "Tie", "Won"), 
-        final = 1           #consistent height in bar charts.  Result signified by color.
+        year = fct_relevel(year, "2019", "2015", "2011", "2007", "2003", "1999", "1995", "1991"),   #horizontal facet grid order left to right
+        team = fct_relevel(team, teams_2019),   #vertical facet grid chart sort order
+        win_status = fct_relevel(win_status, "Lost", "Tie", "Won"),         #bar chart sort order
+        final = 1           #consistent bar chart height.  Results signified by color.
          ) %>%
      group_by (year, team) %>%
-     mutate (game_team_id = row_number()) 
+     mutate (game_team_id = row_number())   #game number for each team within World Cup year.
 ```
 
 
+#3.  Visualize
 ```{r chart, warning = F, message = F}
 
    library (ggdark)
@@ -67,7 +72,7 @@
       #themes
          dark_mode(theme_minimal()) +
          theme (
-         plot.title = element_text(hjust = .5, size = 11, face = "bold"), 
+         plot.title = element_text(hjust = .5, size = 14, face = "bold"), 
          text = element_text(family = "Arial", color = "grey"),
          strip.text.y = element_text(angle=180),
          plot.caption = element_text (size = 8),
