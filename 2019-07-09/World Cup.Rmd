@@ -67,25 +67,25 @@
       geom_col (data = outcomes,
              aes(x = game_team_id, y = final, fill = win_status)
          ) +
-      facet_grid(team ~ year, switch = "both") +
+      facet_grid(team ~ year, switch = "y") +
       scale_fill_brewer(palette = "Set1") +
       #themes
          dark_mode(theme_minimal()) +
          theme (
-         plot.title = element_text(hjust = .5, size = 14, face = "bold"), 
-         text = element_text(family = "Arial", color = "grey"),
-         strip.text.y = element_text(angle=180),
-         plot.caption = element_text (size = 8),
-         strip.text.x = element_text (size = 10),
-         axis.text = element_blank(),
-         axis.ticks = element_blank(),
-         axis.title = element_blank(),
-         legend.position = "None"
-         )   +
+            plot.title = element_text(hjust = .5, size = 14, face = "bold"), 
+            text = element_text(family = "Arial", color = "grey"),
+            strip.text.y = element_text(angle=180, size = 8),
+            strip.text.x = element_text (size = 10),
+            plot.caption = element_text (size = 7),
+            axis.text = element_blank(),
+            axis.ticks = element_blank(),
+            axis.title = element_blank(),
+            legend.position = "None"
+            )   +
      labs(
         title = "2019 Women's World Cup Teams Historical Results\n",
-        caption = "\nEach square is a game.  From left to right: 3 group games, round of 16, quarterfinal, semifinal and final.  Green=win, blue=tie, red=loss. \nSource: data.world via R4DS Tidy Tuesday.   |   Visualization: Joel Soroos @soroosj"
+        caption = "\nEach bar is a game. From left to right: 3 group games, round of 16, quarterfinal, semifinal and final.  Green=win, blue=tie, red=loss. \nSource: data.world via R4DS Tidy Tuesday.   |   Visualization: Joel Soroos @soroosj"
         ) +
-      ggsave("world cup.png")
+      ggsave("world cup.png", width = 15, height = 9.5, units = "cm")
 ```
 
