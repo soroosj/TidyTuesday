@@ -5,6 +5,9 @@ Below are lessons that I have learned from my submissions.
 
 | Week | Data Set | Lesson | Function | Package 
 | :---: | :---: | :--- | :--- | :--- |
+|`2019-07-09`| World Cup | factor order by increasing frequency | fct_infreq | dplyr |
+|`2019-07-09`| World Cup | sum variable by group in one line | tally | dplyr |
+|`2019-07-09`| World Cup | data frame to vector | pull | dplyr |
 |`2019-07-02`| Franchises | Waffle chart | geom_waffle | waffle |
 |`2019-07-02`| Franchises | 2-row axis labels | paste | dplyr |
 |`2019-07-02`| Franchises | Custom fonts | element.text (family) | extrafont |
