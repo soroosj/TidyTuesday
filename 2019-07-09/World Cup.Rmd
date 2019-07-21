@@ -46,22 +46,16 @@
         year = as.factor (year),
         year = fct_relevel(year, "2019", "2015", "2011", "2007", "2003", "1999", "1995", "1991"), 
         team = fct_relevel(team, teams_2019), 
-<<<<<<< HEAD
         win_status = fct_relevel(win_status, "Lost", "Tie", "Won"), 
-=======
-        win_status = fct_relevel(win_status, "Lost", "Won", "Tie"), 
->>>>>>> c251a2aa67f728136ab880137518cb41f7f55908
         final = 1           #consistent height in bar charts.  Result signified by color.
          ) %>%
      group_by (year, team) %>%
      mutate (game_team_id = row_number()) 
 ```
 
-<<<<<<< HEAD
+
 ```{r chart, warning = F, message = F}
-=======
-```{r chart}
->>>>>>> c251a2aa67f728136ab880137518cb41f7f55908
+
 
    library (ggdark)
    library (emo)
@@ -74,18 +68,11 @@
              aes(x = game_team_id, y = final, fill = win_status)
          ) +
       facet_grid(team ~ year, switch = "both") +
-<<<<<<< HEAD
       scale_fill_brewer(palette = "Set1") +
       dark_mode(theme_minimal()) +
       theme (
-         plot.title = element_text(hjust = .5, size = 14, face = "bold"), 
-         text = element_text(family = "wqy-microhei", color = "grey"),
-=======
-      dark_mode(theme_minimal()) +
-      theme (
          plot.title = element_text(hjust = .5, size = 11, face = "bold"), 
-         text = element_text(family = "Arial", color = "white"),
->>>>>>> c251a2aa67f728136ab880137518cb41f7f55908
+         text = element_text(family = "wqy-microhei", color = "white"),
          strip.text.y = element_text(angle=180),
          plot.caption = element_text (size = 8),
          strip.text.x = element_text (size = 10),
@@ -96,14 +83,8 @@
          )   +
      labs(
         title = "2019 Women's World Cup Teams Historical Results\n",
-<<<<<<< HEAD
         caption = "\nEach square is a game.  From left to right: 3 group games, round of 16, quarterfinal, semifinal and final.  Green=win, blue=tie, red=loss. \nSource: data.world via R4DS Tidy Tuesday.   |   Visualization: Joel Soroos @soroosj"
         ) +
       ggsave("world cup.png")
 ```
-=======
-        caption = "\nEach square is a game.  From left to right: three group games, round of 16, quarterfinal, semifinal and final.  Green=win, blue=tie, red=loss. \nSource: data.world via Tidy Tuesday.   |   Visualization: Joel Soroos @soroosj"
-        ) +
-      ggsave("world cup.png")
-``
->>>>>>> c251a2aa67f728136ab880137518cb41f7f55908
+
