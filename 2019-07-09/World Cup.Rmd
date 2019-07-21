@@ -20,7 +20,10 @@
 ```{r transform, message = F}
 
    teams_2019 <- outcomes_raw %>%
-     filter (round != "Third Place Playoff") %>%
+     filter (
+          year == 2019,
+          round != "Third Place Playoff"
+        ) %>%
      mutate (
         win_status_num = 
            case_when (
@@ -37,7 +40,8 @@
 
 ### 2b. Transform game outcomes data
 ```{r transform2, message = F}
-  outcomes <- outcomes_raw %>%
+ 
+   outcomes <- outcomes_raw %>%
      filter (
         team %in% teams_2019,                             #only include teams in 2019 World Cup.  
         round != "Third Place Playoff"
@@ -59,11 +63,8 @@
 
    library (ggdark)
 
-   ggplot () +
-      geom_col (
-         data = outcomes, 
-         aes(x = game_team_id, y = final, fill = win_status)
-         ) +
+   ggplot (data = outcomes, aes(x = game_team_id, y = final, fill = win_status)) +
+      geom_col () +
       facet_grid(team ~ year, switch = "y") +
       scale_fill_brewer(palette = "Set1") +
       #themes
