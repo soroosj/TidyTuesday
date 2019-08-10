@@ -1,0 +1,56 @@
+----
+   title: "Bob Ross Paintings"
+   author: "Joel Soroos"
+   date: "August 10, 2019"
+   output: pdf_document
+---
+
+### 1. Source data
+```{r source, warning = TRUE, results = FALSE, message = FALSE}
+
+   library (tidyverse)
+   library (janitor) 
+
+   bob_ross_raw <- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-08-06/bob-ross.csv") %>%
+      clean_names () 
+```
+   
+   
+### 2a. Create list of teams in the 2019 world cup sorted by games played
+```{r transform, message = F}
+
+   library (tidytext)
+
+   bob_ross <- bob_ross_raw %>%
+      select (episode, title) %>%
+      #select(-contains('frame')) %>%
+      #gather("object","count", aurora_borealis:winter) %>%
+      unnest_tokens(word, title) %>%
+      count(word, sort = TRUE) %>%
+      mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
+      slice (1:60)
+```
+
+
+### 3. Transform game outcomes data
+```{r transform2, message = F}
+ 
+   library (ggwordcloud)  #https://cran.r-project.org/web/packages/ggwordcloud/vignettes/ggwordcloud.html
+
+   set.seed(42)
+   ggplot(bob_ross, aes(label = word, size = n, angle = angle)) +
+      geom_text_wordcloud_area(
+         area_corr_power = 1,
+         rm_outside = TRUE
+         ) +
+      scale_size_area (max_size = 16) +
+      theme_minimal()
+```
+
+### 3. Transform game outcomes data
+```{r transform2, message = F}
+ 
+   library(wordcloud)
+
+   bob_words %>%
+      with(wordcloud(word, n, max.words = 50))
