@@ -27,30 +27,38 @@
       #gather("object","count", aurora_borealis:winter) %>%
       unnest_tokens(word, title) %>%
       count(word, sort = TRUE) %>%
-      mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
-      slice (1:60)
+      rename (freq = n)
+      #mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
+      #slice (1:60)
 ```
 
+
+### 3a. Transform game outcomes data
+```{r}
+
+   library (wordcloud2)
+
+   letterCloud(bob_ross, word = "BOB", size = 2)
+   #wordcloud2(bob_ross[1:300, ], figPath = "bob.jpg", color = "random-dark", size = 1.5)
+  
+   png("bob.png")
+
+```
 
 ### 3. Transform game outcomes data
 ```{r transform2, message = F}
  
-   library (ggwordcloud)  #https://cran.r-project.org/web/packages/ggwordcloud/vignettes/ggwordcloud.html
+   #library (ggwordcloud)  #https://cran.r-project.org/web/packages/ggwordcloud/vignettes/ggwordcloud.html
 
-   set.seed(42)
-   ggplot(bob_ross, aes(label = word, size = n, angle = angle)) +
-      geom_text_wordcloud_area(
-         area_corr_power = 1,
-         rm_outside = TRUE
-         ) +
-      scale_size_area (max_size = 16) +
-      theme_minimal()
+   #set.seed(41)
+   #ggplot(bob_ross, aes(label = word, size = n, angle = angle)) +
+      #geom_text_wordcloud_area(
+         #area_corr_power = 1,
+         #shape = "pentagon",
+        # rm_outside = TRUE
+        #) +
+      #scale_size_area (max_size = 18) +
+      #theme_minimal()
 ```
 
-### 3. Transform game outcomes data
-```{r transform2, message = F}
- 
-   library(wordcloud)
 
-   bob_words %>%
-      with(wordcloud(word, n, max.words = 50))
