@@ -23,13 +23,9 @@
 
    bob_ross <- bob_ross_raw %>%
       select (episode, title) %>%
-      #select(-contains('frame')) %>%
-      #gather("object","count", aurora_borealis:winter) %>%
       unnest_tokens(word, title) %>%
       count(word, sort = TRUE) %>%
       rename (freq = n)
-      #mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
-      #slice (1:60)
 ```
 
 
@@ -37,28 +33,10 @@
 ```{r}
 
    library (wordcloud2)
+  png('filename.png')
+   #https://www.datacamp.com/community/tutorials/R-nlp-machine-learning
+   letterCloud(bob_ross, word = "BOB ROSS", size = 1.3)
+   dev.off ()
 
-   letterCloud(bob_ross, word = "BOB", size = 2)
-   #wordcloud2(bob_ross[1:300, ], figPath = "bob.jpg", color = "random-dark", size = 1.5)
-  
-   png("bob.png")
 
 ```
-
-### 3. Transform game outcomes data
-```{r transform2, message = F}
- 
-   #library (ggwordcloud)  #https://cran.r-project.org/web/packages/ggwordcloud/vignettes/ggwordcloud.html
-
-   #set.seed(41)
-   #ggplot(bob_ross, aes(label = word, size = n, angle = angle)) +
-      #geom_text_wordcloud_area(
-         #area_corr_power = 1,
-         #shape = "pentagon",
-        # rm_outside = TRUE
-        #) +
-      #scale_size_area (max_size = 18) +
-      #theme_minimal()
-```
-
-
