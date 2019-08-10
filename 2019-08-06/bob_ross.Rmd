@@ -16,7 +16,7 @@
 ```
    
    
-### 2a. Create list of teams in the 2019 world cup sorted by games played
+### 2.  Convert show titles to one row per word
 ```{r transform, message = F}
 
    library (tidytext)
@@ -29,14 +29,12 @@
 ```
 
 
-### 3a. Transform game outcomes data
+### 3.  Create word tree
 ```{r}
 
    library (wordcloud2)
-  png('filename.png')
+   png('filename.png')
    #https://www.datacamp.com/community/tutorials/R-nlp-machine-learning
    letterCloud(bob_ross, word = "BOB ROSS", size = 1.3)
    dev.off ()
-
-
 ```
