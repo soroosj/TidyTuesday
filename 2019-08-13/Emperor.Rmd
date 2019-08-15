@@ -12,7 +12,8 @@
    library (janitor) 
 
    emperors_raw <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-08-13/emperors.csv") %>%
-      clean_names ()
+      clean_names () %>%
+      drop_na
 ```
    
 ### 2.  Transform UFO data
@@ -44,13 +45,10 @@
 
    library (ggdark)
 
-   ggplot () +
-      #plot North Carolina borders
-      geom_segment (
-         data = emperors, 
-         aes(x = long, y = lat, group = name), 
-         color = "black", fill = "#303030", size = 1.15) +
-      #plot UFO encounters
+   ggplot(data = emperors, aes(x = reign_end_age, y = name)) +
+      geom_segment(aes(x = reign_start_age, y = name, xend = reign_end_age, yend = name)) +
+      geom_point()
+      
  
 ```
 
