@@ -18,7 +18,7 @@
 ### 2. Transform data
 ```{r transform, message = F}
 
-   franchise <- franchise_raw %>%
+  franchise <- franchise_raw %>%
       filter (original_media == "Animated film") %>%
       select (franchise, year_created, revenue_category, revenue) %>%
       mutate (

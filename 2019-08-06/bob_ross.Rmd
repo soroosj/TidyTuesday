@@ -25,7 +25,9 @@
       select (episode, title) %>%
       unnest_tokens(word, title) %>%
       count(word, sort = TRUE) %>%
-      rename (freq = n)
+      rename (freq = n) %>%
+      anti_join(stop_words) %>%
+      inner_join (get_sentiments("bing"))
 ```
 
 
