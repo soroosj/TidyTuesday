@@ -1,0 +1,106 @@
+---
+   title: "Roman Emperors"
+   author: "Joel Soroos"
+   date: "August 19, 2019"
+   output: pdf_document
+---
+
+### 1a. Source UFO encounter data
+```{r source, warning = TRUE, results = FALSE, message = FALSE}
+
+   library (tidyverse)
+   library (janitor) 
+
+   emperors_raw <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-08-13/emperors.csv") %>%
+      clean_names ()
+```
+   
+### 2.  Transform UFO data
+```{r source, warning = TRUE, results = FALSE, message = FALSE}
+   
+   library (lubridate)
+
+   emperors <- emperors_raw %>%
+      select (index, name, birth, reign_start, reign_end, death) %>%
+      mutate (
+         birth = case_when (
+            index %in% c(1,2,4,6) ~ update (birth, year = - year (birth)),
+            TRUE~ birth
+            ),
+        reign_start = case_when (
+            index %in% c(1) ~ update (reign_start, year = - year (reign_start)),
+            TRUE~ reign_start
+            ),
+         birth_age = 0,
+         reign_start_age = (reign_start- birth)/365.25,
+         reign_end_age = (reign_end - birth)/365.25,
+         death_age = (death - birth)/365.25
+      )
+```
+
+
+### 3. Visualize data
+```{r plot}
+
+   library (ggdark)
+
+   ggplot () +
+      #plot North Carolina borders
+      geom_segment (
+         data = emperors, 
+         aes(x = long, y = lat, group = name), 
+         color = "black", fill = "#303030", size = 1.15) +
+      #plot UFO encounters
+ 
+```
+
+
+```{r}
+     geom_point (data = ufo, aes (x = longitude, y = latitude, size = encounter_length), color = "green") +
+      #Deep Gap encounter annotation
+         annotate("text",
+            label = "30 hour encounter\nin Deep Gap (2009)",
+            size = 3, hjust = 0, color = "green", family = "Rockwell",
+            x = -84.9, y = 36.1
+            ) +
+         geom_curve(
+            aes(x = -83.2, y = 36.2, xend = -81.7, yend = 36.27),
+            arrow = arrow(length = unit(0.2, "cm")), 
+            size = 0.4, color = "green", curvature = -0.4
+            ) +
+      #Gastonia encounter annotation
+         annotate("text",
+            label = "120 hour encounter\nin Gastonia (1993).",
+            size = 3, hjust = 0, color = "green", family = "Rockwell",
+            x = -83.1, y = 34.5, xmax = -83.5
+            ) +
+         geom_curve(
+            aes(x = -82.27, y = 34.65, xend = -81.37, yend = 35.2),
+            arrow = arrow(length = unit(0.2, "cm")), 
+            size = 0.4, color = "green", curvature = -0.3
+            ) +
+       labs(
+         title = "UFOs over North Carolina\n",
+         size = "Encounter (hrs)",
+         caption = "\nEach dot represents a reported UFO sighting between 1995 and 2014.  \nSource: National UFO Reporting Center  | Visualization: Joel Soroos @soroosj"
+         ) +
+      coord_fixed(1.3) +
+      scale_size_continuous(breaks = c(1, 10, 100)) +
+      dark_mode(theme_minimal()) +
+      theme(
+         text = element_text(family = "Rockwell", color = "green"),
+         plot.title = element_text(hjust = 0.5, size = 18),
+         plot.caption = element_text(hjust = 0, size = 8),
+         axis.title = element_blank(),
+         axis.text = element_blank(),
+         axis.ticks = element_blank(),
+         legend.title = element_text(size = 10, hjust = 0.5, vjust = 0.5),
+         legend.text = element_text(size = 9, hjust = 0.5, vjust = 0.5),
+         legend.position = c(0.82,0.18),
+         legend.justification=c(0, 1), 
+         legend.key.size = unit(0.1, 'lines')
+         ) +
+      ggsave("ufo.png", height =3.85)
+```
+
+
