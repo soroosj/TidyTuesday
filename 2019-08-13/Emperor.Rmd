@@ -78,7 +78,7 @@
           ) +
       annotate("text",
          label = "Longest\nreign",
-         size = 3.5, hjust = 0.5, family = "Trajanus Roman", color = "black",
+         size = 3, hjust = 0.5, family = "Trajanus Roman", color = "black",
          x = 30, y = 5, xmax = 35  
          ) +
       geom_curve(
@@ -100,7 +100,7 @@
          axis.text.x = element_text (size = 8),
          axis.ticks = element_blank (),
          legend.key.size = unit(0.1, 'lines'),
-         legend.position = c(0.85,0.76),
+         legend.position = c(0.85,0.88),
          legend.title = element_blank(),
          panel.grid = element_blank (),
          plot.title = element_text(hjust = 0.5, vjust = 0, size = 16, face = "bold"),
@@ -112,11 +112,11 @@
          ) +
       labs(
          title = "Roman Emperor Principate Era (62 BCE to AD 283)",
-         subtitle = "They ruled history's largest empire but typically died brutally.\n",
+         subtitle = "They ruled history's largest empire but typically died brutally.\n\n",
          caption = "\nLines represent the beginning through ending age of each emperor's reign.\nData: Wikipedia   Visualization: Joel Soroos @soroosj",
          x = "\nAge (Years)"
          ) +
-     ggsave("emperors.png", width = 22, height = 26, units = "cm")
+     ggsave("emperors.png", width = 26, height = 26, units = "cm")
       
  
 ```
