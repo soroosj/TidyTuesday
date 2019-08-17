@@ -5,7 +5,8 @@
    output: pdf_document
 ---
 
-### 1a. Source UFO encounter data
+
+### 1. Source 
 ```{r source, warning = TRUE, results = FALSE, message = FALSE}
 
    library (tidyverse)
@@ -15,15 +16,26 @@
       clean_names () %>%
       drop_na (birth)
 ```
+
+
+```{r}
    
-### 2.  Transform UFO data
+   emperor_cause <- emperors_raw %>%
+      filter (era == "Principate") %>%
+      mutate (cause = fct_lump (cause,4)) %>%
+      count (cause, sort = TRUE) %>%
+      mutate (cause_long = paste (cause, " (", n, ")", sep ="")) %>%
+      select (cause, cause_long)
+```
+
+   
+### 2.  Transform 
 ```{r source, warning = TRUE, results = FALSE, message = FALSE}
    
    library (lubridate)
 
    emperors <- emperors_raw %>%
       filter (era == "Principate") %>%
-      select (index, name, birth, reign_start, reign_end, rise, cause) %>%
       mutate (
          birth = case_when (
             index %in% c(1,2,4,6) ~ update (birth, year = - year (birth)),
@@ -35,50 +47,76 @@
             ),
          reign_start_age = (reign_start- birth)/365.25,
          reign_end_age = (reign_end - birth)/365.25,
-         cause_new = fct_lump (cause, 4)
-      )
+         reign_length = (reign_end - reign_start)/365.25,
+         cause = fct_lump (cause, 4)
+      ) %>%
+      right_join (emperor_cause) %>%
+      select (index, name, birth, reign_start_age, reign_end_age, reign_length, cause_long, cause) 
 ```
 
 
 ### 3. Visualize data
 ```{r plot}
 
-   library (ggdark)
-
    ggplot( data = emperors) +
       geom_segment(
-         aes(y = reign_start_age, x = reorder(name, -reign_end_age), yend = reign_end_age, xend = name),
-         alpha = 0.3
+         aes(
+            x = reign_start_age, 
+            y = reorder(name, -reign_end_age), 
+            xend = reign_end_age, 
+            yend = name
+            ),
+         alpha = 0.15, color = "black" 
          ) +
       geom_point(
-         aes(x=name, y=reign_end_age, color = cause_new),
-         size = 0.7
+         aes(y=name, x=reign_end_age, color = cause_long),
+         size = 1
          ) +
-      coord_flip () +
-      dark_mode(theme_minimal()) +
-      scale_y_continuous(
-            breaks = c(1, 20, 40, 60),
-            labels = c("I", "XX", "LIX", "LX")
+      geom_text(
+         aes(x = reign_end_age, y = name, label = name),
+         hjust = -.3, size = 3, family = "Trajanus Roman"
+          ) +
+      annotate("text",
+         label = "Longest\nreign",
+         size = 3.5, hjust = 0.5, family = "Trajanus Roman", color = "black",
+         x = 30, y = 5, xmax = 35  
+         ) +
+      geom_curve(
+         aes(x = 33, y = 5, xend = 36, yend = 4.3),
+         arrow = arrow(length = unit(0.18, "cm")), 
+         size = 0.2, color = "black", curvature = -0.3, alpha = 0.6
+         ) +
+      #scales
+         scale_x_continuous(
+            breaks = c(20, 40, 60, 80),
+            labels = c("XX", "LIX", "LX", "LXXX")
             ) +
-      scale_color_brewer(palette = "Set1") +
+         scale_color_brewer(palette = "Set1") +
       theme (
-         text = element_text(family = "Trajanus Roman", color = "white"),   #download font from https://www.fontspace.com/roger-white/trajanus-roman
+         text = element_text(family = "Trajanus Roman", color = "black", face = "bold"),   #download font from https://www.fontspace.com/roger-white/trajanus-roman
          axis.title.y = element_blank (),
-         axis.title.x = element_text (hjust = 1),
+         axis.text.y = element_blank (),
+         axis.title.x = element_text (hjust = 0.5),
          axis.text.x = element_text (size = 8),
+         axis.ticks = element_blank (),
          legend.key.size = unit(0.1, 'lines'),
-         legend.position = c(0.85,0.65),
+         legend.position = c(0.85,0.76),
          legend.title = element_blank(),
          panel.grid = element_blank (),
-         plot.title = element_text(hjust = 0.5, size = 16),
-         plot.caption = element_text(hjust = 1, size = 8)
+         plot.title = element_text(hjust = 0.5, vjust = 0, size = 16, face = "bold"),
+         plot.subtitle = element_text(hjust = 0.5, vjust = 1, size = 12, face = "bold"),
+         plot.caption = element_text (hjust = 0, size = 10),
+         plot.background = element_rect(fill = "#fdf6e3"),
+         panel.background = element_rect(fill = "#fdf6e3"),
+         legend.background = element_rect(fill = "#fdf6e3")
          ) +
       labs(
-         title = "Roman Emperors in Principate Era\n",
-         caption = "\nSource: Wikipedia    Visualization: Joel Soroos @soroosj",
-         y = "Age (Years)"
+         title = "Roman Emperor Principate Era (62 BCE to AD 283)",
+         subtitle = "They ruled history's largest empire but typically died brutally.\n",
+         caption = "\nLines represent the beginning through ending age of each emperor's reign.\nData: Wikipedia   Visualization: Joel Soroos @soroosj",
+         x = "\nAge (Years)"
          ) +
-     ggsave("emperors.png", width = 15, height = 20, units = "cm")
+     ggsave("emperors.png", width = 22, height = 26, units = "cm")
       
  
 ```
