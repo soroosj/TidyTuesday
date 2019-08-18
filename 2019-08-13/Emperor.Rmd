@@ -1,7 +1,7 @@
 ---
    title: "Roman Emperors"
    author: "Joel Soroos"
-   date: "August 19, 2019"
+   date: "August 18, 2019"
    output: pdf_document
 ---
 
@@ -51,6 +51,7 @@
          reign_length = (reign_end - reign_start)/365.25,
          cause = fct_lump (cause, 4)
       ) %>%
+      #add count of emperor death cause to death cause
       right_join (emperor_cause) %>%
       select (index, name, birth, death, reign_start_age, reign_end_age, reign_length, cause_long, cause) 
 ```
@@ -94,7 +95,7 @@
          annotate("text",
             label = "Final reign",
             size = 2.1, hjust = 0.5, family = "Trajanus Roman", color = "black",
-            x = 50.5, y = 23, xmax = 35  
+            x = 50.5, y = 23
             ) +
          geom_curve(
             aes(x = 50.5, y = 23.2, xend = 52.4, yend = 24),
@@ -105,7 +106,7 @@
          annotate("text",
             label = "Youngest\nreign",
             size = 2.1, hjust = 0.5, family = "Trajanus Roman", color = "black",
-            x = 12, y = 36, xmax = 35  
+            x = 12, y = 36 
             ) +
          geom_curve(
             aes(x = 12, y = 37, xend = 12, yend = 38.6),
@@ -119,22 +120,21 @@
             ) +
          scale_color_brewer(palette = "Set1") +
       theme (
-         text = element_text(family = "Trajanus Roman", color = "black", face = "bold"),   #download font from https://www.fontspace.com/roger-white/trajanus-roman
-         axis.title.y = element_blank (),
-         axis.text.y = element_blank (),
-         axis.title.x = element_text (hjust = 0.5),
-         axis.text.x = element_text (size = 8),
-         axis.ticks = element_blank (),
-         legend.key.size = unit(0.1, 'lines'),
-         legend.position = c(0.85,0.88),
-         legend.title = element_blank(),
-         panel.grid = element_blank (),
          plot.title = element_text(hjust = 0.5, vjust = 0, size = 16, face = "bold"),
          plot.subtitle = element_text(hjust = 0.5, vjust = 1, size = 12, face = "bold"),
          plot.caption = element_text (hjust = 0, size = 10),
          plot.background = element_rect(fill = "#fdf6e3"),
-         panel.background = element_rect(fill = "#fdf6e3"),
-         legend.background = element_rect(fill = "#fdf6e3")
+         panel.background = element_rect(fill = "#fdf6e3"),     
+         panel.grid = element_blank (),
+         text = element_text(family = "Trajanus Roman", color = "black", face = "bold"),   #download font from https://www.fontspace.com/roger-white/trajanus-roman
+         axis.title.x = element_text (hjust = 0.5),
+         axis.text.x = element_text (size = 8),axis.title.y = element_blank (),
+         axis.text.y = element_blank (),
+         axis.ticks = element_blank (),
+         legend.title = element_blank(),
+         legend.background = element_rect(fill = "#fdf6e3"),
+         legend.key.size = unit(0.1, 'lines'),
+         legend.position = c(0.85,0.88)
          ) +
       labs(
          title = "Roman Emperor Principate Era (62 BCE to AD 283)",
