@@ -18,6 +18,7 @@
 ```
 
 
+### 2a.  Transform data - count by death cause
 ```{r}
    
    emperor_cause <- emperors_raw %>%
@@ -29,7 +30,7 @@
 ```
 
    
-### 2.  Transform 
+### 2b.  Transform data - calculate reign ages
 ```{r source, warning = TRUE, results = FALSE, message = FALSE}
    
    library (lubridate)
@@ -51,7 +52,7 @@
          cause = fct_lump (cause, 4)
       ) %>%
       right_join (emperor_cause) %>%
-      select (index, name, birth, reign_start_age, reign_end_age, reign_length, cause_long, cause) 
+      select (index, name, birth, death, reign_start_age, reign_end_age, reign_length, cause_long, cause) 
 ```
 
 
@@ -59,33 +60,58 @@
 ```{r plot}
 
    ggplot( data = emperors) +
-      geom_segment(
-         aes(
-            x = reign_start_age, 
-            y = reorder(name, -reign_end_age), 
-            xend = reign_end_age, 
-            yend = name
-            ),
-         alpha = 0.15, color = "black" 
-         ) +
-      geom_point(
-         aes(y=name, x=reign_end_age, color = cause_long),
-         size = 1
-         ) +
-      geom_text(
-         aes(x = reign_end_age, y = name, label = name),
-         hjust = -.3, size = 3, family = "Trajanus Roman"
-          ) +
-      annotate("text",
-         label = "Longest\nreign",
-         size = 3, hjust = 0.5, family = "Trajanus Roman", color = "black",
-         x = 30, y = 5, xmax = 35  
-         ) +
-      geom_curve(
-         aes(x = 33, y = 5, xend = 36, yend = 4.3),
-         arrow = arrow(length = unit(0.18, "cm")), 
-         size = 0.2, color = "black", curvature = -0.3, alpha = 0.6
-         ) +
+      #reign segments and death age points
+         geom_segment(
+            aes(
+               x = reign_start_age, 
+               y = reorder(name, -reign_end_age), 
+               xend = reign_end_age, 
+               yend = name
+               ),
+            alpha = 0.15, color = "black" 
+            ) +
+         geom_point(
+            aes(y=name, x=reign_end_age, color = cause_long),
+            size = 1
+            ) +
+      #emperor names ajacent to plot points
+         geom_text(
+            aes(x = reign_end_age, y = name, label = name),
+            hjust = -.3, size = 2, family = "Trajanus Roman"
+             ) +
+      #longest reign annotation
+         annotate("text",
+            label = "Longest reign",
+            size = 2.1, hjust = 0.5, family = "Trajanus Roman", color = "black",
+            x = 34, y = 5, xmax = 36  
+            ) +
+         geom_curve(
+            aes(x = 36.2, y = 4.8, xend = 38, yend = 4.2),
+            arrow = arrow(length = unit(0.1, "cm")), 
+            size = 0.1, color = "black", curvature = -0.3, alpha = 0.07
+            ) +
+      #last reign annotation
+         annotate("text",
+            label = "Final reign",
+            size = 2.1, hjust = 0.5, family = "Trajanus Roman", color = "black",
+            x = 50.5, y = 23, xmax = 35  
+            ) +
+         geom_curve(
+            aes(x = 50.5, y = 23.2, xend = 52.4, yend = 24),
+            arrow = arrow(length = unit(0.1, "cm")), 
+            size = 0.1, color = "black", curvature = -0.3, alpha = 0.07
+            ) +
+      #youngest reign annotation
+         annotate("text",
+            label = "Youngest\nreign",
+            size = 2.1, hjust = 0.5, family = "Trajanus Roman", color = "black",
+            x = 12, y = 36, xmax = 35  
+            ) +
+         geom_curve(
+            aes(x = 12, y = 37, xend = 12, yend = 38.6),
+            arrow = arrow(length = unit(0.1, "cm")), 
+            size = 0.1, color = "black", curvature = 0, alpha = 0.07
+            ) +
       #scales
          scale_x_continuous(
             breaks = c(20, 40, 60, 80),
@@ -112,12 +138,10 @@
          ) +
       labs(
          title = "Roman Emperor Principate Era (62 BCE to AD 283)",
-         subtitle = "They ruled history's largest empire but typically died brutally.\n\n",
+         subtitle = "They ruled history's largest empire but often died brutally.\n\n",
          caption = "\nLines represent the beginning through ending age of each emperor's reign.\nData: Wikipedia   Visualization: Joel Soroos @soroosj",
          x = "\nAge (Years)"
          ) +
-     ggsave("emperors.png", width = 26, height = 26, units = "cm")
-      
- 
+     ggsave("emperors.png", width = 29, units = "cm")
 ```
 
