@@ -6,8 +6,8 @@ Below are lessons that I have learned from my submissions.
 | Week | Data Set | Lesson | Function | Package 
 | :---: | :---: | :--- | :--- | :--- |
 |`2019-08-13`| Roman emperors | Segment visualizations | geom_segment | ggplot2 |
-|`2019-08-13`| Roman emperors | Text adjacent to plot points | geom_text | ggplot2 |
-|`2019-08-13`| Roman emperors | Update multiple date components | update | dplyr |
+|`2019-08-13`| Roman emperors | Text adjacent to points | geom_text | ggplot2 |
+|`2019-08-13`| Roman emperors | Update date components | update | dplyr |
 |`2019-08-06`| Bob Ross | Word cloud in letter shapes | letterCloud | wordcloud2 |
 |`2019-08-06`| Bob Ross | Wentences to individual word records | unnest_tokens | tidytext |
 |`2019-07-09`| World Cup | Sum variable by group in one line | tally | dplyr |
