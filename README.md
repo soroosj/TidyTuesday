@@ -9,7 +9,7 @@ Below are lessons that I have learned from my submissions.
 |`2019-08-13`| Roman emperors | Text adjacent to points | geom_text | ggplot2 |
 |`2019-08-13`| Roman emperors | Update date components | update | dplyr |
 |`2019-08-06`| Bob Ross | Word cloud in letter shapes | letterCloud | wordcloud2 |
-|`2019-08-06`| Bob Ross | Wentences to individual word records | unnest_tokens | tidytext |
+|`2019-08-06`| Bob Ross | Sentences to records by word | unnest_tokens | tidytext |
 |`2019-07-09`| World Cup | Sum variable by group in one line | tally | dplyr |
 |`2019-07-09`| World Cup | Instance of a record in a group | row_number | dplyr |
 |`2019-07-09`| World Cup | Data frame to vector | pull | dplyr |
