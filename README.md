@@ -5,9 +5,9 @@ Below are lessons that I have learned from my submissions.
 
 | Week | Data Set | Lesson | Function | Package 
 | :---: | :---: | :--- | :--- | :--- |
-|`2019-08-16`| World Cup | Segment visualizations | geom_segment | ggplot2 |
-|`2019-08-16`| World Cup | list text adjacent to plot points | geom_text | ggplot2 |
-|`2019-08-16`| World Cup | update multiple componets of date | update | dplyr |
+|`2019-08-16`| Roman emperors | Segment visualizations | geom_segment | ggplot2 |
+|`2019-08-16`| Roman emperors | list text adjacent to plot points | geom_text | ggplot2 |
+|`2019-08-16`| Roman emperors | update multiple componets of date | update | dplyr |
 |`2019-07-09`| World Cup | sum variable by group in one line | tally | dplyr |
 |`2019-07-09`| World Cup | instance of a record in a group | row_number | dplyr |
 |`2019-07-09`| World Cup | data frame to vector | pull | dplyr |
