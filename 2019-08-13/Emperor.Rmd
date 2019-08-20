@@ -28,7 +28,6 @@
       mutate (cause = fct_lump (cause,4)) %>%
       count (cause, sort = TRUE) %>%
       mutate (cause_long = glue ("{cause} ({n})")) %>%
-      #mutate (cause_long = paste (cause , " (", n, ")", sep ="")) %>%
       select (cause, cause_long)
 ```
 
