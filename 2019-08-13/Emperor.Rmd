@@ -92,7 +92,7 @@
          annotate("text",
             label = "Final reign",
             size = 3, hjust = 0.5, family = "Trajanus Roman", color = "black",
-            x = 50.5, y = 23
+            x = 49, y = 23
             ) +
          geom_curve(
             aes(x = 50.5, xend = 52.4, y = 23.2, yend = 24),
@@ -103,7 +103,7 @@
          annotate("text",
             label = "Longest reign",
             size = 3, hjust = 0.5, family = "Trajanus Roman", color = "black",
-            x = 32.5, y = 5, xmax = 36  
+            x = 31.5, y = 5, xmax = 36  
             ) +
          geom_curve(
             aes(x = 36.2, xend = 38, y = 4.8, yend = 4.2),
@@ -139,6 +139,6 @@
          caption = "\nLines represent the beginning through ending age of each emperor's reign.\nData: Wikipedia   Visualization: Joel Soroos @soroosj",
          x = "\nAge (Years)"
          ) +
-     ggsave("emperors.png", width = 29, units = "cm")
+     ggsave("emperors.png", width = 20, units = "cm")
 ```
 
