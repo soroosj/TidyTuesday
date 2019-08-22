@@ -1,0 +1,68 @@
+---
+   title: "Explosions"
+   author: "Joel Soroos"
+   date: "August 20, 2019"
+   output: pdf_document
+---
+
+### 1a. Source nuclear explosion data
+```{r source, warning = TRUE, results = FALSE, message = FALSE}
+
+   library (tidyverse)
+   library (janitor) 
+
+   explosions_raw <- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-08-20/nuclear_explosions.csv") %>%
+      clean_names ()
+```
+   
+### 1b. Source North Carolina map borders 
+```{r source, warning = TRUE, results = FALSE, message = FALSE}
+   
+   map_borders <- map_data("world") 
+```
+
+### 2.  Transform UFO data
+```{r transform, message = F}
+
+   explosions <- explosions_raw 
+      #filter (
+         #state == "nc",
+         #latitude > 30,      # remove borders erroneously listed as NC outside of state borders
+         #latitude < 37,      # remove borders erroneously listed as NC outside of state borders
+         #longitude < -75     # remove borders erroneously listed as NC outside of state borders
+         #)  %>%
+```
+
+### 3. Visualize data
+```{r plot}
+
+   ggplot () +
+      #plot North Carolina borders
+      geom_polygon (data = map_borders, aes(x = long, y = lat, group = group), color = "black", fill = "#303030", size = 1.15) +
+      #plot UFO encounters
+      geom_point (
+         data = explosions,
+         aes (x = longitude, y = latitude, color = country)
+         ) +
+      labs(
+         title = "UFOs over North Carolina\n",
+         size = "Encounter (hrs)",
+         caption = "\nEach dot represents a reported UFO sighting between 1995 and 2014.  \nSource: National UFO Reporting Center  | Visualization: Joel Soroos @soroosj"
+         ) +
+      coord_fixed(1.3) +
+      scale_size_continuous(breaks = c(1, 10, 100)) +
+      theme(
+         text = element_text(family = "Rockwell", color = "green"),
+         plot.title = element_text(hjust = 0.5, size = 18),
+         plot.caption = element_text(hjust = 0, size = 8),
+         axis.title = element_blank(),
+         axis.text = element_blank(),
+         axis.ticks = element_blank(),
+         legend.title = element_text(size = 10, hjust = 0.5, vjust = 0.5),
+         legend.text = element_text(size = 9, hjust = 0.5, vjust = 0.5),
+         legend.position = c(0.82,0.18),
+         legend.justification=c(0, 1), 
+         legend.key.size = unit(0.1, 'lines')
+         ) +
+      ggsave("ufo.png")
+```
