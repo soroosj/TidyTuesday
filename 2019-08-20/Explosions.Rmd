@@ -20,10 +20,11 @@
 ```{r transform, message = F}
 
    explosions <- explosions_raw %>%
-      filter (
-         year < 1960
-         ) %>%
-      count (year, country)
+      filter (year < 1975) %>%
+      group_by (year) %>%
+      count (country) %>%
+      mutate(rank = rank(n)) %>%
+      ungroup
 ```
 
 ### 3. Visualize data
@@ -31,17 +32,20 @@
 
    library (gganimate)
    library (gifski)
+   library (png)
 
-   ggplot () +
-      geom_col (
+   g <- ggplot () +
+      geom_col (position = "identity",
          data = explosions, 
-         aes(x = reorder(country,n), y = n)
+         aes(x = reorder(country,rank), y = rank)
          ) +
       coord_flip () +
-      transition_time(year) +
+      transition_states(year, transition_length = 8, state_length = 6) +
       labs(
-         title = 'Year: {frame_time}', 
-         y = '# of nuclear explosions'
-         ) 
+         title = 'GDP per Year : {closest_state}'
+       )
+   
+      animate(g, 20, fps = 2,  width = 1200, height = 1000, 
+        renderer = gifski_renderer("explosions.gif"))
 
 ```
