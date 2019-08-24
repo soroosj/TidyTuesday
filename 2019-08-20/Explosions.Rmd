@@ -20,11 +20,12 @@
 ```{r transform, message = F}
 
    explosions <- explosions_raw %>%
-      filter (year < 1975) %>%
-      group_by (year) %>%
+      #filter (year < 1975) %>%
+      mutate (decade = floor(year / 10) * 10) %>%
+      group_by (decade) %>%
       count (country) %>%
-      mutate(rank = rank(n)) %>%
-      ungroup
+      mutate(rank = min_rank(-n) * 1) %>%
+      ungroup ()
 ```
 
 ### 3. Visualize data
@@ -34,18 +35,20 @@
    library (gifski)
    library (png)
 
-   g <- ggplot () +
-      geom_col (position = "identity",
-         data = explosions, 
-         aes(x = reorder(country,rank), y = rank)
-         ) +
-      coord_flip () +
-      transition_states(year, transition_length = 8, state_length = 6) +
+   g <- ggplot (explosions, aes (rank)) +
+      geom_tile (aes(y = n/2, height = n), width = 0.9) +
+      geom_text(aes(y = 0, label = paste(country, " ")), vjust = 0.2, hjust = 1) +
+      coord_flip (clip = "off", expand = FALSE) +
+      transition_states(decade, transition_length = 8, state_length = 6) +
+      ease_aes('cubic-in-out') +
+      scale_x_reverse() +
       labs(
-         title = 'GDP per Year : {closest_state}'
+         title = "Year : {closest_state}s"
        )
    
-      animate(g, 20, fps = 2,  width = 1200, height = 1000, 
+      animate(g, 24, fps = 5,  width = 800, height = 600, 
         renderer = gifski_renderer("explosions.gif"))
+      
+      #https://stackoverflow.com/questions/53162821/animated-sorted-bar-chart-with-bars-overtaking-each-other
 
 ```
