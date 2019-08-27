@@ -12,7 +12,8 @@
    library (janitor) 
 
    explosions_raw <- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-08-20/nuclear_explosions.csv") %>%
-      clean_names ()
+      clean_names () %>%
+      drop_na (country)
 ```
    
 
@@ -20,12 +21,12 @@
 ```{r transform, message = F}
 
    explosions <- explosions_raw %>%
-      #filter (year < 1975) %>%
       mutate (decade = floor(year / 10) * 10) %>%
       group_by (decade) %>%
       count (country) %>%
       mutate(rank = min_rank(-n) * 1) %>%
-      ungroup ()
+      ungroup () %>%
+      arrange (decade, rank)
 ```
 
 ### 3. Visualize data
@@ -35,18 +36,43 @@
    library (gifski)
    library (png)
 
-   g <- ggplot (explosions, aes (rank)) +
-      geom_tile (aes(y = n/2, height = n), width = 0.9) +
-      geom_text(aes(y = 0, label = paste(country, " ")), vjust = 0.2, hjust = 1) +
+   g <-ggplot (explosions, aes (rank)) +
+      geom_tile (
+         aes(y = n/2, height = n),
+         width = 0.9, fill = "black"
+         ) +
+      #bar labels
+         geom_text(
+            aes(y = 0, label = paste (country, "  ")), 
+            hjust = 1, color = "black"
+            ) +
+         geom_text(
+            aes(y = n, label = paste ("   ", n)), 
+            hjust = "left", color = "black"
+            ) +
       coord_flip (clip = "off", expand = FALSE) +
-      transition_states(decade, transition_length = 8, state_length = 6) +
-      ease_aes('cubic-in-out') +
       scale_x_reverse() +
+      ylim (-30, NA) +
+      theme(
+         axis.title = element_blank(),
+         axis.text = element_blank(),
+         axis.ticks = element_blank(),
+         plot.title = element_text(hjust = 0.5, vjust = 0, size = 16, face = "bold"),
+         plot.caption = element_text (hjust = 0, size = 12),
+         plot.background = element_rect(fill = "#fdf6e3"),
+         panel.background = element_rect(fill = "#fdf6e3"),     
+         panel.grid = element_blank ()
+         ) +
+      #animation
+         transition_states(decade, transition_length = 8, state_length = 6) +
+         ease_aes('cubic-in-out') +
       labs(
-         title = "Year : {closest_state}s"
-       )
-   
-      animate(g, 24, fps = 5,  width = 800, height = 600, 
+         title = "Decade : {closest_state}s\n\n",
+         y = "Number of nuclear explosions\n",
+         caption = "\nData: Wikipedia   Visualization: Joel Soroos @soroosj"
+         )
+
+      animate(g, 24, fps = 2,  width = 800, height = 600, 
         renderer = gifski_renderer("explosions.gif"))
       
       #https://stackoverflow.com/questions/53162821/animated-sorted-bar-chart-with-bars-overtaking-each-other
