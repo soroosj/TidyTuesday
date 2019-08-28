@@ -23,9 +23,10 @@
    explosions <- explosions_raw %>%
       mutate (decade = floor(year / 10) * 10) %>%
       group_by (decade) %>%
-      count (country) %>%
-      mutate(rank = min_rank(-n) * 1) %>%
-      ungroup () %>%
+         count (country) %>%
+         arrange (decade, n) %>%
+         mutate(rank = row_number(-n) * 1) %>%
+         ungroup () %>%
       arrange (decade, rank)
 ```
 
@@ -44,21 +45,21 @@
       #bar labels
          geom_text(
             aes(y = 0, label = paste (country, "  ")), 
-            hjust = 1, color = "black"
+            hjust = 1, color = "black", size = 4
             ) +
          geom_text(
             aes(y = n, label = paste ("   ", n)), 
-            hjust = "left", color = "black"
+            hjust = "left", color = "black", size = 4
             ) +
       coord_flip (clip = "off", expand = FALSE) +
       scale_x_reverse() +
-      ylim (-30, NA) +
+      ylim (-70, 460) +
       theme(
          axis.title = element_blank(),
          axis.text = element_blank(),
          axis.ticks = element_blank(),
          plot.title = element_text(hjust = 0.5, vjust = 0, size = 16, face = "bold"),
-         plot.caption = element_text (hjust = 0, size = 12),
+         plot.caption = element_text (hjust = 1, size = 12),
          plot.background = element_rect(fill = "#fdf6e3"),
          panel.background = element_rect(fill = "#fdf6e3"),     
          panel.grid = element_blank ()
@@ -67,12 +68,12 @@
          transition_states(decade, transition_length = 8, state_length = 6) +
          ease_aes('cubic-in-out') +
       labs(
-         title = "Decade : {closest_state}s\n\n",
+         title = "Nuclear Explosions : {closest_state}s\n\n",
          y = "Number of nuclear explosions\n",
-         caption = "\nData: Wikipedia   Visualization: Joel Soroos @soroosj"
+         caption = "Data: Stockholm International Peace Research Institute via R4DS Tidy Tuesday\nVisualization: Joel Soroos @soroosj"
          )
 
-      animate(g, 24, fps = 2,  width = 800, height = 600, 
+      animate(g, 24, fps = 1,  width = 800, height = 600, 
         renderer = gifski_renderer("explosions.gif"))
       
       #https://stackoverflow.com/questions/53162821/animated-sorted-bar-chart-with-bars-overtaking-each-other
