@@ -25,17 +25,15 @@
 
    explosions <- explosions_raw %>%
       mutate (
-         lustrum = floor( year / 5) * 5,
-         lustrum_long = glue ("{lustrum} - {lustrum + 5}"),
          country = ifelse(country == "PAKIST", "Pakistan", country),
          country = ifelse(country %in% c("FRANCE", "INDIA", "CHINA"), str_to_title (country), country)
          ) %>%
-      group_by (lustrum_long) %>%
+      group_by (year) %>%
          count (country) %>%
-         arrange (lustrum_long, n) %>%
+         arrange (year, n) %>%
          mutate(rank = row_number(-n) * 1) %>%
          ungroup () %>%
-      arrange (lustrum_long, rank)
+      arrange (year, rank)
 ```
 
 
@@ -55,7 +53,7 @@
             ) +
       #bar labels
          geom_text(
-            aes(y = 0, label = paste (country, "   ")), 
+            aes(y = 0, label = paste (country, "  ")), 
             hjust = 1, color = "white", size = 4.5, family = "sans"
             ) +
          geom_text(
@@ -65,12 +63,12 @@
       #scales
          coord_flip (clip = "off", expand = FALSE) +
          scale_x_reverse() +
-         ylim (-50, 270) +
+         ylim (-18, 105) +
          scale_fill_brewer(type = "qual", palette = 2) +
       #themes
          dark_theme_classic () +
          theme(
-            plot.title = element_text(hjust = 0.5, vjust = 0, size = 17, face = "bold", margin = margin (0,0,35,0)),
+            plot.title = element_text(hjust = 0.5, vjust = 0, size = 17, face = "bold", margin = margin (0,0,25,0)),
             plot.caption = element_text (hjust = 0, size = 11, margin = margin (20,0,0,0)),
             axis.title = element_blank(),
             axis.text = element_blank(),
@@ -79,16 +77,13 @@
             legend.position = "none"
             ) +
       labs(
-         title = "Nuclear Explosions: {closest_state} \n",
+         title = "Nuclear Weapon Explosions\n{closest_state}",
          caption = "Data: Stockholm International Peace Research Institute via R4DS Tidy Tuesday\nVisualization: Joel Soroos @soroosj"
          ) +
-      #separate charts by lustrum
-         transition_states(lustrum_long, transition_length = 10, state_length = 90) +
-         ease_aes('cubic-in-out')
+      #separate charts by year
+         transition_states(year, transition_length = 4, state_length = 1)
 
       #animate charts
-         animate(g, 50, fps = 2,  width = 450, height = 230, 
+         animate(g, nframes = 200, fps = 5, width = 420, height = 230, 
            renderer = gifski_renderer("explosions.gif"))
-      
-      #methodology:  https://stackoverflow.com/questions/53162821/animated-sorted-bar-chart-with-bars-overtaking-each-other
 ```
