@@ -5,10 +5,13 @@ Below are lessons that I have learned from my submissions.
 
 | Week | Data Set | Lesson | Function | Package 
 | :---: | :---: | :--- | :--- | :--- |
+|`2019-08-20`| Nuclear bombs | Animate plots | animate | gganimate |
+|`2019-08-20`| Nuclear bombs | Round to nearest integer | floor | dplyr |
+|`2019-08-20`| Nuclear bombs | Extend plot area | ylim, xlim | ggplot |
 |`2019-08-13`| Roman emperors | Segment visualizations | geom_segment | ggplot2 |
 |`2019-08-13`| Roman emperors | Text adjacent to points | geom_text | ggplot2 |
 |`2019-08-13`| Roman emperors | Update date components | update | dplyr |
-|`2019-08-13`| Roman emperors | combining data into string | glue | glue |
+|`2019-08-13`| Roman emperors | Combine data into string | glue | glue |
 |`2019-08-06`| Bob Ross | Word cloud in letter shapes | letterCloud | wordcloud2 |
 |`2019-08-06`| Bob Ross | Sentences to records by word | unnest_tokens | tidytext |
 |`2019-07-09`| World Cup | Sum variable by group in one line | tally | dplyr |
