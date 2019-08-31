@@ -7,7 +7,7 @@ Below are lessons that I have learned from my submissions.
 | :---: | :---: | :--- | :--- | :--- |
 |`2019-08-20`| Nuclear bombs | Animate plots | animate | gganimate |
 |`2019-08-20`| Nuclear bombs | Round to nearest integer | floor | dplyr |
-|`2019-08-20`| Nuclear bombs | Extend plot area | ylim | ggplot |
+|`2019-08-20`| Nuclear bombs | Extend plot area | ylim, xlim | ggplot |
 |`2019-08-13`| Roman emperors | Segment visualizations | geom_segment | ggplot2 |
 |`2019-08-13`| Roman emperors | Text adjacent to points | geom_text | ggplot2 |
 |`2019-08-13`| Roman emperors | Update date components | update | dplyr |
