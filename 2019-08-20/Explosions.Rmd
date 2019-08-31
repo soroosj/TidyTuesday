@@ -1,7 +1,7 @@
 ---
-   title: "Explosions"
+   title: "Nuclear Explosions"
    author: "Joel Soroos"
-   date: "August 27, 2019"
+   date: "September 1, 2019"
    output: pdf_document
 ---
 
@@ -20,14 +20,21 @@
 ### 2.  Transform UFO data
 ```{r transform, message = F}
 
+  library (glue)
+
    explosions <- explosions_raw %>%
-      mutate (decade = floor(year / 10) * 10) %>%
-      group_by (decade) %>%
+      mutate (
+         lustrum = floor( year / 5) * 5,
+         lustrum_long = glue ("{lustrum} - {lustrum + 5}"),
+         country = ifelse(country == "PAKIST", "Pakistan", country),
+         country = ifelse(country %in% c("FRANCE", "INDIA", "CHINA"), str_to_title (country), country)
+         ) %>%
+      group_by (lustrum_long) %>%
          count (country) %>%
-         arrange (decade, n) %>%
+         arrange (lustrum_long, n) %>%
          mutate(rank = row_number(-n) * 1) %>%
          ungroup () %>%
-      arrange (decade, rank)
+      arrange (lustrum_long, rank)
 ```
 
 ### 3. Visualize data
@@ -35,45 +42,45 @@
 
    library (gganimate)
    library (gifski)
-   library (png)
+   library (scales)
 
    g <-ggplot (explosions, aes (rank)) +
       geom_tile (
          aes(y = n/2, height = n),
-         width = 0.9, fill = "black"
+         width = 0.5, fill = "black"
          ) +
       #bar labels
          geom_text(
-            aes(y = 0, label = paste (country, "  ")), 
-            hjust = 1, color = "black", size = 4
+            aes(y = 0, label = glue ("{country}   ")), 
+            hjust = 1, color = "black", size = 5
             ) +
          geom_text(
-            aes(y = n, label = paste ("   ", n)), 
-            hjust = "left", color = "black", size = 4
+            aes(y = n, label = glue (" {n}")), 
+            hjust = "left", color = "black", size = 5
             ) +
       coord_flip (clip = "off", expand = FALSE) +
       scale_x_reverse() +
       ylim (-70, 460) +
       theme(
-         axis.title = element_blank(),
-         axis.text = element_blank(),
-         axis.ticks = element_blank(),
-         plot.title = element_text(hjust = 0.5, vjust = 0, size = 16, face = "bold"),
-         plot.caption = element_text (hjust = 1, size = 12),
          plot.background = element_rect(fill = "#fdf6e3"),
          panel.background = element_rect(fill = "#fdf6e3"),     
-         panel.grid = element_blank ()
+         panel.grid = element_blank (),
+         plot.title = element_text(hjust = 0.5, vjust = 0, size = 18, face = "bold"),
+         plot.caption = element_text (hjust = 1, size = 12),
+         axis.title = element_blank(),
+         axis.text = element_blank(),
+         axis.ticks = element_blank()
          ) +
       #animation
-         transition_states(decade, transition_length = 8, state_length = 6) +
+         transition_states(lustrum_long, transition_length = 8, state_length = 6) +
          ease_aes('cubic-in-out') +
       labs(
-         title = "Nuclear Explosions : {closest_state}s\n\n",
+         title = "Nuclear Explosions: {closest_state} \n\n",
          y = "Number of nuclear explosions\n",
          caption = "Data: Stockholm International Peace Research Institute via R4DS Tidy Tuesday\nVisualization: Joel Soroos @soroosj"
          )
 
-      animate(g, 24, fps = 1,  width = 800, height = 600, 
+      animate(g, 60, fps = 1,  width = 800, height = 600, 
         renderer = gifski_renderer("explosions.gif"))
       
       #https://stackoverflow.com/questions/53162821/animated-sorted-bar-chart-with-bars-overtaking-each-other
