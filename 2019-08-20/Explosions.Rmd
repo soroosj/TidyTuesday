@@ -56,7 +56,7 @@
       #bar labels
          geom_text(
             aes(y = 0, label = paste (country, "   ")), 
-            hjust = 1, color = "white", size = 4.5
+            hjust = 1, color = "white", size = 4.5, family = "sans"
             ) +
          geom_text(
             aes(y = n, label = paste (" ",n)), 
@@ -70,29 +70,24 @@
       #themes
          dark_theme_classic () +
          theme(
-            plot.background = element_rect(),
-            panel.background = element_rect(),     
-            panel.grid = element_blank (),
             plot.title = element_text(hjust = 0.5, vjust = 0, size = 17, face = "bold", margin = margin (0,0,35,0)),
             plot.caption = element_text (hjust = 0, size = 11, margin = margin (20,0,0,0)),
             axis.title = element_blank(),
             axis.text = element_blank(),
             axis.ticks = element_blank(),
             axis.line = element_blank(),
-            legend.position = "none",
-            text = element_text(family = "sans", color = "white")
+            legend.position = "none"
             ) +
       labs(
          title = "Nuclear Explosions: {closest_state} \n",
-         y = "Number of nuclear explosions\n",
-         caption = "\nData: Stockholm International Peace Research Institute via R4DS Tidy Tuesday\nVisualization: Joel Soroos @soroosj"
+         caption = "Data: Stockholm International Peace Research Institute via R4DS Tidy Tuesday\nVisualization: Joel Soroos @soroosj"
          ) +
       #separate charts by lustrum
          transition_states(lustrum_long, transition_length = 10, state_length = 90) +
          ease_aes('cubic-in-out')
 
       #animate charts
-         animate(g, 50, fps = 2,  width = 430, height = 230, 
+         animate(g, 50, fps = 2,  width = 450, height = 230, 
            renderer = gifski_renderer("explosions.gif"))
       
       #methodology:  https://stackoverflow.com/questions/53162821/animated-sorted-bar-chart-with-bars-overtaking-each-other
