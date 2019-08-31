@@ -5,7 +5,8 @@
    output: pdf_document
 ---
 
-### 1a. Source nuclear explosion data
+
+### 1. Source nuclear explosion data
 ```{r source, warning = TRUE, results = FALSE, message = FALSE}
 
    library (tidyverse)
@@ -17,8 +18,8 @@
 ```
    
 
-### 2.  Transform UFO data
-```{r transform, message = F}
+### 2.  Transform nuclear explosion data
+```{r transform, message = F, results = F}
 
   library (glue)
 
@@ -37,52 +38,62 @@
       arrange (lustrum_long, rank)
 ```
 
-### 3. Visualize data
+
+### 3. Visualize nuclear explosion data
 ```{r plot}
 
+   library (scales)
+   library (ggdark)
    library (gganimate)
    library (gifski)
-   library (scales)
 
    g <-ggplot (explosions, aes (rank)) +
-      geom_tile (
-         aes(y = n/2, height = n),
-         width = 0.5, fill = "black"
-         ) +
+      #bars
+         geom_tile (
+            aes(y = n/2, height = n, fill = country),
+            width = 0.5
+            ) +
       #bar labels
          geom_text(
-            aes(y = 0, label = glue ("{country}   ")), 
-            hjust = 1, color = "black", size = 5
+            aes(y = 0, label = paste (country, "   ")), 
+            hjust = 1, color = "white", size = 4.5
             ) +
          geom_text(
-            aes(y = n, label = glue (" {n}")), 
-            hjust = "left", color = "black", size = 5
+            aes(y = n, label = paste (" ",n)), 
+            hjust = "left", color = "white", size = 4, family = "sans"
             ) +
-      coord_flip (clip = "off", expand = FALSE) +
-      scale_x_reverse() +
-      ylim (-70, 460) +
-      theme(
-         plot.background = element_rect(fill = "#fdf6e3"),
-         panel.background = element_rect(fill = "#fdf6e3"),     
-         panel.grid = element_blank (),
-         plot.title = element_text(hjust = 0.5, vjust = 0, size = 18, face = "bold"),
-         plot.caption = element_text (hjust = 1, size = 12),
-         axis.title = element_blank(),
-         axis.text = element_blank(),
-         axis.ticks = element_blank()
-         ) +
-      #animation
-         transition_states(lustrum_long, transition_length = 8, state_length = 6) +
-         ease_aes('cubic-in-out') +
+      #scales
+         coord_flip (clip = "off", expand = FALSE) +
+         scale_x_reverse() +
+         ylim (-50, 270) +
+         scale_fill_brewer(type = "qual", palette = 2) +
+      #themes
+         dark_theme_classic () +
+         theme(
+            plot.background = element_rect(),
+            panel.background = element_rect(),     
+            panel.grid = element_blank (),
+            plot.title = element_text(hjust = 0.5, vjust = 0, size = 17, face = "bold", margin = margin (0,0,35,0)),
+            plot.caption = element_text (hjust = 0, size = 11, margin = margin (20,0,0,0)),
+            axis.title = element_blank(),
+            axis.text = element_blank(),
+            axis.ticks = element_blank(),
+            axis.line = element_blank(),
+            legend.position = "none",
+            text = element_text(family = "sans", color = "white")
+            ) +
       labs(
-         title = "Nuclear Explosions: {closest_state} \n\n",
+         title = "Nuclear Explosions: {closest_state} \n",
          y = "Number of nuclear explosions\n",
-         caption = "Data: Stockholm International Peace Research Institute via R4DS Tidy Tuesday\nVisualization: Joel Soroos @soroosj"
-         )
+         caption = "\nData: Stockholm International Peace Research Institute via R4DS Tidy Tuesday\nVisualization: Joel Soroos @soroosj"
+         ) +
+      #separate charts by lustrum
+         transition_states(lustrum_long, transition_length = 10, state_length = 90) +
+         ease_aes('cubic-in-out')
 
-      animate(g, 60, fps = 1,  width = 800, height = 600, 
-        renderer = gifski_renderer("explosions.gif"))
+      #animate charts
+         animate(g, 50, fps = 2,  width = 430, height = 230, 
+           renderer = gifski_renderer("explosions.gif"))
       
-      #https://stackoverflow.com/questions/53162821/animated-sorted-bar-chart-with-bars-overtaking-each-other
-
+      #methodology:  https://stackoverflow.com/questions/53162821/animated-sorted-bar-chart-with-bars-overtaking-each-other
 ```
