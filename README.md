@@ -6,7 +6,7 @@ Below are lessons that I have learned from my submissions.
 | Week | Data Set | Lesson | Function | Package 
 | :---: | :---: | :--- | :--- | :--- |
 |`2019-08-20`| Nuclear bombs | Animate plots | animate | gganimate |
-|`2019-08-20`| Nuclear bombs | Round to nearest integer | floor | dplyr |
+|`2019-08-20`| Nuclear bombs | Tile plot | geom_tile | ggplot |
 |`2019-08-20`| Nuclear bombs | Extend plot area | ylim, xlim | ggplot |
 |`2019-08-13`| Roman emperors | Segment visualizations | geom_segment | ggplot2 |
 |`2019-08-13`| Roman emperors | Text adjacent to points | geom_text | ggplot2 |
