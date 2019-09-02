@@ -21,8 +21,6 @@
 ### 2.  Transform nuclear explosion data
 ```{r transform, message = F, results = F}
 
-  library (glue)
-
    explosions <- explosions_raw %>%
       mutate (
          country = ifelse(country == "PAKIST", "Pakistan", country),
@@ -32,8 +30,7 @@
          count (country) %>%
          arrange (year, n) %>%
          mutate(rank = row_number(-n) * 1) %>%
-         ungroup () %>%
-      arrange (year, rank)
+         ungroup () 
 ```
 
 
@@ -63,6 +60,7 @@
       #scales
          coord_flip (clip = "off", expand = FALSE) +
          scale_x_reverse() +
+         scale_y_continuous(trans = log10_trans()) +
          ylim (-18, 105) +
          scale_fill_brewer(type = "qual", palette = 2) +
       #themes
