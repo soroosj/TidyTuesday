@@ -1,0 +1,60 @@
+---
+   title: "Moore's Law"
+   author: "Joel Soroos"
+   date: "September 7, 2019"
+   output: pdf_document
+---
+
+
+### 1. Source nuclear explosion data
+```{r source, warning = TRUE, results = FALSE, message = FALSE}
+
+   library (tidyverse)
+   library (janitor) 
+
+   ram_raw <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-09-03/ram.csv") %>%
+      clean_names () 
+   
+   options(scipen=999)
+```
+   
+
+### 2.  Transform nuclear explosion data
+```{r transform, message = F, results = F}
+
+   ram <- ram_raw %>%
+      select(date_of_introduction, transistor_count, capacity_bits) %>%
+      rename (
+         year = date_of_introduction,
+         transistors = transistor_count,
+         capacity = capacity_bits
+         ) %>%
+      mutate (
+         predict = 6 * 2 ^ (row_number()-1)
+         )
+
+```
+
+
+### 3. Visualize nuclear explosion data
+```{r plot}
+
+   library (scales)
+   library (ggdark)
+
+   ggplot (ram, aes (x=year, y = transistors)) +
+      #bars
+       geom_line() +
+      #scales
+         scale_y_continuous(trans = log10_trans()) +
+      #themes
+         dark_theme_classic () +
+         theme(
+            plot.title = element_text(hjust = 0.5, vjust = 0, size = 17, face = "bold", margin = margin (0,0,25,0)),
+            plot.caption = element_text (hjust = 0, size = 11, margin = margin (20,0,0,0)),
+            legend.position = "none"
+            ) +
+      labs(
+         title = "Moore's Law Growth"
+         ) 
+```
