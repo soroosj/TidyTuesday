@@ -136,6 +136,7 @@
          title = "Gordon Moore correctly predicted in 1971 that computing power would double every 2 years.",
          y = "# of transistors on a CPU microchip",
          caption = "Each dot is the maximum number of transistors on a CPU microchip released that year.  Green (red) is above (below) Moore's predicition.\nSource: Wikipedia via R4DS Tidy Tuesday  |  Visualization: Joel Soroos @soroosj"
-         ) 
+         ) +
+      ggsave("moore.png", width = 18.5, height = 14, units = "cm")
 ```
 
