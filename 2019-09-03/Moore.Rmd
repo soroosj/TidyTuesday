@@ -126,7 +126,7 @@
          theme(
             plot.title = element_text(hjust = 1.2, vjust = 0, size = 11.1, face = "bold", margin = margin (0,0,30,0)),
             plot.subtitle = element_text(hjust = 0.5, vjust = 0, size = 9, face = "bold", margin = margin (0,0,30,0)),
-            plot.caption = element_text (hjust = 1, size = 7, face = "plain", margin = margin (20,0,0,0)),
+            plot.caption = element_text (hjust = 1, size = 8, face = "plain", margin = margin (20,0,0,0)),
             panel.grid.major = element_line(colour="white", size=0.023),
             axis.title.x = element_blank(),
             axis.title.y = element_text (size = 9),
