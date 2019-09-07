@@ -14,12 +14,6 @@
 
    cpu_raw <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-09-03/cpu.csv") %>%
       clean_names ()
-      
-   gpu_raw <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-09-03/gpu.csv") %>%
-      clean_names () 
-
-   ram_raw <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-09-03/ram.csv") %>%
-      clean_names () 
 
    #remove scientific notation 
    options(scipen=999)
@@ -34,35 +28,11 @@
       rename (
          year = date_of_introduction,
          transistors = transistor_count
-         )  %>%
+         ) %>%
       group_by (year) %>%
       summarize (
          cpu_actual = max(transistors)
          )
-
-   gpu <- gpu_raw %>%
-      select(date_of_introduction, transistor_count) %>%
-      rename (
-         year = date_of_introduction,
-         transistors = transistor_count
-         ) %>%
-      group_by (year) %>%
-      summarize (
-         gpu_actual = max(transistors)
-         ) 
-
-   ram <- ram_raw %>%
-      select(date_of_introduction, transistor_count, capacity_bits) %>%
-      rename (
-         year = date_of_introduction,
-         transistors = transistor_count,
-         capacity = capacity_bits
-         ) %>%
-      group_by (year) %>%
-      summarize (
-         ram_actual = max(transistors)
-         )
-
 ```
 
 
@@ -70,20 +40,10 @@
 ```{r transform, message = F, results = F}
 
    moore <- tibble (
-      year = as.numeric (seq (1963, 2018)),
+      year = as.numeric (seq (1971, 2020)),
       cpu_predict = ifelse (
          year > 1970, 
          round(2250 * sqrt(2) ^ (year - 1971),0),
-         NA
-         ),
-      gpu_predict = ifelse (
-         year > 1981, 
-         round(40000* sqrt(2) ^ (year - 1982),0),
-         NA
-         ),
-      ram_predict = ifelse (
-         year > 1962, 
-         round(6* sqrt(2) ^ (year - 1963),0),
          NA
          )
    )
@@ -95,9 +55,9 @@
    
    combine <- moore %>%
       left_join (cpu) %>%
-      left_join (gpu) %>%
-      left_join (ram) %>%
-      select (cpu_predict, cpu_actual, gpu_predict, gpu_actual, ram_predict, ram_actual)
+      #left_join (gpu) %>%
+      #left_join (ram) %>%
+      select (year, cpu_predict, cpu_actual)
 
 ```
 
@@ -108,19 +68,74 @@
    library (scales)
    library (ggdark)
 
-   ggplot (ram, aes (x=year, y = transistors)) +
-      #bars
-       geom_line() +
+   ggplot () +
+      #Moore's law prediction
+       geom_line(
+          data = combine,
+          aes (x=year, y = cpu_predict),
+          size = 0.4
+          ) + 
+      #Points above Moore's Law prediction
+      geom_point(
+         data = filter (combine, cpu_actual > cpu_predict),
+         aes (x= year, y = cpu_actual),
+         color = "green", alpha = 0.5
+          ) +
+      #Points below Moore's law prediction
+       geom_point(
+         data = filter (combine, cpu_actual < cpu_predict),
+         aes (x= year, y = cpu_actual),
+         color = "red", alpha = 0.5
+          ) +
+      #Moore's Law annotations
+         annotate(
+            geom="text", x=2018,y=250000000000,
+            label="Moore's Law\n prediction", 
+            color="#6D7C83", size=3, hjust=0.5,vjust=0.5, fontface="bold"
+            ) +
+         geom_curve(
+            aes(x = 2018, xend = 2018, y = 100000000000, yend = 30000000000),
+            arrow = arrow(length = unit(0.1, "inch")),
+            size = 0.25, color = "#6D7C83", curvature = 0  
+            ) +
+      #Outperform annotations
+         annotate(
+            geom="text", 
+            x=2000, xend = 2010, y=600000000, yend = 100000000,
+            label="Over-predicted in 2000s", 
+            color="#6D7C83", size=3, hjust=0,vjust=0.5, fontface="bold", angle = 25
+            ) +
+      #Underperform annotations
+         annotate(
+            geom="text", 
+            x=1990, xend = 2000, y=140000, yend = 1000000,
+            label="Under-predicted in 1990s", 
+            color="#6D7C83", size=3, hjust=0,vjust=0.5, fontface="bold", angle = 25
+            ) +
       #scales
-         scale_y_continuous(trans = log10_trans()) +
+         scale_y_continuous(
+            trans = log10_trans(),
+            labels = comma,
+            breaks = c(2250, 10000, 100000, 1000000, 10000000, 100000000, 1000000000, 10000000000, 100000000000)
+            ) +
+         scale_x_continuous(
+            breaks = seq (1970, 2020, 10)
+         ) +
       #themes
          dark_theme_classic () +
          theme(
-            plot.title = element_text(hjust = 0.5, vjust = 0, size = 17, face = "bold", margin = margin (0,0,25,0)),
-            plot.caption = element_text (hjust = 0, size = 11, margin = margin (20,0,0,0)),
+            plot.title = element_text(hjust = 1.2, vjust = 0, size = 11.1, face = "bold", margin = margin (0,0,30,0)),
+            plot.subtitle = element_text(hjust = 0.5, vjust = 0, size = 9, face = "bold", margin = margin (0,0,30,0)),
+            plot.caption = element_text (hjust = 1, size = 8, face = "plain", margin = margin (20,0,0,0)),
+            panel.grid.major = element_line(colour="white", size=0.023),
+            axis.title.x = element_blank(),
+            axis.title.y = element_text (size = 9),
             legend.position = "none"
             ) +
       labs(
-         title = "Moore's Law Growth"
+         title = "Gordon Moore correctly predicted in 1971 that computing power would double every 2 years.",
+         y = "# of transistors on a CPU microchip",
+         caption = "Each dot is the maximum number of transistors on a CPU microchip released that year.  Green (red) is above (below) Moore's predicition.\nSource: Wikipedia via R4DS Tidy Tuesday  |  Visualization: Joel Soroos @soroosj"
          ) 
 ```
+
