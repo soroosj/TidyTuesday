@@ -12,15 +12,44 @@
    library (tidyverse)
    library (janitor) 
 
+   cpu_raw <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-09-03/cpu.csv") %>%
+      clean_names ()
+      
+   gpu_raw <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-09-03/gpu.csv") %>%
+      clean_names () 
+
    ram_raw <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-09-03/ram.csv") %>%
       clean_names () 
-   
+
+   #remove scientific notation 
    options(scipen=999)
 ```
    
 
-### 2.  Transform nuclear explosion data
+### 2a.  Transform actual transistor counts
 ```{r transform, message = F, results = F}
+
+   cpu <- cpu_raw %>%
+      select(date_of_introduction, transistor_count) %>%
+      rename (
+         year = date_of_introduction,
+         transistors = transistor_count
+         )  %>%
+      group_by (year) %>%
+      summarize (
+         cpu_actual = max(transistors)
+         )
+
+   gpu <- gpu_raw %>%
+      select(date_of_introduction, transistor_count) %>%
+      rename (
+         year = date_of_introduction,
+         transistors = transistor_count
+         ) %>%
+      group_by (year) %>%
+      summarize (
+         gpu_actual = max(transistors)
+         ) 
 
    ram <- ram_raw %>%
       select(date_of_introduction, transistor_count, capacity_bits) %>%
@@ -29,9 +58,46 @@
          transistors = transistor_count,
          capacity = capacity_bits
          ) %>%
-      mutate (
-         predict = 6 * 2 ^ (row_number()-1)
+      group_by (year) %>%
+      summarize (
+         ram_actual = max(transistors)
          )
+
+```
+
+
+### 2b.  Build Moore's law predictor counts
+```{r transform, message = F, results = F}
+
+   moore <- tibble (
+      year = as.numeric (seq (1963, 2018)),
+      cpu_predict = ifelse (
+         year > 1970, 
+         round(2250 * sqrt(2) ^ (year - 1971),0),
+         NA
+         ),
+      gpu_predict = ifelse (
+         year > 1981, 
+         round(40000* sqrt(2) ^ (year - 1982),0),
+         NA
+         ),
+      ram_predict = ifelse (
+         year > 1962, 
+         round(6* sqrt(2) ^ (year - 1963),0),
+         NA
+         )
+   )
+```
+
+
+### 2c.  Combine data
+```{r transform, message = F, results = F}     
+   
+   combine <- moore %>%
+      left_join (cpu) %>%
+      left_join (gpu) %>%
+      left_join (ram) %>%
+      select (cpu_predict, cpu_actual, gpu_predict, gpu_actual, ram_predict, ram_actual)
 
 ```
 
