@@ -124,7 +124,7 @@
       #themes
          dark_theme_classic () +
          theme(
-            plot.title = element_text(hjust = 1.2, vjust = 0, size = 11.1, face = "bold", margin = margin (0,0,30,0)),
+            plot.title = element_text(hjust = 1, vjust = 0, size = 11.1, face = "bold", margin = margin (0,0,30,0)),
             plot.subtitle = element_text(hjust = 0.5, vjust = 0, size = 9, face = "bold", margin = margin (0,0,30,0)),
             plot.caption = element_text (hjust = 1, size = 8, face = "plain", margin = margin (20,0,0,0)),
             panel.grid.major = element_line(colour="white", size=0.023),
@@ -137,6 +137,6 @@
          y = "# of transistors on a CPU microchip",
          caption = "Each dot is the maximum number of transistors on a CPU microchip released that year.  Green (red) is above (below) Moore's Law prediction.\nSource: Wikipedia via R4DS Tidy Tuesday  |  Visualization: Joel Soroos @soroosj"
          ) +
-      ggsave("moore.png", width = 18.5, height = 14, units = "cm")
+      ggsave("moore.png", width = 22, height = 13, units = "cm")
 ```
 
