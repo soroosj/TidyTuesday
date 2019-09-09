@@ -79,13 +79,13 @@
       geom_point(
          data = filter (combine, cpu_actual > cpu_predict),
          aes (x= year, y = cpu_actual),
-         color = "green", alpha = 0.5
+         color = "green"
           ) +
       #Points below Moore's law prediction
        geom_point(
          data = filter (combine, cpu_actual < cpu_predict),
          aes (x= year, y = cpu_actual),
-         color = "red", alpha = 0.5
+         color = "red"
           ) +
       #Moore's Law annotations
          annotate(
@@ -103,14 +103,14 @@
             geom="text", 
             x=2000, xend = 2010, y=600000000, yend = 100000000,
             label="Over-predicted in 2000s", 
-            color="#6D7C83", size=3, hjust=0,vjust=0.5, fontface="bold", angle = 30
+            color="#6D7C83", size=3, hjust=0,vjust=0.5, fontface="bold", angle = 25
             ) +
       #Underperform annotations
          annotate(
             geom="text", 
             x=1990, xend = 2000, y=140000, yend = 1000000,
             label="Under-predicted in 1990s", 
-            color="#6D7C83", size=3, hjust=0,vjust=0.5, fontface="bold", angle = 35
+            color="#6D7C83", size=3, hjust=0,vjust=0.5, fontface="bold", angle = 25
             ) +
       #scales
          scale_y_continuous(
@@ -124,10 +124,10 @@
       #themes
          dark_theme_classic () +
          theme(
-            plot.title = element_text(hjust = 1, vjust = 0, size = 11.1, face = "bold", margin = margin (0,0,30,0)),
+            plot.title = element_text(hjust = 0, vjust = 0, size = 11.1, face = "bold", margin = margin (0,0,30,0)),
             plot.subtitle = element_text(hjust = 0.5, vjust = 0, size = 9, face = "bold", margin = margin (0,0,30,0)),
             plot.caption = element_text (hjust = 1, size = 8, face = "plain", margin = margin (20,0,0,0)),
-            panel.grid.major = element_line(colour="white", size=0.023),
+            panel.grid.major = element_line(colour="white", size=0.03),
             axis.title.x = element_blank(),
             axis.title.y = element_text (size = 9),
             legend.position = "none"
