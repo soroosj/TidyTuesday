@@ -20,28 +20,12 @@
 ```
    
 
-### 2a.  Transform actual transistor counts
-```{r transform, message = F, results = F}
-
-   cpu <- cpu_raw %>%
-      select(date_of_introduction, transistor_count) %>%
-      rename (
-         year = date_of_introduction,
-         transistors = transistor_count
-         ) %>%
-      group_by (year) %>%
-      summarize (
-         cpu_actual = max(transistors)
-         )
-```
-
-
-### 2b.  Build Moore's law predictor counts
+### 2a.  Build Moore's law predictor counts
 ```{r transform, message = F, results = F}
 
    moore <- tibble (
       year = as.numeric (seq (1971, 2020)),
-      cpu_predict = ifelse (
+      cpu_moore = ifelse (
          year > 1970, 
          round(2250 * sqrt(2) ^ (year - 1971),0),
          NA
@@ -50,68 +34,101 @@
 ```
 
 
+### 2b.  Transform actual transistor counts
+```{r transform, message = F, results = F}
+
+   cpu_all <- cpu_raw %>%
+      select(date_of_introduction, transistor_count) %>%
+      rename (
+         year = date_of_introduction,
+         cpu_actual = transistor_count
+         )
+
+   cpu_max <- cpu_all %>%
+      group_by (year) %>%
+      summarize (
+         cpu_actual = max(cpu_actual)
+         )
+```
+
+
 ### 2c.  Combine data
 ```{r transform, message = F, results = F}     
    
    combine <- moore %>%
-      left_join (cpu) %>%
-      #left_join (gpu) %>%
-      #left_join (ram) %>%
-      select (year, cpu_predict, cpu_actual)
+      left_join (cpu_max) %>%
+      select (year, cpu_moore, cpu_actual) %>%
+      na.omit()
 
 ```
 
+### 2d.  Calculate model line
+```{r}
 
-### 3. Visualize nuclear explosion data
+   library (broom)
+
+   cpu_loess <- 
+      loess(
+         cpu_actual ~ year,
+         data = cpu_max,
+         na.action = na.omit
+         ) %>%
+      augment (combine)
+```
+
+
+### 3. Visualize data
 ```{r plot}
 
    library (scales)
    library (ggdark)
 
    ggplot () +
-      #Moore's law prediction
-       geom_line(
-          data = combine,
-          aes (x=year, y = cpu_predict),
-          size = 0.4
-          ) + 
-      #Points above Moore's Law prediction
-      geom_point(
-         data = filter (combine, cpu_actual > cpu_predict),
-         aes (x= year, y = cpu_actual),
-         color = "green"
-          ) +
-      #Points below Moore's law prediction
-       geom_point(
-         data = filter (combine, cpu_actual < cpu_predict),
-         aes (x= year, y = cpu_actual),
-         color = "red"
-          ) +
-      #Moore's Law annotations
-         annotate(
-            geom="text", x=2018,y=250000000000,
-            label="Moore's Law\n prediction", 
-            color="#6D7C83", size=3, hjust=0.5,vjust=0.5, fontface="bold"
-            ) +
-         geom_curve(
-            aes(x = 2018, xend = 2018, y = 100000000000, yend = 30000000000),
-            arrow = arrow(length = unit(0.1, "inch")),
-            size = 0.25, color = "#6D7C83", curvature = 0  
-            ) +
-      #Outperform annotations
-         annotate(
-            geom="text", 
-            x=2000, xend = 2010, y=600000000, yend = 100000000,
-            label="Over-predicted in 2000s", 
-            color="#6D7C83", size=3, hjust=0,vjust=0.5, fontface="bold", angle = 25
-            ) +
-      #Underperform annotations
-         annotate(
-            geom="text", 
-            x=1990, xend = 2000, y=140000, yend = 1000000,
-            label="Under-predicted in 1990s", 
-            color="#6D7C83", size=3, hjust=0,vjust=0.5, fontface="bold", angle = 25
-            ) +
+      #Lines
+         #Moore's law prediction
+             geom_line(
+                data = combine,
+                aes (x=year, y = cpu_moore),
+                size = 0.4, linetype = 3
+                ) + 
+         #Regression
+            stat_smooth (
+               data = cpu_max,
+               aes (x=year, y = cpu_actual),
+               size = 0.5
+               ) +
+      #Points
+         geom_point(
+            data = cpu_max,
+            aes (x= year, y = cpu_actual),
+            color = "gray22"
+             ) +
+      #Annotations
+         #Moore's Law annotations
+          annotate(
+               geom="text", x=1977,y=200000,
+               label="Moore's\nLaw", 
+               color="#6D7C83", size=3, hjust=0.5,vjust=0.5, fontface="bold"
+               ) +
+            geom_curve(
+               aes(x = 1977, xend = 1977, y = 70000, yend = 17000),
+               arrow = arrow(length = unit(0.1, "inch")),
+               size = 0.25, color = "#6D7C83", curvature = 0  
+               ) +
+         #Outperform annotations
+            annotate(
+               geom="text", 
+               x=2000, xend = 2010, y=600000000, yend = 100000000,
+               label="Over-predicted", 
+               color="#6D7C83", size=3, hjust=0,vjust=0.5, fontface="bold", angle = 27
+               ) +
+         #Underperform annotations
+            annotate(
+               geom="text", 
+               x=1990, xend = 2000, y=140000, yend = 1000000,
+               label="Under-predicted", 
+               color="#6D7C83", size=3, hjust=0,vjust=0.5, fontface="bold", angle = 27
+               ) +
       #scales
          scale_y_continuous(
             trans = log10_trans(),
@@ -124,19 +141,23 @@
       #themes
          dark_theme_classic () +
          theme(
-            plot.title = element_text(hjust = 0, vjust = 0, size = 11.1, face = "bold", margin = margin (0,0,30,0)),
-            plot.subtitle = element_text(hjust = 0.5, vjust = 0, size = 9, face = "bold", margin = margin (0,0,30,0)),
-            plot.caption = element_text (hjust = 1, size = 8, face = "plain", margin = margin (20,0,0,0)),
+            plot.title = element_text(hjust = 0, vjust = 0, size = 17, face = "bold", margin = margin (0,0,7,0)),
+            plot.title.position = "plot",
+            plot.subtitle = element_text(hjust = 0, vjust = 0, size = 8, face = "bold", margin = margin (0,0,30,0)),
+            plot.caption = element_text (hjust = 0, size = 8, face = "plain", margin = margin (15,0,0,0), color="#6D7C83"),
+            plot.caption.position = "plot",
             panel.grid.major = element_line(colour="white", size=0.03),
-            axis.title.x = element_blank(),
             axis.title.y = element_text (size = 9),
+            axis.title.x = element_blank(),
             legend.position = "none"
             ) +
       labs(
-         title = "Gordon Moore correctly predicted in 1971 that computing power would double every 2 years.",
-         y = "# of transistors on a CPU microchip",
-         caption = "Each dot is the maximum number of transistors on a CPU microchip released that year.  Green (red) is above (below) Moore's Law prediction.\nSource: Wikipedia via R4DS Tidy Tuesday  |  Visualization: Joel Soroos @soroosj"
-         ) +
+         title = "Exponental growth in computing power",
+         subtitle = "Gordon Moore predicted in 1971 that computing power would double approximately every 2 years (Moore's Law).  Over the next\n38 years proccessing strength has indeed grown at that rate.  Points signify microchip processor greater than predicted.",
+         y = "Maximum transistors on a CPU microchip",
+         caption = "Visualization: Joel Soroos @soroosj  |  Data: Wikipedia via R4DS Tidy Tuesday"
+         )
+   
       ggsave("moore.png", width = 22, height = 13, units = "cm")
 ```
 
