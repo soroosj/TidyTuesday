@@ -67,13 +67,21 @@
 
    library (broom)
 
-   cpu_loess <- 
-      loess(
-         cpu_actual ~ year,
-         data = cpu_max,
-         na.action = na.omit
-         ) %>%
-      augment (combine)
+   y0 = min(na.omit(combine$year)) # Get base year.
+   
+   combine = combine %>% 
+      mutate(y = year - y0, # Adjust years to run from 0.
+            logt = log(cpu_actual)) # Add log of transistor column for a quick join.
+
+   mod = lm(log(cpu_actual) ~ y, # Run model for linear fit.
+         combine)
+   
+   combine = combine %>% 
+      left_join(augment(mod),
+            by = c("y", 
+                   "logt" = "log.cpu_actual.")) 
+   
+   #https://github.com/amsteinkruger/tidytues/blob/master/moo/moo.Rmd
 ```
 
 
@@ -92,11 +100,16 @@
                 size = 0.4, linetype = 3
                 ) + 
          #Regression
-            stat_smooth (
-               data = cpu_max,
-               aes (x=year, y = cpu_actual),
-               size = 0.5
-               ) +
+            #stat_smooth (
+               #data = cpu_max,
+               #aes (x=year, y = cpu_actual),
+               #size = 0.5
+               #) +
+            geom_line(
+                data = cpu_loess,
+                aes (x=year, y = .fitted),
+                size = 0.7, linetype = 2
+                ) + 
       #Points
          geom_point(
             data = cpu_max,
@@ -132,8 +145,8 @@
       #scales
          scale_y_continuous(
             trans = log10_trans(),
-            labels = comma,
-            breaks = c(2250, 10000, 100000, 1000000, 10000000, 100000000, 1000000000, 10000000000, 100000000000)
+            breaks = c(2250, 10000, 100000, 1000000, 10000000, 100000000, 1000000000, 10000000000, 100000000000),
+            labels = comma
             ) +
          scale_x_continuous(
             breaks = seq (1970, 2020, 10)
@@ -156,8 +169,7 @@
          subtitle = "Gordon Moore predicted in 1971 that computing power would double approximately every 2 years (Moore's Law).  Over the next\n38 years proccessing strength has indeed grown at that rate.  Points signify microchip processor greater than predicted.",
          y = "Maximum transistors on a CPU microchip",
          caption = "Visualization: Joel Soroos @soroosj  |  Data: Wikipedia via R4DS Tidy Tuesday"
-         )
-   
+         ) +
       ggsave("moore.png", width = 22, height = 13, units = "cm")
 ```
 
