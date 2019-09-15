@@ -172,7 +172,7 @@
          guides(fill = guide_legend(override.aes = list(shape = NA))) +
       labs(
          title = "Exponential growth in computing power",
-         subtitle = "Gordon Moore predicted in 1971 that computing power would double approximately every 2 years (Moore's Law).\nOver the next 38 years he has been correct - slightly below through 2000, slightly above from 2001-2012 and slightly trailing more recently.",
+         subtitle = "Gordon Moore predicted in 1971 that computing power would double approximately every 2 years (Moore's Law).\nOver the next 38 years he has largely been correct - slightly below through 2000, slightly above from 2001-2012 and slightly trailing more recently.",
          y = "# of transistors on a CPU microchip",
          caption = "Visualization: Joel Soroos @soroosj  |  Data: Wikipedia via R4DS Tidy Tuesday"
          ) +
