@@ -9,7 +9,7 @@ Below are lessons that I have learned from my submissions.
 |`2019-09-03`| Moore's Law | Regression fit | augment | broom |
 |`2019-09-03`| Moore's Law | Data frame from scratch | tibble | tibble |
 |`2019-09-03`| Moore's Law | Title over full plot | plot.title.position | ggplot |
-
+|`2019-09-03`| Moore's Law | Calculate log | log10 | base |
 |`2019-08-20`| Nuclear bombs | Animate plots | animate | gganimate |
 |`2019-08-20`| Nuclear bombs | Tile plot | geom_tile | ggplot |
 |`2019-08-20`| Nuclear bombs | Extend plot area | ylim, xlim | ggplot |
