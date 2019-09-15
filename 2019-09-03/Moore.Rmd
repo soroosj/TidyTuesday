@@ -104,47 +104,44 @@
          #Underpredict
             geom_ribbon (
                data = filter (combine, cpu_moore < cpu_model),
-               aes (x=year, ymin = cpu_moore, ymax = cpu_model, fill = "Actual > Moore's Law"),
+               aes (x=year, ymin = cpu_moore, ymax = cpu_model, fill = "Model fit > Moore's Law"),
                show.legend = T
                ) +
          #Overpredict
             geom_ribbon (
                data = filter (combine, cpu_moore > cpu_model),
-               aes (x=year, ymin = cpu_moore, ymax = cpu_model, fill = "Actual < Moore's Law"),
+               aes (x=year, ymin = cpu_moore, ymax = cpu_model, fill = "Model fit < Moore's Law"),
                show.legend = T
                ) +
       #Points
          geom_point(
             data = cpu_max,
-            aes (x= year, y = cpu_actual),
-            fill = "gray72"
+            aes (x= year, y = cpu_actual, fill = "CPU actual"),
+            size = 2, alpha = 0.6, show.legend = T
              ) +
-      #Annotations
-         #Moore's Law annotations
-          annotate(
-               geom="text", x=1977,y=200000,
-               label="Moore's\nLaw", 
-               color="#6D7C83", size=3, hjust=0.5,vjust=0.5, fontface="bold"
-               ) +
-            geom_curve(
-               aes(x = 1977, xend = 1977, y = 70000, yend = 17000),
-               arrow = arrow(length = unit(0.1, "inch")),
-               size = 0.25, color = "#6D7C83", curvature = 0  
-               ) +   
-         #Overpredict annotations
-            annotate(
-               geom="text", 
-               x=1990, xend = 2000, y=140000, yend = 1000000,
-               label="Over-predicted", 
-               color="#6D7C83", size=3, hjust=0,vjust=0.5, fontface="bold", angle = 27
-               ) +
-         #Underpredict annotations
-            annotate(
-               geom="text", 
-               x=2000, xend = 2010, y=600000000, yend = 100000000,
-               label="Under-predicted", 
-               color="#6D7C83", size=3, hjust=0,vjust=0.5, fontface="bold", angle = 27
-               ) +
+      #Annotation
+         #Moore's Law
+             annotate(
+                  geom="text", x=1991.5,y=30000000,
+                  label="Moore's\nLaw", 
+                  color="white", size=3, hjust=0.5,vjust=0.5, fontface="bold"
+                  ) +
+               geom_curve(
+                  aes(x = 1991.5, xend = 1991.5, y = 13000000, yend = 3000000),
+                  arrow = arrow(length = unit(0.1, "inch")),
+                  size = 0.25, color = "white", curvature = 0  
+                  ) +   
+         #Model
+                annotate(
+                  geom="text", x=1990,y=80000,
+                  label="Model", 
+                  color="white", size=3, hjust=0.5,vjust=0.5, fontface="bold"
+                  ) +
+               geom_curve(
+                  aes(x = 1990, xend = 1990, y = 99000, yend = 800000),
+                  arrow = arrow(length = unit(0.1, "inch")),
+                  size = 0.25, color = "white", curvature = 0  
+                  ) +   
       #scales
          scale_y_continuous(
             trans = log10_trans(),
@@ -154,7 +151,8 @@
          scale_x_continuous(
             breaks = seq (1970, 2020, 10)
             ) +
-         scale_fill_manual(values = c("green","red")) +
+         scale_fill_manual(values = c("white","red", "green")) +
+         scale_shape_manual(values=c(19,19,17)) +
       #themes
          dark_theme_classic () +
          theme(
@@ -164,14 +162,18 @@
             plot.caption = element_text (hjust = 0, size = 8, face = "plain", margin = margin (15,0,0,0), color="#6D7C83"),
             plot.caption.position = "plot",
             panel.grid.major = element_line(colour="white", size=0.03),
-            axis.title.y = element_text (size = 9),
-            axis.title.x = element_blank()
-            #legend.position = "none"
+            axis.title.y = element_text (size = 9, hjust = 0),
+            axis.title.x = element_blank(),
+            legend.position = c(0.87,0.33),
+            legend.title = element_blank (),
+            legend.text = element_text(size=8),
+            legend.key.size = unit(0.2, "cm")
             ) +
+         guides(fill = guide_legend(override.aes = list(shape = NA))) +
       labs(
-         title = "Exponental growth in computing power",
-         subtitle = "Gordon Moore predicted in 1971 that computing power would double approximately every 2 years (Moore's Law).  Over the next\n38 years proccessing strength has indeed grown at that rate.  Points signify microchip processor greater than predicted.",
-         y = "Maximum transistors on a CPU microchip",
+         title = "Exponential growth in computing power",
+         subtitle = "Gordon Moore predicted in 1971 that computing power would double approximately every 2 years (Moore's Law).\nOver the next 38 years he has been correct - slightly below through 2000, slightly above from 2001-2012 and slightly trailing more recently.",
+         y = "# of transistors on a CPU microchip",
          caption = "Visualization: Joel Soroos @soroosj  |  Data: Wikipedia via R4DS Tidy Tuesday"
          ) +
       ggsave("moore.png", width = 22, height = 13, units = "cm")
