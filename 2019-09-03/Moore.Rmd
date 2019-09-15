@@ -6,7 +6,7 @@
 ---
 
 
-### 1. Source nuclear explosion data
+### 1. Source data
 ```{r source, warning = TRUE, results = FALSE, message = FALSE}
 
    library (tidyverse)
@@ -20,7 +20,7 @@
 ```
    
 
-### 2a.  Build Moore's law predictor counts
+### 2a.  Build Moore's Law prediction
 ```{r transform, message = F, results = F}
 
    moore <- tibble (
@@ -59,10 +59,10 @@
       left_join (cpu_max) %>%
       select (year, cpu_moore, cpu_actual) %>%
       na.omit()
-
 ```
 
-### 2d.  Calculate model line
+
+### 3.  Calculate model
 ```{r}
 
    library (broom)
@@ -73,17 +73,18 @@
           na.action = na.omit
           ) %>%		
        augment (combine) %>%
-       mutate (fitted_exp = 10^.fitted)
-   
-   #https://github.com/amsteinkruger/tidytues/blob/master/moo/moo.Rmd
+       mutate (cpu_model = 10^.fitted)
 ```
 
 
-### 3. Visualize data
+### 4. Visualize data
 ```{r plot}
 
    library (scales)
    library (ggdark)
+
+   outpredict_color = "red"
+   underpredict_color = "green"
 
    ggplot () +
       #Lines
@@ -92,22 +93,31 @@
                 data = combine,
                 aes (x=year, y = cpu_moore),
                 size = 0.4, linetype = 3
-                ) + 
+                ) +
+         #Actual CPU model
             geom_line(
-                data = cpu_loess,
-                aes (x=year, y = fitted_exp),
+                data = combine,
+                aes (x=year, y = cpu_model),
                 size = 0.7, linetype = 2
                 ) + 
+      #Ribbons
+         #Underpredict
             geom_ribbon (
-               data = combine,
-               aes (x=year, ymin = cpu_moore, ymax = fitted_exp),
-               fill = "red"
-            ) +
+               data = filter (combine, cpu_moore < cpu_model),
+               aes (x=year, ymin = cpu_moore, ymax = cpu_model, fill = "Actual > Moore's Law"),
+               show.legend = T
+               ) +
+         #Overpredict
+            geom_ribbon (
+               data = filter (combine, cpu_moore > cpu_model),
+               aes (x=year, ymin = cpu_moore, ymax = cpu_model, fill = "Actual < Moore's Law"),
+               show.legend = T
+               ) +
       #Points
          geom_point(
             data = cpu_max,
             aes (x= year, y = cpu_actual),
-            color = "gray22"
+            fill = "gray72"
              ) +
       #Annotations
          #Moore's Law annotations
@@ -120,18 +130,18 @@
                aes(x = 1977, xend = 1977, y = 70000, yend = 17000),
                arrow = arrow(length = unit(0.1, "inch")),
                size = 0.25, color = "#6D7C83", curvature = 0  
-               ) +
-         #Outperform annotations
-            annotate(
-               geom="text", 
-               x=2000, xend = 2010, y=600000000, yend = 100000000,
-               label="Over-predicted", 
-               color="#6D7C83", size=3, hjust=0,vjust=0.5, fontface="bold", angle = 27
-               ) +
-         #Underperform annotations
+               ) +   
+         #Overpredict annotations
             annotate(
                geom="text", 
                x=1990, xend = 2000, y=140000, yend = 1000000,
+               label="Over-predicted", 
+               color="#6D7C83", size=3, hjust=0,vjust=0.5, fontface="bold", angle = 27
+               ) +
+         #Underpredict annotations
+            annotate(
+               geom="text", 
+               x=2000, xend = 2010, y=600000000, yend = 100000000,
                label="Under-predicted", 
                color="#6D7C83", size=3, hjust=0,vjust=0.5, fontface="bold", angle = 27
                ) +
@@ -143,7 +153,8 @@
             ) +
          scale_x_continuous(
             breaks = seq (1970, 2020, 10)
-         ) +
+            ) +
+         scale_fill_manual(values = c("green","red")) +
       #themes
          dark_theme_classic () +
          theme(
@@ -154,8 +165,8 @@
             plot.caption.position = "plot",
             panel.grid.major = element_line(colour="white", size=0.03),
             axis.title.y = element_text (size = 9),
-            axis.title.x = element_blank(),
-            legend.position = "none"
+            axis.title.x = element_blank()
+            #legend.position = "none"
             ) +
       labs(
          title = "Exponental growth in computing power",
@@ -165,4 +176,3 @@
          ) +
       ggsave("moore.png", width = 22, height = 13, units = "cm")
 ```
-
