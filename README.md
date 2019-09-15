@@ -5,8 +5,8 @@ Below are lessons that I have learned from my submissions.
 
 | Week | Data Set | Lesson | Function | Package 
 | :---: | :---: | :--- | :--- | :--- |
-|`2019-09-03`| Moore's Law | Create loess regression | loess | stats |
-|`2019-09-03`| Moore's Law | Regression fit | augment | broom |
+|`2019-09-03`| Moore's Law | Calculate loess regression | loess | stats |
+|`2019-09-03`| Moore's Law | Regression fit make tidy | augment | broom |
 |`2019-09-03`| Moore's Law | Data frame from scratch | tibble | tibble |
 |`2019-09-03`| Moore's Law | Title over full plot | plot.title.position | ggplot |
 |`2019-09-03`| Moore's Law | Calculate log | log10 | base |
