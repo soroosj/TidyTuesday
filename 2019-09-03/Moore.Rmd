@@ -67,19 +67,13 @@
 
    library (broom)
 
-   y0 = min(na.omit(combine$year)) # Get base year.
-   
-   combine = combine %>% 
-      mutate(y = year - y0, # Adjust years to run from 0.
-            logt = log(cpu_actual)) # Add log of transistor column for a quick join.
-
-   mod = lm(log(cpu_actual) ~ y, # Run model for linear fit.
-         combine)
-   
-   combine = combine %>% 
-      left_join(augment(mod),
-            by = c("y", 
-                   "logt" = "log.cpu_actual.")) 
+   combine <- loess(		    
+          log10(cpu_actual) ~ year,		   
+          data = cpu_max,		       
+          na.action = na.omit
+          ) %>%		
+       augment (combine) %>%
+       mutate (fitted_exp = 10^.fitted)
    
    #https://github.com/amsteinkruger/tidytues/blob/master/moo/moo.Rmd
 ```
@@ -99,17 +93,16 @@
                 aes (x=year, y = cpu_moore),
                 size = 0.4, linetype = 3
                 ) + 
-         #Regression
-            #stat_smooth (
-               #data = cpu_max,
-               #aes (x=year, y = cpu_actual),
-               #size = 0.5
-               #) +
             geom_line(
                 data = cpu_loess,
-                aes (x=year, y = .fitted),
+                aes (x=year, y = fitted_exp),
                 size = 0.7, linetype = 2
                 ) + 
+            geom_ribbon (
+               data = combine,
+               aes (x=year, ymin = cpu_moore, ymax = fitted_exp),
+               fill = "red"
+            ) +
       #Points
          geom_point(
             data = cpu_max,
