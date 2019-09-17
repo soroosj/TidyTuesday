@@ -1,7 +1,7 @@
 ---
    title: "Moore's Law"
    author: "Joel Soroos"
-   date: "September 7, 2019"
+   date: "September 15, 2019"
    output: pdf_document
 ---
 
@@ -25,11 +25,7 @@
 
    moore <- tibble (
       year = as.numeric (seq (1971, 2020)),
-      cpu_moore = ifelse (
-         year > 1970, 
-         round(2250 * sqrt(2) ^ (year - 1971),0),
-         NA
-         )
+      cpu_moore = round(2250 * sqrt(2) ^ (year - 1971),0)
    )
 ```
 
@@ -46,9 +42,7 @@
 
    cpu_max <- cpu_all %>%
       group_by (year) %>%
-      summarize (
-         cpu_actual = max(cpu_actual)
-         )
+      summarize (cpu_actual = max(cpu_actual))
 ```
 
 
@@ -60,7 +54,6 @@
       select (year, cpu_moore, cpu_actual) %>%
       na.omit()
 ```
-
 
 ### 3.  Calculate model
 ```{r}
@@ -82,9 +75,6 @@
 
    library (scales)
    library (ggdark)
-
-   outpredict_color = "red"
-   underpredict_color = "green"
 
    ggplot () +
       #Lines
@@ -148,11 +138,8 @@
             breaks = c(2250, 10000, 100000, 1000000, 10000000, 100000000, 1000000000, 10000000000, 100000000000),
             labels = comma
             ) +
-         scale_x_continuous(
-            breaks = seq (1970, 2020, 10)
-            ) +
+         scale_x_continuous(breaks = seq (1970, 2020, 10)) +
          scale_fill_manual(values = c("white","red", "green")) +
-         scale_shape_manual(values=c(19,19,17)) +
       #themes
          dark_theme_classic () +
          theme(
