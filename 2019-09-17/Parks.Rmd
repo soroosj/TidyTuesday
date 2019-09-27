@@ -1,0 +1,143 @@
+---
+   title: "National Parks"
+   author: "Joel Soroos"
+   date: "September 29, 2019"
+   output: pdf_document
+---
+
+
+### 1. Source data
+```{r source, warning = TRUE, results = FALSE, message = FALSE}
+
+   library (tidyverse)
+   library (janitor) 
+
+   visits_raw <- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-09-17/national_parks.csv") %>%
+      clean_names ()
+```
+
+
+### 2.  Transform visits
+```{r transform, message = F, results = F}
+
+   visits <- visits_raw %>%
+      rename (park_name = unit_name) %>%
+      filter (
+         unit_type == "National Park",
+         park_name != "Total"
+         ) %>%
+      select(year, park_name, state, visitors) %>%
+      mutate (year = as.numeric (year)) %>%
+      arrange (-year, -visitors)
+```
+```
+### 3.  Calculate model
+```{r}
+
+   library (broom)
+
+   combine <- loess(		    
+          log10(cpu_actual) ~ year,		   
+          data = cpu_max,		       
+          na.action = na.omit
+          ) %>%		
+       augment (combine) %>%
+       mutate (cpu_model = 10^.fitted)
+```
+
+
+### 4. Visualize data
+```{r plot}
+
+   library (scales)
+   library (ggdark)
+
+   ggplot () +
+      #Lines
+         #Moore's law prediction
+             geom_line(
+                data = combine,
+                aes (x=year, y = cpu_moore),
+                size = 0.4, linetype = 3
+                ) +
+         #Actual CPU model
+            geom_line(
+                data = combine,
+                aes (x=year, y = cpu_model),
+                size = 0.7, linetype = 2
+                ) + 
+      #Ribbons
+         #Underpredict
+            geom_ribbon (
+               data = filter (combine, cpu_moore < cpu_model),
+               aes (x=year, ymin = cpu_moore, ymax = cpu_model, fill = "Model fit > Moore's Law"),
+               show.legend = T
+               ) +
+         #Overpredict
+            geom_ribbon (
+               data = filter (combine, cpu_moore > cpu_model),
+               aes (x=year, ymin = cpu_moore, ymax = cpu_model, fill = "Model fit < Moore's Law"),
+               show.legend = T
+               ) +
+      #Points
+         geom_point(
+            data = cpu_max,
+            aes (x= year, y = cpu_actual, fill = "CPU actual"),
+            size = 2, alpha = 0.6, show.legend = T
+             ) +
+      #Annotation
+         #Moore's Law
+             annotate(
+                  geom="text", x=1991.5,y=30000000,
+                  label="Moore's\nLaw", 
+                  color="white", size=3, hjust=0.5,vjust=0.5, fontface="bold"
+                  ) +
+               geom_curve(
+                  aes(x = 1991.5, xend = 1991.5, y = 13000000, yend = 3000000),
+                  arrow = arrow(length = unit(0.1, "inch")),
+                  size = 0.25, color = "white", curvature = 0  
+                  ) +   
+         #Model
+                annotate(
+                  geom="text", x=1990,y=80000,
+                  label="Model", 
+                  color="white", size=3, hjust=0.5,vjust=0.5, fontface="bold"
+                  ) +
+               geom_curve(
+                  aes(x = 1990, xend = 1990, y = 99000, yend = 800000),
+                  arrow = arrow(length = unit(0.1, "inch")),
+                  size = 0.25, color = "white", curvature = 0  
+                  ) +   
+      #scales
+         scale_y_continuous(
+            trans = log10_trans(),
+            breaks = c(2250, 10000, 100000, 1000000, 10000000, 100000000, 1000000000, 10000000000, 100000000000),
+            labels = comma
+            ) +
+         scale_x_continuous(breaks = seq (1970, 2020, 10)) +
+         scale_fill_manual(values = c("white","red", "green")) +
+      #themes
+         dark_theme_classic () +
+         theme(
+            plot.title = element_text(hjust = 0, vjust = 0, size = 17, face = "bold", margin = margin (0,0,7,0)),
+            plot.title.position = "plot",
+            plot.subtitle = element_text(hjust = 0, vjust = 0, size = 8, face = "bold", margin = margin (0,0,30,0)),
+            plot.caption = element_text (hjust = 0, size = 8, face = "plain", margin = margin (15,0,0,0), color="#6D7C83"),
+            plot.caption.position = "plot",
+            panel.grid.major = element_line(colour="white", size=0.03),
+            axis.title.y = element_text (size = 9, hjust = 0),
+            axis.title.x = element_blank(),
+            legend.position = c(0.87,0.33),
+            legend.title = element_blank (),
+            legend.text = element_text(size=8),
+            legend.key.size = unit(0.2, "cm")
+            ) +
+         guides(fill = guide_legend(override.aes = list(shape = NA))) +
+      labs(
+         title = "Exponential growth in computing power",
+         subtitle = "Gordon Moore predicted in 1971 that computing power would double approximately every 2 years (Moore's Law).\nOver the next 38 years he has largely been correct - slightly below through 2000, slightly above from 2001-2012 and slightly trailing more recently.",
+         y = "# of transistors on a CPU microchip",
+         caption = "Visualization: Joel Soroos @soroosj  |  Data: Wikipedia via R4DS Tidy Tuesday"
+         ) +
+      ggsave("moore.png", width = 22, height = 13, units = "cm")
+```
