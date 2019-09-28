@@ -24,120 +24,69 @@
       rename (park_name = unit_name) %>%
       filter (
          unit_type == "National Park",
-         park_name != "Total"
+         park_name != "Total",
+         year %in% c(1966,2016)
          ) %>%
       select(year, park_name, state, visitors) %>%
-      mutate (year = as.numeric (year)) %>%
-      arrange (-year, -visitors)
-```
-```
-### 3.  Calculate model
-```{r}
+      mutate (
+         year = as.numeric (year),
+         park_name = str_remove (park_name, " National Park")
+         ) %>%
+      arrange (-year, -visitors) %>%
+      group_by (year) %>%
+         mutate (z_visitors = round(scale (visitors),2)) %>%
+         do(head(., n = 10)) %>%
+      ungroup (year)
 
-   library (broom)
-
-   combine <- loess(		    
-          log10(cpu_actual) ~ year,		   
-          data = cpu_max,		       
-          na.action = na.omit
-          ) %>%		
-       augment (combine) %>%
-       mutate (cpu_model = 10^.fitted)
 ```
 
 
-### 4. Visualize data
+### 3. Visualize data
 ```{r plot}
 
-   library (scales)
-   library (ggdark)
+library (ggrepel)
 
-   ggplot () +
-      #Lines
-         #Moore's law prediction
-             geom_line(
-                data = combine,
-                aes (x=year, y = cpu_moore),
-                size = 0.4, linetype = 3
-                ) +
-         #Actual CPU model
-            geom_line(
-                data = combine,
-                aes (x=year, y = cpu_model),
-                size = 0.7, linetype = 2
-                ) + 
-      #Ribbons
-         #Underpredict
-            geom_ribbon (
-               data = filter (combine, cpu_moore < cpu_model),
-               aes (x=year, ymin = cpu_moore, ymax = cpu_model, fill = "Model fit > Moore's Law"),
-               show.legend = T
-               ) +
-         #Overpredict
-            geom_ribbon (
-               data = filter (combine, cpu_moore > cpu_model),
-               aes (x=year, ymin = cpu_moore, ymax = cpu_model, fill = "Model fit < Moore's Law"),
-               show.legend = T
-               ) +
-      #Points
-         geom_point(
-            data = cpu_max,
-            aes (x= year, y = cpu_actual, fill = "CPU actual"),
-            size = 2, alpha = 0.6, show.legend = T
-             ) +
-      #Annotation
-         #Moore's Law
-             annotate(
-                  geom="text", x=1991.5,y=30000000,
-                  label="Moore's\nLaw", 
-                  color="white", size=3, hjust=0.5,vjust=0.5, fontface="bold"
-                  ) +
-               geom_curve(
-                  aes(x = 1991.5, xend = 1991.5, y = 13000000, yend = 3000000),
-                  arrow = arrow(length = unit(0.1, "inch")),
-                  size = 0.25, color = "white", curvature = 0  
-                  ) +   
-         #Model
-                annotate(
-                  geom="text", x=1990,y=80000,
-                  label="Model", 
-                  color="white", size=3, hjust=0.5,vjust=0.5, fontface="bold"
-                  ) +
-               geom_curve(
-                  aes(x = 1990, xend = 1990, y = 99000, yend = 800000),
-                  arrow = arrow(length = unit(0.1, "inch")),
-                  size = 0.25, color = "white", curvature = 0  
-                  ) +   
-      #scales
-         scale_y_continuous(
-            trans = log10_trans(),
-            breaks = c(2250, 10000, 100000, 1000000, 10000000, 100000000, 1000000000, 10000000000, 100000000000),
-            labels = comma
-            ) +
-         scale_x_continuous(breaks = seq (1970, 2020, 10)) +
-         scale_fill_manual(values = c("white","red", "green")) +
-      #themes
-         dark_theme_classic () +
-         theme(
-            plot.title = element_text(hjust = 0, vjust = 0, size = 17, face = "bold", margin = margin (0,0,7,0)),
-            plot.title.position = "plot",
-            plot.subtitle = element_text(hjust = 0, vjust = 0, size = 8, face = "bold", margin = margin (0,0,30,0)),
-            plot.caption = element_text (hjust = 0, size = 8, face = "plain", margin = margin (15,0,0,0), color="#6D7C83"),
-            plot.caption.position = "plot",
-            panel.grid.major = element_line(colour="white", size=0.03),
-            axis.title.y = element_text (size = 9, hjust = 0),
-            axis.title.x = element_blank(),
-            legend.position = c(0.87,0.33),
-            legend.title = element_blank (),
-            legend.text = element_text(size=8),
-            legend.key.size = unit(0.2, "cm")
-            ) +
-         guides(fill = guide_legend(override.aes = list(shape = NA))) +
-      labs(
-         title = "Exponential growth in computing power",
-         subtitle = "Gordon Moore predicted in 1971 that computing power would double approximately every 2 years (Moore's Law).\nOver the next 38 years he has largely been correct - slightly below through 2000, slightly above from 2001-2012 and slightly trailing more recently.",
-         y = "# of transistors on a CPU microchip",
-         caption = "Visualization: Joel Soroos @soroosj  |  Data: Wikipedia via R4DS Tidy Tuesday"
+ ggplot(data = visits, aes(x = year, y = z_visitors, group = park_name)) +
+    geom_line(
+       aes(color = park_name),
+       alpha = 1, size = 1
+       )+
+    geom_text_repel(
+       data = visits %>% filter(year == 1966), 
+       aes(label = park_name) ,
+       hjust = "left", fontface = "bold", size = 3, nudge_x = -.45, direction = "y"
+       ) +
+    geom_text_repel(
+       data = visits %>% filter(year == 2016), 
+       aes(label = park_name) , 
+       hjust = "right", fontface = "bold", size = 3, nudge_x = .5, direction = "y"
+       ) +
+    geom_label(
+       aes(label = z_visitors), 
+       size = 2.5, 
+       label.padding = unit(0.05, "lines"), 
+       label.size = 0.0
+       ) +
+    scale_x_discrete(position = "top") +
+    theme_bw() +
+    theme(
+       legend.position = "none",
+       panel.border     = element_blank(),
+       axis.title.y     = element_blank(),
+       axis.text.y      = element_blank(),
+       panel.grid.major.y = element_blank(),
+       panel.grid.minor.y = element_blank(),
+       axis.title.x     = element_blank(),
+       panel.grid.major.x = element_blank(),
+       axis.text.x.top      = element_text(size=12),
+       axis.ticks       = element_blank(),
+       plot.title       = element_text(size=14, face = "bold", hjust = 0.5),
+       plot.subtitle    = element_text(hjust = 0.5)
          ) +
-      ggsave("moore.png", width = 22, height = 13, units = "cm")
+     labs(
+       title = "Estimates of Percent Survival Rates",
+       subtitle = "Based on: Edward Tufte, Beautiful Evidence, 174, 176.",
+       caption = "Visualization: Joel Soroos @soroosj  |  Data: Wikipedia via R4DS Tidy Tuesday"
+     ) +
+      ggsave("parks.png", width = 22, height = 13, units = "cm")
 ```
