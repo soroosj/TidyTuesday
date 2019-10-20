@@ -11,7 +11,6 @@
 
    library (tidyverse)
    library (janitor) 
-   library (jpeg)
    library (grid)
    library (magick)
 
@@ -27,12 +26,11 @@
 ```{r transform, message = F, results = F}
 
    cars <- cars_raw %>%
-      select(id, make, model, eng_dscr, year, cylinders, v_class, displ, fuel_type1, comb08) %>%
       filter (year == 2019) %>%
+      select(id, make, model, eng_dscr, v_class, fuel_type1, comb08) %>%
       rename (
          mph_comb = comb08,
-         fuel_type = fuel_type1,
-         engine = eng_dscr
+         fuel_type = fuel_type1
          ) %>%
       mutate (
          v_class = str_remove(v_class, " 2WD"),
@@ -72,16 +70,16 @@
          scale_fill_manual(values = c("red", "darkgreen")) +
          scale_color_manual(values = c("red", "darkgreen")) +
       theme(
-            plot.title = element_text(hjust = 0, vjust = 0, size = 17, face = "bold", margin = margin (0,0,3,0)),
-            plot.subtitle = element_text(hjust = 0, vjust = 0, size = 10, face = "bold", margin = margin (0,0,25,0)),
-            plot.caption = element_text (hjust = 0, size = 8, face = "plain", margin = margin (20,0,0,0)),
-            plot.title.position = "plot",
-            plot.caption.position = "plot",
-            panel.background = element_rect (fill = "white"),
-            axis.line = element_line(color = "gray70"),
-            axis.ticks = element_line(color = "gray70"),
-            axis.title = element_text (size = 9, hjust = 0.75, color = "gray20"),
-            legend.position = "none"
+         plot.title = element_text(hjust = 0, vjust = 0, size = 17, face = "bold", margin = margin (0,0,3,0)),
+         plot.title.position = "plot",
+         plot.subtitle = element_text(hjust = 0, vjust = 0, size = 10, face = "bold", margin = margin (0,0,25,0)),
+         plot.caption = element_text (hjust = 0, size = 8, face = "plain", margin = margin (20,0,0,0)),
+         plot.caption.position = "plot",
+         panel.background = element_rect (fill = "white"),
+         axis.title = element_text (size = 9, hjust = 0.75, color = "gray20"),
+         axis.line = element_line(color = "gray70"),
+         axis.ticks = element_line(color = "gray70"),
+         legend.position = "none"
             ) +
       labs(
          title = "How does your vehicle choice impact fuel efficiency?",
@@ -92,15 +90,3 @@
          ) +
       ggsave("cars.png", width = 18, height = 13, units = "cm")
 ```
-
-
-
-
-
-
-
-
-
-
-
-
