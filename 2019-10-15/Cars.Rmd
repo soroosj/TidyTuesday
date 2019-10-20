@@ -1,5 +1,5 @@
 ---
-   title: "Vehicle Miles Per Gallon Efficiency"
+   title: "Vehicle MPG"
    author: "Joel Soroos"
    date: "October 20, 2019"
    output: pdf_document
@@ -44,9 +44,8 @@
 
    library (broom)
 
-   cars_lm <- lm (mph_comb ~ v_class + fuel_type, cars)
-   
-   cars_tidy <- tidy(cars_lm) %>%
+   cars_tidy <- lm (mph_comb ~ v_class + fuel_type, cars) %>%
+      tidy() %>%
       mutate (
          term = str_remove(term, "fuel_type"),
          term = str_remove(term, "v_class"),
@@ -69,6 +68,13 @@
          scale_y_continuous(limits = c (-20, 80)) +
          scale_fill_manual(values = c("red", "darkgreen")) +
          scale_color_manual(values = c("red", "darkgreen")) +
+      labs(
+         title = "How does your vehicle choice impact fuel efficiency?",
+         subtitle = "Electric cars contribute most marginal miles per hour on average, vans and pickup trucks detract most.",
+         x = "Regression term",
+         y = "Estimated marginal contribution (detraction) to mph",
+         caption = "Each row represents linear regression estimate of vehicle class & gasoline type indepedent variables vs. miles per gallon dependent variable.\nVisualization: Joel Soroos @soroosj  |  Data: U.S. EPA via R4DS Tidy Tuesday"
+         ) +
       theme(
          plot.title = element_text(hjust = 0, vjust = 0, size = 17, face = "bold", margin = margin (0,0,3,0)),
          plot.title.position = "plot",
@@ -81,12 +87,6 @@
          axis.ticks = element_line(color = "gray70"),
          legend.position = "none"
             ) +
-      labs(
-         title = "How does your vehicle choice impact fuel efficiency?",
-         subtitle = "Electric cars contribute most marginal miles per hour on average, vans and pickup trucks detract most.",
-         x = "Regression term",
-         y = "Estimated marginal contribution (detraction) to mph",
-         caption = "Each row represents linear regression estimate of vehicle class & gasoline type indepedent variables vs. miles per gallon dependent variable.\nVisualization: Joel Soroos @soroosj  |  Data: U.S. EPA via R4DS Tidy Tuesday"
-         ) +
       ggsave("cars.png", width = 18, height = 13, units = "cm")
+
 ```
