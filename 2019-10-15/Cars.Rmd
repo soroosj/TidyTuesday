@@ -1,7 +1,7 @@
 ---
    title: "National Parks"
    author: "Joel Soroos"
-   date: "September 29, 2019"
+   date: "October 20, 2019"
    output: pdf_document
 ---
 
@@ -23,7 +23,7 @@
 ```
 
 
-### 2.  Transform visits
+### 2.  Transform data
 ```{r transform, message = F, results = F}
 
    cars <- cars_raw %>%
@@ -38,7 +38,6 @@
          v_class = str_remove(v_class, " 2WD"),
          v_class = str_remove(v_class, " 4WD")
          ) 
-
 ```
 
 
@@ -67,28 +66,31 @@
    ggplot(data = cars_tidy, aes(y = estimate, x = term, fill = estimate_direction)) +
       geom_col() +
       coord_flip () +
-      scale_y_continuous(limits = c (-20, 80)) +
-      scale_fill_manual(values = c("red", "darkgreen")) +
       annotation_custom (pump_img, ymin = -10, xmin = -2) +
+      #scales
+         scale_y_continuous(limits = c (-20, 80)) +
+         scale_fill_manual(values = c("red", "darkgreen")) +
+         scale_color_manual(values = c("red", "darkgreen")) +
       theme(
             plot.title = element_text(hjust = 0, vjust = 0, size = 17, face = "bold", margin = margin (0,0,3,0)),
-            plot.subtitle = element_text(hjust = 0, vjust = 0, size = 10, face = "bold", margin = margin (0,0,30,0)),
-            plot.caption = element_text (hjust = 0, size = 8, face = "plain", margin = margin (15,0,0,0), color="#6D7C83"),
+            plot.subtitle = element_text(hjust = 0, vjust = 0, size = 10, face = "bold", margin = margin (0,0,25,0)),
+            plot.caption = element_text (hjust = 0, size = 8, face = "plain", margin = margin (20,0,0,0)),
             plot.title.position = "plot",
             plot.caption.position = "plot",
-            panel.grid.major = element_line(colour="white", size=0.03),
-            axis.title = element_text (size = 9, hjust = 1),
+            panel.background = element_rect (fill = "white"),
+            axis.line = element_line(color = "gray70"),
+            axis.ticks = element_line(color = "gray70"),
+            axis.title = element_text (size = 9, hjust = 0.75, color = "gray20"),
             legend.position = "none"
             ) +
       labs(
-         title = "How is your vehicle choice impacting fuel efficiency?",
-         subtitle = "Electric cars add the most to marginal miles per hour, vans and pickup trucks the least.",
+         title = "How does your vehicle choice impact fuel efficiency?",
+         subtitle = "Electric cars contribute most marginal miles per hour on average, vans and pickup trucks detract most.",
          x = "Regression term",
          y = "Estimated marginal contribution (detraction) to mph",
-         caption = "Visualization: Joel Soroos @soroosj  |  Data: U.S. EPA via R4DS Tidy Tuesday"
+         caption = "Each row represents linear regression estimate of vehicle class & gasoline type indepedent variables vs. miles per gallon dependent variable.\nVisualization: Joel Soroos @soroosj  |  Data: U.S. EPA via R4DS Tidy Tuesday"
          ) +
-      ggsave("cars.png", width = 22, height = 13, units = "cm")
-      
+      ggsave("cars.png", width = 18, height = 13, units = "cm")
 ```
 
 
