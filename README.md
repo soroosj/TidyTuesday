@@ -5,9 +5,10 @@ Below are lessons that I have learned from my submissions.
 
 | Week | Data Set | Lesson | Function | Package 
 | :---: | :---: | :--- | :--- | :--- |
-|`2019-10-15`| Vehicle MPH | Regression estimates | tidy| broom |
+|`2019-10-15`| Vehicle MPH | Regression estimates | tidy | broom |
 |`2019-10-15`| Vehicle MPH | import image | read_impage | magick |
 |`2019-10-15`| Vehicle MPH | image to grob | rasterGrob | grid |
+|`2019-10-15`| Vehicle MPH | Add image to chart | annotation_custom | ggplot2 |
 |`2019-09-03`| Moore's Law | Calculate loess regression | loess | stats |
 |`2019-09-03`| Moore's Law | Regression fit make tidy | augment | broom |
 |`2019-09-03`| Moore's Law | Data frame from scratch | tibble | tibble |
