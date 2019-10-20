@@ -11,9 +11,15 @@
 
    library (tidyverse)
    library (janitor) 
+   library (jpeg)
+   library (grid)
+   library (magick)
 
    cars_raw <- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-10-15/big_epa_cars.csv")%>%
       clean_names () 
+   	
+   pump_img <- image_read("petrol-pump.jpg") %>%
+      rasterGrob(width = unit(2,"in"))
 ```
 
 
@@ -28,75 +34,61 @@
          fuel_type = fuel_type1,
          engine = eng_dscr
          ) %>%
-      arrange (year, make, model)
+      mutate (
+         v_class = str_remove(v_class, " 2WD"),
+         v_class = str_remove(v_class, " 4WD")
+         ) 
 
 ```
 
 
-```{r}
-
-   table (cars$fuel_type)
-
-```
-
-
-###4.  Model data
+###3.  Model data
 ```{r}
 
    library (broom)
 
    cars_lm <- lm (mph_comb ~ v_class + fuel_type, cars)
-   cars_augment <- augment (cars_lm)
-   cars_tidy <- tidy(cars_lm)
-   summary (cars_lm)
-   summary (cars)
-
+   
+   cars_tidy <- tidy(cars_lm) %>%
+      mutate (
+         term = str_remove(term, "fuel_type"),
+         term = str_remove(term, "v_class"),
+         term = str_remove(term, " -"),
+         term = fct_reorder(term, estimate),
+         estimate_direction = ifelse(estimate >=0, "positive", "negative")
+         ) %>%
+      arrange (term)
 ```
 
 
-### 3a. Visualize data
+### 4. Visualize data
 ```{r}
 
-   library (ggrepel)
-
-   ggplot(data = visits, mapping = aes(year, y = rank_visitors, group = unit_code, color = unit_code)) +
-     geom_line(size = 1.7, alpha = 0.25, data = visits) +
-     geom_line(size = 2.5, data = visits) +
-     geom_point(size = 4, alpha = 0.25, data = visits) +
-     geom_point(size = 4, data = visits) +
-     geom_point(size = 1.75, color = "white", data = visits) +
-     geom_text_repel(
-        data = visits_max, 
-        aes(label = unit_code), 
-        hjust = "inward", size = 3
-        ) +
-     geom_text_repel(
-        data = visits_min,
-        aes(label = unit_code),
-        hjust = "inward", size = 3
-        ) +
-     #scales
-         scale_x_continuous(
-            breaks = seq (1995, 2015, 10),
-            expand = c(.1, .1)
-            ) +
-         scale_y_reverse (breaks = c(1,5,10)) +
-         scale_color_manual(values = c("#a6cee3", "#1f78b4", "#b2df8a", "#33a02c", "#fb9a99", "#e31a1c", "#fdbf6f", "#ff7f00", "#cab2d6", "#6a3d9a", "#ffff99")) +
-     labs (
-       title = "United States National Park Visitors (1995 - 2015)",
-       subtitle = "     - Great Smoky Mountain and Grand Canyon National Parks continue as #1 and #2 most visited.\n     - Rocky Mountain National Park has grown from #7 to #3 while Olympic National Park has slipped from #4 to #7.",
-       caption = "Visualization: Joel Soroos @soroosj  |  Data: Wikipedia via R4DS Tidy Tuesday",
-       y = "# of visitors rank"
-         ) +
+   ggplot(data = cars_tidy, aes(y = estimate, x = term, fill = estimate_direction)) +
+      geom_col() +
+      coord_flip () +
+      scale_y_continuous(limits = c (-20, 80)) +
+      scale_fill_manual(values = c("red", "darkgreen")) +
+      annotation_custom (pump_img, ymin = -10, xmin = -2) +
       theme(
-         plot.title = element_text(hjust = 0, vjust = 0, size = 17, face = "bold", margin = margin (0,0,3,0)),
-         plot.subtitle = element_text(hjust = 0, vjust = 0, size = 9, face = "bold", margin = margin (0,0,20,0)),
-         plot.caption = element_text (hjust = 0, size = 8, face = "plain", margin = margin (20,0,0,0), color="#6D7C83"),
-         legend.position = "none",
-         axis.title.y = element_text (size = 10, hjust = 1),
-         axis.title.x = element_blank ()
+            plot.title = element_text(hjust = 0, vjust = 0, size = 17, face = "bold", margin = margin (0,0,3,0)),
+            plot.subtitle = element_text(hjust = 0, vjust = 0, size = 10, face = "bold", margin = margin (0,0,30,0)),
+            plot.caption = element_text (hjust = 0, size = 8, face = "plain", margin = margin (15,0,0,0), color="#6D7C83"),
+            plot.title.position = "plot",
+            plot.caption.position = "plot",
+            panel.grid.major = element_line(colour="white", size=0.03),
+            axis.title = element_text (size = 9, hjust = 1),
+            legend.position = "none"
+            ) +
+      labs(
+         title = "How is your vehicle choice impacting fuel efficiency?",
+         subtitle = "Electric cars add the most to marginal miles per hour, vans and pickup trucks the least.",
+         x = "Regression term",
+         y = "Estimated marginal contribution (detraction) to mph",
+         caption = "Visualization: Joel Soroos @soroosj  |  Data: U.S. EPA via R4DS Tidy Tuesday"
          ) +
-      ggsave("parks.png", width = 22, height = 13, units = "cm")
+      ggsave("cars.png", width = 22, height = 13, units = "cm")
+      
 ```
 
 
