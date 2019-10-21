@@ -33,8 +33,7 @@
          fuel_type = fuel_type1
          ) %>%
       mutate (
-         v_class = str_remove(v_class, " 2WD"),
-         v_class = str_remove(v_class, " 4WD")
+         v_class = str_remove(v_class, " 2WD| 4WD")
          ) 
 ```
 
@@ -47,13 +46,10 @@
    cars_tidy <- lm (mph_comb ~ v_class + fuel_type, cars) %>%
       tidy() %>%
       mutate (
-         term = str_remove(term, "fuel_type"),
-         term = str_remove(term, "v_class"),
-         term = str_remove(term, " -"),
+         term = str_remove_all(term, "fuel_type|v_class| -"),
          term = fct_reorder(term, estimate),
          estimate_direction = ifelse(estimate >=0, "positive", "negative")
-         ) %>%
-      arrange (term)
+         ) 
 ```
 
 
@@ -88,5 +84,4 @@
          legend.position = "none"
             ) +
       ggsave("cars.png", width = 18, height = 13, units = "cm")
-
 ```
