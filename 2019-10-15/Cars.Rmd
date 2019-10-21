@@ -11,8 +11,8 @@
 
    library (tidyverse)
    library (janitor) 
-   library (grid)
    library (magick)
+   library (grid)
 
    cars_raw <- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-10-15/big_epa_cars.csv")%>%
       clean_names () 
@@ -43,9 +43,9 @@
    library (broom)
 
    cars_tidy <- lm (mph_comb ~ vehicle_class + fuel_type, cars) %>%
-      tidy() %>%
+      tidy() %>%                 #coefficient estimates
       mutate (
-         term = str_remove_all(term, "fuel_type|vehicle_class| -"),
+         term = str_remove_all(term, "fuel_type|vehicle_class| -"),                  #remove field names
          term = fct_reorder(term, estimate),
          estimate_direction = ifelse(estimate >=0, "positive", "negative")
          ) 
