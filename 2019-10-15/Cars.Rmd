@@ -29,12 +29,11 @@
       filter (year == 2019) %>%
       select(id, make, model, eng_dscr, v_class, fuel_type1, comb08) %>%
       rename (
-         mph_comb = comb08,
-         fuel_type = fuel_type1
+         fuel_type = fuel_type1,
+         vehicle_class = v_class,
+         mph_comb = comb08
          ) %>%
-      mutate (
-         v_class = str_remove(v_class, " 2WD| 4WD")
-         ) 
+      mutate (vehicle_class = str_remove(vehicle_class, " 2WD| 4WD")) 
 ```
 
 
@@ -43,10 +42,10 @@
 
    library (broom)
 
-   cars_tidy <- lm (mph_comb ~ v_class + fuel_type, cars) %>%
+   cars_tidy <- lm (mph_comb ~ vehicle_class + fuel_type, cars) %>%
       tidy() %>%
       mutate (
-         term = str_remove_all(term, "fuel_type|v_class| -"),
+         term = str_remove_all(term, "fuel_type|vehicle_class| -"),
          term = fct_reorder(term, estimate),
          estimate_direction = ifelse(estimate >=0, "positive", "negative")
          ) 
@@ -58,12 +57,11 @@
 
    ggplot(data = cars_tidy, aes(y = estimate, x = term, fill = estimate_direction)) +
       geom_col() +
-      coord_flip () +
       annotation_custom (pump_img, ymin = -10, xmin = -2) +
       #scales
          scale_y_continuous(limits = c (-20, 80)) +
          scale_fill_manual(values = c("red", "darkgreen")) +
-         scale_color_manual(values = c("red", "darkgreen")) +
+         coord_flip () +
       labs(
          title = "How does your vehicle choice impact fuel efficiency?",
          subtitle = "Electric cars contribute most marginal miles per hour on average, vans and pickup trucks detract most.",
