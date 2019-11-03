@@ -22,10 +22,21 @@
 ```{r transform, message = F, results = F}
 
    squirrels <- squirrels_raw %>%
-      pivot_longer (c(running:foraging, kuks:runs_from), "activity", "value") %>%
+      pivot_longer (
+         cols = c(running:foraging, kuks:runs_from), 
+         names_to = "activity", 
+         values_to = "value"
+         ) %>%
       select (long, lat, activity, value, age) %>%
       filter (value == T) %>%
-      mutate (activity = str_to_title (activity))
+      mutate (
+         activity = str_to_title (activity),
+         activity = case_when (
+            activity == "Tail_flags" ~ "Tail Flags",
+            activity == "Tail_twitches" ~ "Tail Twitches",
+            activity == "Runs_from" ~ "Runs From",
+            TRUE ~ activity)
+         )
 ```
 
 
@@ -60,7 +71,10 @@
          strip.text = element_text (size = 8),
          legend.title=element_blank()
          ) +
-      facet_wrap (vars(activity),nrow = 3) +
+      facet_wrap (
+         facets = vars(activity),
+         nrow = 3
+         ) +
       labs(
          title = "Squirrel Behaviors in New York's Central Park",
          subtitle = "      - Movements such as climbing/foraging far more common than sounds such as kuks/moans.\n      - Results from a study conducted by Jamie Allen and a team of 300 volunteers from October 6-20, 2018.",
