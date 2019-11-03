@@ -27,8 +27,8 @@
          names_to = "activity", 
          values_to = "value"
          ) %>%
-      select (long, lat, activity, value, age) %>%
       filter (value == T) %>%
+      select (long, lat, activity) %>%
       mutate (
          activity = str_to_title (activity),
          activity = case_when (
