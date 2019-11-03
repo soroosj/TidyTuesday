@@ -52,18 +52,18 @@
       dark_mode(theme_minimal()) +
       theme(
          plot.title = element_text(hjust = 0, vjust = 0, size = 17, face = "bold", margin = margin (0,0,4,0)),
-         plot.subtitle = element_text(hjust = 0, vjust = 0, size = 8, margin = margin (0,0,10,0)),
+         plot.subtitle = element_text(hjust = 0, vjust = 0, size = 8, margin = margin (0,0,25,0)),
          plot.caption = element_text (hjust = 1, size = 7, face = "plain", margin = margin (10,0,0,0), color="#6D7C83"),
          axis.title=element_blank(),
          axis.text=element_blank(),
          axis.ticks=element_blank(),
-         legend.text=element_text(size=8),
+         strip.text = element_text (size = 8),
          legend.title=element_blank()
          ) +
       facet_wrap (vars(activity),nrow = 3) +
       labs(
          title = "Squirrel Behaviors in New York's Central Park",
-         subtitle = "  - Movements such as climbing/foraging far more common than sounds such as kuks/moans.\n  - Results from a study by Jamie Allen and a team of 300 volunteers from October 6-20, 2018.",
+         subtitle = "      - Movements such as climbing/foraging far more common than sounds such as kuks/moans.\n      - Results from a study conducted by Jamie Allen and a team of 300 volunteers from October 6-20, 2018.",
          caption = "Visualization: Joel Soroos @soroosj  |  Data: The Squirrel Census via R4DS Tidy Tuesday"
          ) +
       ggsave("squirrels.png", width = 15, height = 17, units = "cm")
