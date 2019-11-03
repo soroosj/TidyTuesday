@@ -25,7 +25,8 @@
    squirrels <- squirrels_raw %>%
       pivot_longer (c(running:foraging, kuks:runs_from), "activity", "value") %>%
       select (long, lat, activity, value, age) %>%
-      filter (value == T)
+      filter (value == T) %>%
+      mutate (activity = str_to_title (activity))
 
 
 ```
@@ -35,24 +36,31 @@
 ### 4. Visualize data
 ```{r}
 
+   library (ggdark)
+
    ggmap(
       get_googlemap(
          center = c("Central Park"),
          zoom = 13, 
          scale = 2,
          maptype ='roadmap',
-         style = 'style=feature:poi|element:labels|visibility:off',
+         style = 'style=feature:all|element:labels|visibility:off',
          color = 'color'
          )
       ) +
       geom_point(
          data = squirrels, 
          aes(x = long, y = lat),
-         size = 0.05
+         size = 0.05,
+         color = "blue"
          ) +
       scale_x_continuous(limits = c(-73.982, -73.95)) +
       scale_y_continuous(limits = c(40.765, 40.80)) +
-      theme(axis.title.x=element_blank(),
+      dark_mode(theme_minimal()) +
+      theme(
+         plot.title = element_text(hjust = 0, vjust = 0, size = 17, face = "bold", margin = margin (0,0,7,0)),
+         plot.subtitle = element_text(hjust = 0, vjust = 0, size = 8, face = "bold", margin = margin (0,0,30,0)),
+         plot.caption = element_text (hjust = 0, size = 8, face = "plain", margin = margin (15,0,0,0), color="#6D7C83"),
          axis.text.x=element_blank(),
          axis.ticks.x=element_blank(),
          axis.title.y=element_blank(),
@@ -65,6 +73,11 @@
       facet_wrap (
          vars(activity),
          nrow = 3
+         ) +
+      labs(
+         title = "Squirrel Activities in Central Park",
+         subtitle = "Gordon Moore predicted in 1971 that computing power would double a(Moore's Law).",
+         caption = "Visualization: Joel Soroos @soroosj  |  Data: The Squirrel Census, R4DS Tidy Tuesday"
          ) +
       ggsave("squirrels.png")
 ```
