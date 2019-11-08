@@ -1,13 +1,14 @@
 ## Lessons from Tidy Tuesday
-Tidy Tuesday enables practicing wrangling data and chart visualizations in R.  Interesting data sets are available each week.  Other R enthusiasts provide feedback and seeing their charts generates ideas.
-
-Below are lessons that I have learned from my submissions.
 
 | Week | Data Set | Lesson | Function | Package 
 | :---: | :---: | :--- | :--- | :--- |
+|`2019-10-29`| Squirrels | API keys to environment variables | Sys.getenv | base |
+|`2019-10-29`| Squirrels | Source Google map layer | get_googlempap | ggmap |
+|`2019-10-29`| Squirrels | Chart clones by variable | facet_wrap | ggplot2 |
+|`2019-10-29`| Squirrels | Convert string to title case | str_to_title | stringr |
 |`2019-10-15`| Vehicle MPH | Regression estimates | tidy | broom |
-|`2019-10-15`| Vehicle MPH | import image | read_impage | magick |
-|`2019-10-15`| Vehicle MPH | image to grob | rasterGrob | grid |
+|`2019-10-15`| Vehicle MPH | Import image | read_impage | magick |
+|`2019-10-15`| Vehicle MPH | Image to grob | rasterGrob | grid |
 |`2019-10-15`| Vehicle MPH | Add image to chart | annotation_custom | ggplot2 |
 |`2019-09-03`| Moore's Law | Calculate loess regression | loess | stats |
 |`2019-09-03`| Moore's Law | Regression fit make tidy | augment | broom |
