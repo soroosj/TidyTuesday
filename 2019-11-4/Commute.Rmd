@@ -1,0 +1,69 @@
+---
+   title: "Commute"
+   author: "Joel Soroos"
+   date: "November 10, 2019"
+   output: pdf_document
+---
+
+
+### 1. Source data
+```{r source, warning = TRUE, results = FALSE, message = FALSE}
+
+   library("tidyverse")
+   library("ggmap")
+
+   commute_raw <- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-11-05/commute.csv")
+   
+   register_google(key = Sys.getenv("GOOGLE_MAPS_API"))
+```
+
+
+### 2.  Transform data
+```{r transform, message = F, results = F}
+
+   library (glue)   
+
+   commute <- commute_raw %>%
+      head (100) %>%
+      select (city, state, n, percent) %>%
+      mutate (city_state = glue ("{city}, {state}")) %>%
+      mutate_geocode (city_state)
+```
+
+
+### 3. Visualize data
+```{r visualize}
+
+   library (ggdark)
+
+   ggmap(
+      get_googlemap(
+         center = c("United States"),
+         zoom = 4, scale = 2, color = 'color',
+         maptype ='roadmap',
+         style = 'style=feature:all|element:labels|visibility:off'
+         )
+      ) +
+      geom_point(
+         data = commute, 
+         aes(x = lon, y = lat, fill = percent),
+         alpha = 0.7
+         ) +
+      scale_fill_brewer(palette = "BuPu") +
+      dark_mode(theme_minimal()) +
+      theme(
+         plot.title = element_text(hjust = 0, vjust = 0, size = 17, face = "bold", margin = margin (0,0,4,0)),
+         plot.subtitle = element_text(hjust = 0, vjust = 0, size = 8, margin = margin (0,0,25,0)),
+         plot.caption = element_text (hjust = 1, size = 7, face = "plain", margin = margin (10,0,0,0), color="#6D7C83"),
+         axis.title=element_blank(),
+         axis.text=element_blank(),
+         axis.ticks=element_blank(),
+         legend.title=element_blank()
+         ) +
+      labs(
+         title = "Squirrel Behaviors in New York's Central Park",
+         subtitle = "      - Movements such as climbing/foraging far more common than sounds such as kuks/moans.\n      - Results from a study conducted by Jamie Allen and a team of 300 volunteers from October 6-20, 2018.",
+         caption = "Visualization: Joel Soroos @soroosj  |  Data: The Squirrel Census via R4DS Tidy Tuesday"
+         ) +
+      ggsave("commute.png", width = 25, height = 14, units = "cm")
+```
