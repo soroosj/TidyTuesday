@@ -14,57 +14,74 @@
 
    commute_raw <- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-11-05/commute.csv")
    
-   map_borders <- map_data("usa") 
-
-
+   map_borders <- map_data("state") 
 ```
 
 
-### 2.  Transform data
+### 2a.  Transform data
 ```{r transform, warning = T, message = F, results = F}
 
    library (glue)
-   register_google(key = Sys.getenv("GOOGLE_MAPS_API"))
 
    commute <- commute_raw %>%
-      filter (
-         mode == "Bike",
-         !state %in% c("Hawaii", "Alaska")
+      mutate (city_state = glue ("{city}, {state}")) %>%
+      group_by (city_state, city_size) %>%
+      summarize(
+         percent = weighted.mean(percent,n),
+         n = sum(n)
          ) %>%
-      mutate (city_state = glue ("{city}, {state}"))
-   
-    commute_coord <- commute %>%
-      #head (20) %>%
-      mutate_geocode (city_state) %>%
-      select (city, state, lon, lat, percent)
+      filter (
+         !str_detect(city_state, 'Hawaii|Alaska'),
+         percent >= 10
+         ) 
 ```
 
+
+### 2b.  Obtain geocode for cities
+```{r}
+    
+   register_google(key = Sys.getenv("GOOGLE_MAPS_API"))
+   
+   commute_coord <- commute %>%
+      #head (20) %>%
+      mutate_geocode (city_state) %>%
+      select (city_state, city_size, lon, lat, percent)
+```
 
 ### 3. Visualize data
 ```{r visualize}
 
    library (ggdark)
 
-   ggplot(commute, aes(x= lon, y = lat)) +
-      geom_polygon (data = map_borders, aes(x = long, y = lat, group = group), color = "black", size = 1.15) +
-      geom_point(
-         aes (color = percent),
-         size = 0.5
+   ggplot(commute_coord, aes(x= lon, y = lat)) +
+      geom_polygon (
+         data = map_borders, 
+         aes(x = long, y = lat, group = group),
+         color = "black", size = 0.05
          ) +
-      scale_color_gradient(low = "red", high = "darkgreen") +
+      geom_point(
+         data = commute_coord,
+         aes (size = percent, color = city_size),
+         shape = 16
+         ) +
+      scale_size_continuous(range = c(.01,5)) +
       dark_mode(theme_minimal()) +
       theme(
-         plot.title = element_text(hjust = 0, vjust = 0, size = 12, face = "bold", margin = margin (0,0,4,0)),
-         plot.subtitle = element_text(hjust = 0, vjust = 0, size = 8, margin = margin (0,0,25,0)),
-         plot.caption = element_text (hjust = 1, size = 8, face = "plain", margin = margin (10,0,0,0), color="#6D7C83"),
+         plot.title = element_text(hjust = 0.5, vjust = 0, size = 14, face = "bold", margin = margin (0,0,0,0)),
+         plot.subtitle = element_text(hjust = 0.5, vjust = 0, size = 8, margin = margin (0,0,5,0)),
+         plot.caption = element_text(hjust = 0, size = 8, face = "plain", margin = margin (10,0,0,0)),
          axis.title=element_blank(),
          axis.text=element_blank(),
          axis.ticks=element_blank(),
-         legend.title=element_blank()
+         legend.title=element_blank(),
+         legend.position = c(0.2,0.1),
+         legend.direction = "horizontal",
+         legend.spacing = unit(0.1, "cm")
          ) +
       labs(
-         title = "Biking to Work in the United States: 2008–2012",
-         caption = "Visualization: Joel Soroos @soroosj  |  Data: U.S. Census Bureau"
+         title = "Healthiest Commuters in the United States (2008-2012)",
+         subtitle = "- Walkers and bikers to work tend to live in small towns in Northeast, Midwest and Pacific Coast.",
+         caption = "Each point represents a city's average % bike or walk commuters.  Average is weighted by relative number of bikers and walkers.\nCities displayed with > 10% weighted average bike/walk commuters.\nVisualization: Joel Soroos @soroosj  |  Data: U.S. Census Bureau"
          ) +
-      ggsave("commute.png", width = 14, height = 9, units = "cm")
+      ggsave("commute.png", width = 17, height = 11, units = "cm")
 ```
