@@ -24,7 +24,14 @@
    library (glue)
 
    commute <- commute_raw %>%
-      mutate (city_state = glue ("{city}, {state}")) %>%
+      mutate (
+         city_state = glue ("{city}, {state}"),
+         city_size = case_when (
+            city_size == "Small" ~ "Small City",
+            city_size == "Medium" ~ "Medium City",
+            city_size == "Large" ~ "Large City",
+            TRUE ~ city_size)
+         ) %>%
       group_by (city_state, city_size) %>%
       summarize(
          percent = weighted.mean(percent,n),
@@ -32,7 +39,7 @@
          ) %>%
       filter (
          !str_detect(city_state, 'Hawaii|Alaska'),
-         percent >= 10
+         percent >= 9
          ) 
 ```
 
@@ -64,7 +71,10 @@
          aes (size = percent, color = city_size),
          shape = 16
          ) +
-      scale_size_continuous(range = c(.01,5)) +
+      scale_size_continuous(
+         breaks = c(10,20,30, 40),
+         labels = c("10%","20%","30%","40%"),
+         range = c(.01,5)) +
       dark_mode(theme_minimal()) +
       theme(
          plot.title = element_text(hjust = 0.5, vjust = 0, size = 14, face = "bold", margin = margin (0,0,0,0)),
@@ -74,9 +84,12 @@
          axis.text=element_blank(),
          axis.ticks=element_blank(),
          legend.title=element_blank(),
-         legend.position = c(0.2,0.1),
-         legend.direction = "horizontal",
-         legend.spacing = unit(0.1, "cm")
+         legend.text = element_text(size=8, margin = margin (l=-4, unit = "pt")),
+         legend.key.size = unit(0.5, "cm")
+         legend.position = c(0.88,0.25),
+         legend.box = "horizontal",
+         legend.direction = "vertical",
+         legend.spacing = unit(0.05, "cm")
          ) +
       labs(
          title = "Healthiest Commuters in the United States (2008-2012)",
