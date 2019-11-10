@@ -34,7 +34,7 @@
          ) %>%
       group_by (city_state, city_size) %>%
       summarize(
-         percent = weighted.mean(percent,n),
+         percent = sum(percent),
          n = sum(n)
          ) %>%
       filter (
@@ -85,7 +85,7 @@
          axis.ticks=element_blank(),
          legend.title=element_blank(),
          legend.text = element_text(size=8, margin = margin (l=-4, unit = "pt")),
-         legend.key.size = unit(0.5, "cm")
+         legend.key.size = unit(0.5, "cm"),
          legend.position = c(0.88,0.25),
          legend.box = "horizontal",
          legend.direction = "vertical",
@@ -93,8 +93,8 @@
          ) +
       labs(
          title = "Healthiest Commuters in the United States (2008-2012)",
-         subtitle = "- Walkers and bikers to work tend to live in small towns in Northeast, Midwest and Pacific Coast.",
-         caption = "Each point represents a city's average % bike or walk commuters.  Average is weighted by relative number of bikers and walkers.\nCities displayed with > 10% weighted average bike/walk commuters.\nVisualization: Joel Soroos @soroosj  |  Data: U.S. Census Bureau"
+         subtitle = "- Walkers and bikers to work tend to live in small towns in Northeast, Midwest and Pacific Coast.\n- The U.S. city with highest percentage is Ithica, NY (45%), followed by State College, PA (40%).",
+         caption = "Each point represents a city's percentage bike or walk commuters. Cities displayed > 10%.\nVisualization: Joel Soroos @soroosj  |  Data: U.S. Census Bureau"
          ) +
       ggsave("commute.png", width = 17, height = 11, units = "cm")
 ```
