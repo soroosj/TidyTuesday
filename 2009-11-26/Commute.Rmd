@@ -1,0 +1,35 @@
+---
+   title: "Commute"
+   author: "Joel Soroos"
+   date: "November 10, 2019"
+   output: pdf_document
+---
+
+
+### 1. Source data
+```{r source, warning = TRUE, results = FALSE, message = FALSE}
+
+   library("tidyverse")
+   library("rio")
+   library("janitor")
+
+   loans_raw <- import("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-11-26/loans.csv")%>%
+      clean_names()
+
+```
+
+
+### 2a.  Transform data
+```{r transform, warning = T, message = F, results = F}
+
+  
+```
+
+
+
+
+### 3. Visualize data
+```{r visualize}
+
+
+```
