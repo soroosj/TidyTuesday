@@ -1,7 +1,7 @@
 ---
-   title: "Commute"
+   title: "Tickets"
    author: "Joel Soroos"
-   date: "November 10, 2019"
+   date: "December 9, 2019"
    output: pdf_document
 ---
 
@@ -13,7 +13,7 @@
    library("rio")
    library("janitor")
 
-   loans_raw <- import("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-11-26/loans.csv")%>%
+   tickets_raw <- import("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-12-03/tickets.csv") %>%
       clean_names()
 
 ```
@@ -22,6 +22,8 @@
 ### 2a.  Transform data
 ```{r transform, warning = T, message = F, results = F}
 
+   tickets <- tickets_raw %>%
+      head (10)
   
 ```
 

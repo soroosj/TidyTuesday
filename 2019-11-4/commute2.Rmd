@@ -24,6 +24,12 @@
       summarize(
          percent = sum(percent)
          )
+
+   commute_median <- commute_raw%>%
+      drop_na %>%
+      summarize(
+         median_all = mean(percent)
+         )
 ```
 
 
@@ -38,6 +44,9 @@
       geom_density (
          aes(x=percent),
          fill = "grey") +
+      geom_vline(
+         aes (xintercept = commute_median$median_all)
+         ) +
       facet_geo(
          ~ state_abb,
          scales = "free"
