@@ -6,7 +6,7 @@
 ---
 
 
-### 1. Source data
+### 1. Source
 ```{r source, warning = TRUE, results = FALSE, message = FALSE}
 
 
@@ -17,13 +17,14 @@
    tickets_raw <- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-12-03/tickets.csv") %>%
       clean_names()
    
-   #create_report(tickets_raw)
+   
+   create_report(tickets_raw)
 
 ```
 
 
-### 2a.  Transform data
-```{r transform, warning = T, results = F}
+### 2a.  Transform
+```{r transform, warning = T, results = F, message = F}
 
    library (lubridate)
    library (glue)
@@ -38,56 +39,84 @@
          issue_hour = hour (issue_datetime),
          issue_minute = round (minute (issue_datetime)/.6,0),
          issue_time = glue ("{issue_hour}.{issue_minute}"),
-         issue_time = as.double(issue_time)
-      ) %>%
-   select (issue_datetime, issue_time) %>%
+         issue_time = as.double(issue_time),
+         violation_desc = str_remove (violation_desc, " CC"),
+         violation_desc = case_when (
+            violation_desc == "STOP PROHIBITED" ~ "STOPPING PROHIBITED",
+            violation_desc == "PARKING PROHBITED" ~ "PARKING PROHIBITED",
+            violation_desc  == "PASSENGR LOADNG ZONE" ~ "PASSENGER LOADING ZONE",
+            #violation_desc  == "OVER TIME LIMIT" ~ "METER EXPIRED",
+            TRUE ~ violation_desc
+            ),
+         violation_desc = str_to_title (violation_desc),
+         violation_desc = fct_lump (violation_desc, 5)
+         ) %>%
+   select (issue_datetime, issue_time, violation_desc) %>%
    arrange(issue_datetime)
    
+```
+ 
+   
+### 2b.  Aggregate
+```{r transform, warning = T, results = F}   
+   
    tickets_agg <- tickets %>%
-      group_by (issue_time) %>%
-      summarize (
-         n = n()
-      )
+      group_by (issue_time, violation_desc) %>%
+      summarize (n = n()) %>%
+      #mutate (violation_desc = fct_reorder (violation_desc,-n)) %>%
+      arrange (-violation_desc)
+
+   tickets %>%
+      group_by (violation_desc) %>%
+      summarize (n = n()) %>%
+      mutate (violation_desc = fct_reorder (violation_desc,-n))
+
 ```
 
 
-
-### 3. Visualize data
+### 3. Visualize
 ```{r visualize}
 
+   library(ggdark)
+
+   library (showtext)
+   font_add("Shlop", "shlop rg.ttf")
+   showtext_auto() 
+
    ggplot (tickets_agg, aes(x=issue_time, y = n)) +
-      geom_line () +
+      geom_area (
+         aes (fill = violation_desc),
+         alpha = 0.85) +
       coord_polar() +
       labs(
          title = "Philadephia Parking Violations",
-         subtitle = "Fines peak between 10:00 and 15:00 (3:00p).",
-         #x = "Regression term",
-         #y = "Estimated marginal contribution (detraction) to mph",
-         caption = "Each semicircle represents 5000 parking violations .\nVisualization: Joel Soroos @soroosj  |  Data: Open Data Philly via R4DS Tidy Tuesday"
+         caption = "Each radian represents the hour in a 24 hour clock.\nEach semicircle represents 10,000 parking violations per 10 minute periods in 2017.\nVisualization: Joel Soroos @soroosj  |  Data: Open Data Philly via R4DS Tidy Tuesday"
          ) +
-         scale_x_continuous(
-            breaks = seq (0,23,1),
-            limits = c (0, 24)
+      scale_x_continuous(
+         breaks = seq (0,23,1),
+         limits = c (0, 24)
+         ) +
+      scale_y_continuous(
+         breaks = seq (0,20000,10000)
             ) +
-         scale_y_continuous(
-            breaks = seq (0,20000,10000)
-            ) +
+      scale_fill_brewer(type = "qual", palette = 1) +
+      dark_mode(theme_minimal()) +
       theme(
-         plot.title = element_text(hjust = 0.5, vjust = 0, size = 17, face = "bold", margin = margin (0,0,3,0)),
+         plot.title = element_text(hjust = 0.5, vjust = 0, size = 30, face = "bold", color = "#CC1100", margin = margin (0,0,20,0)),
          plot.title.position = "plot",
-         plot.subtitle = element_text(hjust = 0.5, vjust = 0, size = 10, face = "bold", margin = margin (0,0,25,0)),
-         plot.caption = element_text (hjust = 0, size = 8, face = "plain", margin = margin (20,0,0,0)),
+         plot.caption = element_text (hjust = 0.5, size = 9, face = "plain", margin = margin (20,0,0,0)),
          plot.caption.position = "plot",
-         #panel.background = element_rect (fill = "white"),
          axis.title = element_blank (),
          axis.line = element_blank (),
-         axis.text.x = element_text(hjust = 0, vjust = 0, size = 14, face = "bold", margin = margin (0,0,25,0)),
+         axis.text.x = element_text(hjust = 0, vjust = 0, size = 15, margin = margin (0,0,0,0)),
          axis.text.y = element_blank (),
          axis.ticks = element_blank (),
-         legend.position = "none",
-         panel.grid.minor.x = element_blank()
+         legend.title = element_blank(),
+         legend.position = "bottom",
+         panel.grid.minor.x = element_blank(),
+         text = element_text(family = "Shlop", color = "#CC1100", face = "bold")
             ) +
-      ggsave("tickets.png", width = 14, height = 18, units = "cm")
+      ggsave("tickets.png", width = 4.9)
 ```
 
 ```
