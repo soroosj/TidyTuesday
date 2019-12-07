@@ -10,38 +10,43 @@
 ```{r source, warning = TRUE, results = FALSE, message = FALSE}
 
 
-   library("rio")
+   library("tidyverse")
    library("janitor")
    library("DataExplorer")
 
-   tickets_raw <- import("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-12-03/tickets.csv") %>%
+   tickets_raw <- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-12-03/tickets.csv") %>%
       clean_names()
    
-   create_report(tickets_raw)
+   #create_report(tickets_raw)
 
 ```
 
 
 ### 2a.  Transform data
-```{r transform, warning = T, message = F, results = F}
+```{r transform, warning = T, results = F}
 
-   library(tidyverse)
+   library (lubridate)
+   library (glue)
 
    tickets <- tickets_raw %>%
-      #head (5000) %>%
+      #head (50) %>%
       mutate (
-         issue_hour = str_sub (issue_datetime, 12,13),
-         issue_hour = as.integer(issue_hour)
+         issue_datetime = str_replace (issue_datetime, "T", " "),
+         issue_datetime = str_remove (issue_datetime, "Z"),
+         issue_datetime = ymd_hms (issue_datetime),
+         issue_datetime = floor_date (issue_datetime, unit = "10 mins"),
+         issue_hour = hour (issue_datetime),
+         issue_minute = round (minute (issue_datetime)/.6,0),
+         issue_time = glue ("{issue_hour}.{issue_minute}"),
+         issue_time = as.double(issue_time)
       ) %>%
-   select (issue_hour, fine) %>%
-   arrange(issue_hour, fine)
+   select (issue_datetime, issue_time) %>%
+   arrange(issue_datetime)
    
    tickets_agg <- tickets %>%
-      group_by (issue_hour) %>%
+      group_by (issue_time) %>%
       summarize (
-         n = n(),
-         sum = sum(fine),
-         med = median(fine)
+         n = n()
       )
 ```
 
@@ -50,27 +55,37 @@
 ### 3. Visualize data
 ```{r visualize}
 
-   ggplot (tickets_agg, aes(x=issue_hour, y = n)) +
-      geom_col () +
+   ggplot (tickets_agg, aes(x=issue_time, y = n)) +
+      geom_line () +
       coord_polar() +
       labs(
-         title = "How does your vehicle choice impact fuel efficiency?",
-         subtitle = "Electric cars contribute most marginal miles per hour on average, vans and pickup trucks detract most.",
+         title = "Philadephia Parking Violations",
+         subtitle = "Fines peak between 10:00 and 15:00 (3:00p).",
          #x = "Regression term",
          #y = "Estimated marginal contribution (detraction) to mph",
-         caption = "Each row represents linear regression estimate of vehicle class & gasoline type indepedent variables vs. miles per gallon dependent variable.\nVisualization: Joel Soroos @soroosj  |  Data: U.S. EPA via R4DS Tidy Tuesday"
+         caption = "Each semicircle represents 5000 parking violations .\nVisualization: Joel Soroos @soroosj  |  Data: Open Data Philly via R4DS Tidy Tuesday"
          ) +
+         scale_x_continuous(
+            breaks = seq (0,23,1),
+            limits = c (0, 24)
+            ) +
+         scale_y_continuous(
+            breaks = seq (0,20000,10000)
+            ) +
       theme(
-         plot.title = element_text(hjust = 0, vjust = 0, size = 17, face = "bold", margin = margin (0,0,3,0)),
+         plot.title = element_text(hjust = 0.5, vjust = 0, size = 17, face = "bold", margin = margin (0,0,3,0)),
          plot.title.position = "plot",
-         plot.subtitle = element_text(hjust = 0, vjust = 0, size = 10, face = "bold", margin = margin (0,0,25,0)),
+         plot.subtitle = element_text(hjust = 0.5, vjust = 0, size = 10, face = "bold", margin = margin (0,0,25,0)),
          plot.caption = element_text (hjust = 0, size = 8, face = "plain", margin = margin (20,0,0,0)),
          plot.caption.position = "plot",
          #panel.background = element_rect (fill = "white"),
-         axis.title = element_text (size = 9, hjust = 0.75, color = "gray20"),
-         axis.line = element_line(color = "gray70"),
-         axis.ticks = element_line(color = "gray70"),
-         legend.position = "none"
+         axis.title = element_blank (),
+         axis.line = element_blank (),
+         axis.text.x = element_text(hjust = 0, vjust = 0, size = 14, face = "bold", margin = margin (0,0,25,0)),
+         axis.text.y = element_blank (),
+         axis.ticks = element_blank (),
+         legend.position = "none",
+         panel.grid.minor.x = element_blank()
             ) +
       ggsave("tickets.png", width = 14, height = 18, units = "cm")
 ```
