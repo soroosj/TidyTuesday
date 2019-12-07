@@ -9,12 +9,15 @@
 ### 1. Source data
 ```{r source, warning = TRUE, results = FALSE, message = FALSE}
 
-   library("tidyverse")
+
    library("rio")
    library("janitor")
+   library("DataExplorer")
 
    tickets_raw <- import("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-12-03/tickets.csv") %>%
       clean_names()
+   
+   create_report(tickets_raw)
 
 ```
 
@@ -22,16 +25,54 @@
 ### 2a.  Transform data
 ```{r transform, warning = T, message = F, results = F}
 
-   tickets <- tickets_raw %>%
-      head (10)
-  
-```
+   library(tidyverse)
 
+   tickets <- tickets_raw %>%
+      #head (5000) %>%
+      mutate (
+         issue_hour = str_sub (issue_datetime, 12,13),
+         issue_hour = as.integer(issue_hour)
+      ) %>%
+   select (issue_hour, fine) %>%
+   arrange(issue_hour, fine)
+   
+   tickets_agg <- tickets %>%
+      group_by (issue_hour) %>%
+      summarize (
+         n = n(),
+         sum = sum(fine),
+         med = median(fine)
+      )
+```
 
 
 
 ### 3. Visualize data
 ```{r visualize}
 
+   ggplot (tickets_agg, aes(x=issue_hour, y = n)) +
+      geom_col () +
+      coord_polar() +
+      labs(
+         title = "How does your vehicle choice impact fuel efficiency?",
+         subtitle = "Electric cars contribute most marginal miles per hour on average, vans and pickup trucks detract most.",
+         #x = "Regression term",
+         #y = "Estimated marginal contribution (detraction) to mph",
+         caption = "Each row represents linear regression estimate of vehicle class & gasoline type indepedent variables vs. miles per gallon dependent variable.\nVisualization: Joel Soroos @soroosj  |  Data: U.S. EPA via R4DS Tidy Tuesday"
+         ) +
+      theme(
+         plot.title = element_text(hjust = 0, vjust = 0, size = 17, face = "bold", margin = margin (0,0,3,0)),
+         plot.title.position = "plot",
+         plot.subtitle = element_text(hjust = 0, vjust = 0, size = 10, face = "bold", margin = margin (0,0,25,0)),
+         plot.caption = element_text (hjust = 0, size = 8, face = "plain", margin = margin (20,0,0,0)),
+         plot.caption.position = "plot",
+         #panel.background = element_rect (fill = "white"),
+         axis.title = element_text (size = 9, hjust = 0.75, color = "gray20"),
+         axis.line = element_line(color = "gray70"),
+         axis.ticks = element_line(color = "gray70"),
+         legend.position = "none"
+            ) +
+      ggsave("tickets.png", width = 14, height = 18, units = "cm")
+```
 
 ```
