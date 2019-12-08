@@ -17,9 +17,7 @@
    tickets_raw <- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-12-03/tickets.csv") %>%
       clean_names()
    
-   
    create_report(tickets_raw)
-
 ```
 
 
@@ -30,7 +28,6 @@
    library (glue)
 
    tickets <- tickets_raw %>%
-      #head (50) %>%
       mutate (
          issue_datetime = str_replace (issue_datetime, "T", " "),
          issue_datetime = str_remove (issue_datetime, "Z"),
@@ -60,17 +57,15 @@
 ### 2b.  Aggregate
 ```{r transform, warning = T, results = F}   
    
-   tickets_agg <- tickets %>%
-      group_by (issue_time, violation_desc) %>%
-      summarize (n = n()) %>%
-      #mutate (violation_desc = fct_reorder (violation_desc,-n)) %>%
-      arrange (-violation_desc)
-
    tickets %>%
       group_by (violation_desc) %>%
       summarize (n = n()) %>%
       mutate (violation_desc = fct_reorder (violation_desc,-n))
-
+   
+   tickets_agg <- tickets %>%
+      group_by (issue_time, violation_desc) %>%
+      summarize (n = n()) %>%
+      arrange (-violation_desc)
 ```
 
 
@@ -80,43 +75,44 @@
    library(ggdark)
 
    library (showtext)
-   font_add("Shlop", "shlop rg.ttf")
-   showtext_auto() 
+      font_add("Shlop", "shlop rg.ttf")
+      showtext_auto() 
 
    ggplot (tickets_agg, aes(x=issue_time, y = n)) +
       geom_area (
          aes (fill = violation_desc),
          alpha = 0.85) +
       coord_polar() +
+      #scales
+         scale_x_continuous(
+            breaks = seq (0,23,1),
+            limits = c (0, 24)
+            ) +
+         scale_y_continuous(breaks = seq (0,20000,10000)) +
+         scale_fill_brewer(type = "qual", palette = 1) +
+      #themes
+         dark_mode(theme_minimal()) +
+         theme(
+            plot.title = element_text(hjust = 0.5, vjust = 0, size = 30, face = "bold", color = "#CC1100", margin = margin (0,0,20,0)),
+            plot.title.position = "plot",
+            plot.caption = element_text (hjust = 0.5, size = 9, face = "plain", margin = margin (20,0,0,0)),
+            plot.caption.position = "plot",
+            axis.title = element_blank (),
+            axis.line = element_blank (),
+            axis.text.x = element_text(hjust = 0, vjust = 0, size = 15, margin = margin (0,0,0,0)),
+            axis.text.y = element_blank (),
+            axis.ticks = element_blank (),
+            legend.title = element_blank(),
+            legend.position = "bottom",
+            panel.grid.major = element_line(color = "grey1", size = 1),
+            panel.grid.minor.x = element_blank(),
+            text = element_text(family = "Shlop", color = "#CC1100", face = "bold")
+            ) +
       labs(
          title = "Philadephia Parking Violations",
-         caption = "Each radian represents the hour in a 24 hour clock.\nEach semicircle represents 10,000 parking violations per 10 minute periods in 2017.\nVisualization: Joel Soroos @soroosj  |  Data: Open Data Philly via R4DS Tidy Tuesday"
-         ) +
-      scale_x_continuous(
-         breaks = seq (0,23,1),
-         limits = c (0, 24)
-         ) +
-      scale_y_continuous(
-         breaks = seq (0,20000,10000)
-            ) +
-      scale_fill_brewer(type = "qual", palette = 1) +
-      dark_mode(theme_minimal()) +
-      theme(
-         plot.title = element_text(hjust = 0.5, vjust = 0, size = 30, face = "bold", color = "#CC1100", margin = margin (0,0,20,0)),
-         plot.title.position = "plot",
-         plot.caption = element_text (hjust = 0.5, size = 9, face = "plain", margin = margin (20,0,0,0)),
-         plot.caption.position = "plot",
-         axis.title = element_blank (),
-         axis.line = element_blank (),
-         axis.text.x = element_text(hjust = 0, vjust = 0, size = 15, margin = margin (0,0,0,0)),
-         axis.text.y = element_blank (),
-         axis.ticks = element_blank (),
-         legend.title = element_blank(),
-         legend.position = "bottom",
-         panel.grid.minor.x = element_blank(),
-         text = element_text(family = "Shlop", color = "#CC1100", face = "bold")
-            ) +
-      ggsave("tickets.png", width = 4.9)
+         caption = "Each radian represents the hour in a 24 hour clock.\nEach concentric circle represents 10,000 parking violations per 10 minute period in 2017.\nVisualization: Joel Soroos @soroosj  |  Data: Open Data Philly via R4DS Tidy Tuesday"
+         )
+      ggsave("tickets.png", width = 4.9) 
 ```
 
 ```
