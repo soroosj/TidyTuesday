@@ -60,7 +60,8 @@
    tickets %>%
       group_by (violation_desc) %>%
       summarize (n = n()) %>%
-      mutate (violation_desc = fct_reorder (violation_desc,-n))
+      mutate (violation_desc = fct_reorder (violation_desc,-n)) %>%
+      arrange (violation_desc)
    
    tickets_agg <- tickets %>%
       group_by (issue_time, violation_desc) %>%
