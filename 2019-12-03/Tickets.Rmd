@@ -1,7 +1,7 @@
 ---
-   title: "Tickets"
+   title: "Dogs"
    author: "Joel Soroos"
-   date: "December 9, 2019"
+   date: "December 22, 2019"
    output: pdf_document
 ---
 
@@ -14,10 +14,16 @@
    library("janitor")
    library("DataExplorer")
 
-   tickets_raw <- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-12-03/tickets.csv") %>%
+   dog_moves <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-12-17/dog_moves.csv') %>%
       clean_names()
    
-   create_report(tickets_raw)
+   dog_travel <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-12-17/dog_travel.csv') %>%
+      clean_names()
+   
+   dog_descriptions <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-12-17/dog_descriptions.csv') %>%
+      clean_names()
+
+   #create_report(tickets_raw)
 ```
 
 
