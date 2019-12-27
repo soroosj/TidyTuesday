@@ -19,10 +19,15 @@
 ```
 
 
-### 2a.  Transform
+### 2.  Transform
 ```{r transform, warning = T, results = F, message = F}
 
    library (openintro)
+
+   states <- tibble (
+      state_name = state.name,
+      state_abb = state.abb
+      )
 
    dog_travel <- dog_travel_raw %>%
       rename (
@@ -31,11 +36,21 @@
          ) %>%
       mutate (
          prior_state = ifelse (is.na (manual), prior_state, manual),
-         prior_state_abb = state2abbr(prior_state)
+         prior_state = case_when (
+            prior_state == "VA" ~ "Virginia",
+            prior_state == "MD" ~ "Maryland",
+            prior_state == "NC" ~ "North Carolina",
+            prior_state == "LA" ~ "Louisiana",
+            prior_state == "Charlotte" ~ "North Carolina",
+            prior_state == "NM" ~ "New Mexico",
+            prior_state == "NJ" ~ "New Jersey",
+            TRUE ~ prior_state)
          ) %>%
-      select (current_state, prior_state, id) 
-
-   
+      right_join (states, by = c("prior_state" = "state_name")) %>%
+      select (current_state, state_abb, id) %>%
+      rename (prior_state = state_abb) %>%
+      group_by(current_state, prior_state) %>%
+         count(prior_state, sort = T) 
 ```
 
 
