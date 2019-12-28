@@ -105,21 +105,21 @@
          alpha = 0.8, decreasing = F
          ) +
       geom_stratum(decreasing = F) +
-      geom_text(stat = "stratum", infer.label = TRUE, size = 2, decreasing = F, family = "Gaegu") +
+      geom_text(stat = "stratum", infer.label = TRUE, size = 2.5, decreasing = F, family = "Gaegu") +
       scale_fill_viridis(discrete = T) +
       theme (
-         panel.background = element_rect(fill= "white", linetype = "solid"),
-         plot.title = element_text(hjust = 0.5, vjust = 0, size = 10, face = "bold", margin = margin (0,0,0,0)),
+         panel.background = element_rect(fill= "white"),
+         plot.title = element_text(hjust = 0.5, vjust = 0, size = 11, face = "bold", margin = margin (0,0,5,0)),
          plot.title.position = "plot",
-         plot.subtitle = element_text(hjust = 0.5, vjust = 0, size = 6, margin = margin (0,0,5,0)),
-         plot.caption = element_text(hjust = 0, size = 6, face = "plain", margin = margin (10,0,0,0)),
+         plot.subtitle = element_text(hjust = 0.5, vjust = 0, size = 6, margin = margin (0,0,2,0)),
+         plot.caption = element_text(hjust = 0, size = 6, face = "plain", margin = margin (5,0,0,0)),
          plot.caption.position = "plot",
          axis.title.y = element_text(margin = margin(0,10,0,0)),
          axis.text.x=element_blank(),
-         axis.text.y=element_text(family = "Gaegu", size = 10),
+         axis.text.y=element_text(family = "Gaegu", size = 7),
          axis.ticks.x=element_blank(),
          legend.position = "none",
-         text = element_text(family = "Gaegu", face = "bold")
+         text = element_text(family = "Gaegu")
          ) +
       labs(
          title = "Your dog's bark likely has a Southern accent",
@@ -127,5 +127,5 @@
          y = "# of Adoptable Dogs",
          caption = "Left column is birth region of the dog.  Right column is the region dog is available for adoption.\nUniverse is adoptable dogs in U.S. on Petfinder.com as of September 9, 2019.\nVisualization: Joel Soroos @soroosj  |  Data: The Pudding via R4DS Tidy Tuesday"
          ) +
-      ggsave("dogs.png", width = 13, height = 8, units = "cm")
+      ggsave("dogs.png", width = 12.5, height = 8, units = "cm")
 ```
