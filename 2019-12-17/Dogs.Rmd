@@ -6,28 +6,43 @@
 ---
 
 
-### 1. Source
+### 1a. Source data
 ```{r source, warning = TRUE, results = FALSE, message = FALSE}
 
-   library("tidyverse")
-   library("janitor")
-   library("tidytuesdayR")
+   library(tidyverse)
+   library(janitor)
+   library(tidytuesdayR)
 
    tuesdata <- tidytuesdayR::tt_load('2019-12-17')
    dog_travel_raw <- tuesdata$dog_travel
-   dog_descriptions_raw <- tuesdata$dog_descriptions
+```
+
+
+#1b.  Source state information
+```{r}
+
+  states <- tibble (
+      state_region = state.region,
+      state_division = state.division, 
+      state_abb = state.abb,
+      state_name = state.name
+      ) %>%
+   arrange (state_region, state_division)
+```
+
+
+#1c.  Source fonts
+```{r}
+
+   library (showtext)
+   
+   font_add_google("Gaegu")
+   showtext_auto() 
 ```
 
 
 ### 2.  Transform
 ```{r transform, warning = T, results = F, message = F}
-
-   library (openintro)
-
-   states <- tibble (
-      state_name = state.name,
-      state_abb = state.abb
-      )
 
    dog_travel <- dog_travel_raw %>%
       rename (
@@ -46,58 +61,50 @@
             prior_state == "NJ" ~ "New Jersey",
             TRUE ~ prior_state)
          ) %>%
-      right_join (states, by = c("prior_state" = "state_name")) %>%
-      select (current_state, state_abb, id) %>%
-      rename (prior_state = state_abb) %>%
-      group_by(current_state, prior_state) %>%
-         count(prior_state, sort = T) 
+      inner_join (states, by = c("prior_state" = "state_name")) %>%
+      inner_join (states, by = c("current_state" = "state_abb")) %>%
+      filter (current_state %in% state_abb) %>%
+      select (state_abb, state_region.x, current_state, state_region.y, id) %>%
+      rename (
+         prior_state = state_abb,
+         prior_region = state_region.x,
+         current_region = state_region.y
+         ) %>%
+      group_by(prior_region, current_region) %>%
+         tally ()
 ```
 
 
 ### 3. Visualize
-```{r visualize}
+```{r visualize, message = F, warning = T}
 
-   library(circlize)
+   library(ggalluvial)
+   library(viridis)
 
-   library (showtext)
-      font_add("Shlop", "shlop rg.ttf")
-      showtext_auto() 
-
-   ggplot (tickets_agg, aes(x=issue_time, y = n)) +
-      geom_area (
-         aes (fill = violation_desc),
-         alpha = 0.85) +
-      coord_polar() +
-      #scales
-         scale_x_continuous(
-            breaks = seq (0,23,1),
-            limits = c (0, 24)
-            ) +
-         scale_y_continuous(breaks = seq (0,20000,10000)) +
-         scale_fill_brewer(type = "qual", palette = 1) +
-      #themes
-         dark_mode(theme_minimal()) +
-         theme(
-            plot.title = element_text(hjust = 0.5, vjust = 0, size = 30, face = "bold", color = "#CC1100", margin = margin (0,0,20,0)),
-            plot.title.position = "plot",
-            plot.caption = element_text (hjust = 0.5, size = 9, face = "plain", margin = margin (20,0,0,0)),
-            plot.caption.position = "plot",
-            axis.title = element_blank (),
-            axis.line = element_blank (),
-            axis.text.x = element_text(hjust = 0, vjust = 0, size = 15, margin = margin (0,0,0,0)),
-            axis.text.y = element_blank (),
-            axis.ticks = element_blank (),
-            legend.title = element_blank(),
-            legend.position = "bottom",
-            panel.grid.major = element_line(color = "grey1", size = 1),
-            panel.grid.minor.x = element_blank(),
-            text = element_text(family = "Shlop", color = "#CC1100", face = "bold")
-            ) +
+   ggplot(data = dog_travel, aes(axis1 = prior_region, axis2 = current_region, y = n)) +
+      geom_alluvium(
+         aes (fill = prior_region),
+         alpha = 0.8, decreasing = F
+         ) +
+      geom_stratum(decreasing = F) +
+      geom_text(stat = "stratum", infer.label = TRUE, size = 2, decreasing = F, family = "Gaegu") +
+      scale_fill_viridis(discrete = T) +
+      theme (
+         plot.title = element_text(hjust = 0.5, vjust = 0, size = 10, face = "bold", margin = margin (0,0,0,0)),
+         plot.subtitle = element_text(hjust = 0.5, vjust = 0, size = 8, margin = margin (0,0,5,0)),
+         plot.caption = element_text(hjust = 0, size = 8, face = "plain", margin = margin (0,0,0,0)),
+         panel.background = element_rect(fill= "white"),
+         axis.text.x=element_blank(),
+         axis.text=element_text(family = "Gaegu"),
+         axis.ticks.x=element_blank(),
+         legend.position = "none",
+         text = element_text(family = "Gaegu", face = "bold")
+         ) +
       labs(
-         title = "Philadephia Parking Violations",
-         caption = "Each radian represents the hour in a 24 hour clock.\nEach concentric circle represents 10,000 parking violations per 10 minute period in 2017.\nVisualization: Joel Soroos @soroosj  |  Data: Open Data Philly via R4DS Tidy Tuesday"
-         )
-      ggsave("tickets.png", width = 4.9) 
-```
-
+         title = "Adoptable Dogs tend to have Southern roots",
+         subtitle = "- Walkers and bikers to work tend to live in small towns in Northeast, Midwest and Pacific Coast.",
+         y = "# of Adoptable Dogs",
+         caption = "Left column is birth region of the dog.  Right column is the region dog is available for adoption.\nVisualization: Joel Soroos @soroosj  |  Data: The Pudding via R4DS Tidy Tuesday"
+         ) +
+      ggsave("dogs.png", width = 13, height = 10, units = "cm")
 ```
