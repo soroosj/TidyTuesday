@@ -1,7 +1,7 @@
 ---
    title: "Dogs"
    author: "Joel Soroos"
-   date: "December 24, 2019"
+   date: "December 29, 2019"
    output: pdf_document
 ---
 
@@ -41,7 +41,7 @@
 ```
 
 
-### 2.  Transform
+### 2a.  Transform at dog level
 ```{r transform, warning = T, results = F, message = F}
 
    dog_travel <- dog_travel_raw %>%
@@ -69,9 +69,19 @@
          prior_state = state_abb,
          prior_region = state_region.x,
          current_region = state_region.y
-         ) %>%
+         )
+```
+
+
+### 2b.  Transform at region level
+```{r}
+   dog_travel_prior_region <- dog_travel %>%
+      group_by (prior_region) %>%
+      tally(sort = T)
+
+   dog_travel_flow <- dog_travel %>%
       group_by(prior_region, current_region) %>%
-         tally ()
+      tally (sort = T)
 ```
 
 
@@ -81,7 +91,7 @@
    library(ggalluvial)
    library(viridis)
 
-   ggplot(data = dog_travel, aes(axis1 = prior_region, axis2 = current_region, y = n)) +
+   ggplot(data = dog_travel_flow, aes(axis1 = prior_region, axis2 = current_region, y = n)) +
       geom_alluvium(
          aes (fill = prior_region),
          alpha = 0.8, decreasing = F
@@ -91,11 +101,14 @@
       scale_fill_viridis(discrete = T) +
       theme (
          plot.title = element_text(hjust = 0.5, vjust = 0, size = 10, face = "bold", margin = margin (0,0,0,0)),
+         plot.title.position = "plot",
          plot.subtitle = element_text(hjust = 0.5, vjust = 0, size = 8, margin = margin (0,0,5,0)),
-         plot.caption = element_text(hjust = 0, size = 8, face = "plain", margin = margin (0,0,0,0)),
-         panel.background = element_rect(fill= "white"),
+         plot.caption = element_text(hjust = 0, size = 7, face = "plain", margin = margin (10,0,0,0)),
+         plot.caption.position = "plot",
+         panel.background = element_rect(fill= "white", linetype = "solid"),
          axis.text.x=element_blank(),
-         axis.text=element_text(family = "Gaegu"),
+         axis.text.y=element_text(family = "Gaegu", size = 8),
+         axis.title.y = element_text(margin = margin(0,10,0,0)),
          axis.ticks.x=element_blank(),
          legend.position = "none",
          text = element_text(family = "Gaegu", face = "bold")
@@ -106,5 +119,5 @@
          y = "# of Adoptable Dogs",
          caption = "Left column is birth region of the dog.  Right column is the region dog is available for adoption.\nVisualization: Joel Soroos @soroosj  |  Data: The Pudding via R4DS Tidy Tuesday"
          ) +
-      ggsave("dogs.png", width = 13, height = 10, units = "cm")
+      ggsave("dogs.png", width = 13, height = 9, units = "cm")
 ```
