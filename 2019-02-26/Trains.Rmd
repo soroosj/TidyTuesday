@@ -9,22 +9,32 @@ output: html_document
 ```{r source, include=FALSE}
    knitr::opts_chunk$set(echo = TRUE)
 
-   library(tidyverse)
    library(tidytuesdayR)
    library(janitor)
+   library (showtext)
 
    tuesdata <- tidytuesdayR::tt_load('2019-02-26')
    trains_raw <- tuesdata$full_trains %>%
       clean_names()
+
+   font_add_google("Gaegu")
+   showtext_auto() 
 ```
 
 
 #2a.  Isolate required fields, observations
 ```{r core data}
 
+   library(tidyverse)  
+ 
    trains <- trains_raw %>%
-      select (year, month, departure_station, arrival_station, journey_time_avg, total_num_trips) %>%
-      arrange (-total_num_trips) %>%
+      rename (
+         trips = total_num_trips,
+         journey_time = journey_time_avg,
+         delay = avg_delay_all_arriving
+         ) %>%
+      select (year, month, departure_station, arrival_station, trips, journey_time, delay) %>%
+      arrange (-delay) %>%
       filter (year == 2018)
 ```
 
@@ -77,19 +87,37 @@ output: html_document
 
 
 #3.  Visualize
-```{r}
+```{r visualize, warning = F, results = F, message = F, echo = T}
    
    library(ggraph)
    
    ggraph(routes_tidy) +
-      geom_edge_link() +
+      geom_edge_link(
+         edge_color = "red"
+      ) +
       geom_node_point() +
-      theme_graph() +
-      scale_edge_width(range = c(0.2, 2)) +
       geom_node_text(
          aes(label = station),
-         size = 2, repel = TRUE
-      ) 
+         size = 1, repel = TRUE
+         ) +
+      scale_edge_width(range = c(0.2, 2)) +
+      theme_graph() +
+      labs(
+         title = "Train Delays in France",
+         subtitle = " ",
+         y = "# of Adoptable Dogs",
+         caption = "Each node (point) is a train station. Each edge (line) is a route between stations.\nUniverse is adoptable dogs in U.S. on Petfinder.com as of September 9, 2019.\nVisualization: Joel Soroos @soroosj  |  Data: National Society of French Railways (SNCF) via R4DS Tidy Tuesday"
+         )  +
+      theme (
+         plot.title = element_text(hjust = 0.5, vjust = 0, size = 11, face = "bold", margin = margin (0,0,5,0)),
+         plot.title.position = "plot",
+         plot.subtitle = element_text(hjust = 0.5, vjust = 0, size = 6, margin = margin (0,0,2,0)),
+         plot.caption = element_text(hjust = 0, size = 6, face = "plain", margin = margin (5,0,0,0)),
+         plot.caption.position = "plot",
+         legend.position = "none",
+         text = element_text(family = "Gaegu")
+         ) +
+      ggsave("trains.png", width = 14, height = 14, units = "cm")
 ```   
    
    
