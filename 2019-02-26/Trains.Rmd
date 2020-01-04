@@ -6,62 +6,80 @@ output: html_document
 ---
 
 #1.  Source data
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r source, include=FALSE}
+   knitr::opts_chunk$set(echo = TRUE)
 
    library(tidyverse)
+   library(tidytuesdayR)
    library(janitor)
-   
-   trains_raw <- read_csv ("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-02-26/full_trains.csv") %>%
-   clean_names()
+
+   tuesdata <- tidytuesdayR::tt_load('2019-02-26')
+   trains_raw <- tuesdata$full_trains %>%
+      clean_names()
 ```
 
 
-#2a.  Transform raw data
-```{r}
+#2a.  Isolate required fields, observations
+```{r core data}
 
    trains <- trains_raw %>%
       select (year, month, departure_station, arrival_station, journey_time_avg, total_num_trips) %>%
       arrange (-total_num_trips) %>%
-      filter (year == 2017)
+      filter (year == 2018)
 ```
 
 
-#2b.  Prepare data for network diagram
+#2b.  Compile unique stations (nodes)
 ```{r network}
 
-   departures <- trains %>%
-      distinct(departure_station) %>%
-      rename(station = departure_station)
-   
-   arrivals <- trains %>%
-      distinct(arrival_station) %>%
-      rename(station = arrival_station)
+   #unique departure stations
+      departures <- trains %>%
+         distinct(departure_station) %>%
+         rename(station = departure_station)
 
-   nodes <- full_join(departures, arrivals, by = "station") %>%
-       rowid_to_column("id")
-   
-   per_route <- trains %>%  
-     group_by(departure_station, arrival_station) %>%
-     summarise(trips = n()) %>% 
-     ungroup()
-   
-   edges <- per_route %>% 
-     left_join(nodes, by = c("departure_station" = "station")) %>% 
-     rename(from = id) %>% 
-     left_join(nodes, by = c("arrival_station" = "station")) %>% 
-     rename(to = id) %>%
-     select(from, to, trips)
+   #unique arrival stations
+      arrivals <- trains %>%
+         distinct(arrival_station) %>%
+         rename(station = arrival_station)
+
+   #combined arrival/departures stations with unique station ID
+      nodes <- full_join(departures, arrivals, by = "station") %>%
+          rowid_to_column("id")
 ```   
+ 
+
+#2c.  Create list of routes (edges)
+```{r edges}
+
+   #sum trips per route
+      per_route <- trains %>%  
+        group_by(departure_station, arrival_station) %>%
+        summarise(trips = n()) %>% 
+        ungroup()
+
+   #append station ID to routes
+      edges <- per_route %>% 
+        left_join(nodes, by = c("departure_station" = "station")) %>% 
+        rename(from = id) %>% 
+        left_join(nodes, by = c("arrival_station" = "station")) %>% 
+        rename(to = id) %>%
+        select(from, to, trips)
+```
+
+
+#2d.  Combine nodes, edges into required format for network diagram
+```{r}
+
+   library(tidygraph)
+   
+   routes_tidy <- tbl_graph(nodes = nodes, edges = edges, directed = TRUE)
+```
 
 
 #3.  Visualize
 ```{r}
    
-   library(tidygraph)
    library(ggraph)
-   
-   routes_tidy <- tbl_graph(nodes = nodes, edges = edges, directed = TRUE)
    
    ggraph(routes_tidy) +
       geom_edge_link() +
