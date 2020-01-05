@@ -5,25 +5,32 @@ date: "January 5, 2020"
 output: html_document
 ---
 
-#1.  Source data
+#1a.  Source data
 ```{r source, include=FALSE}
    knitr::opts_chunk$set(echo = TRUE)
 
    library(tidytuesdayR)
    library(janitor)
-   library (showtext)
 
    tuesdata <- tidytuesdayR::tt_load('2019-02-26')
    trains_raw <- tuesdata$full_trains %>%
       clean_names()
+```
+ 
+     
+#1b.  Source fonts
+```{r}
 
-   font_add_google("Gaegu")
+   library (showtext)
+   
+   font_add_google("Yanone Kaffeesatz")
    showtext_auto() 
 ```
 
 
+
 #2a.  Isolate required fields, observations
-```{r core data}
+```{r core data, warning = F, results = F, message = F, echo = T}
 
    library(tidyverse)  
  
@@ -31,11 +38,14 @@ output: html_document
       rename (
          trips = total_num_trips,
          journey_time = journey_time_avg,
-         delay = avg_delay_all_arriving
+         delay_abs = avg_delay_all_arriving
          ) %>%
-      select (year, month, departure_station, arrival_station, trips, journey_time, delay) %>%
-      arrange (-delay) %>%
-      filter (year == 2018)
+      mutate(
+         departure_station = str_to_title (departure_station),
+         arrival_station = str_to_title (arrival_station),
+         delay_pct = delay_abs / journey_time * 100
+          ) %>%
+      select (year, month, departure_station, arrival_station, delay_pct) 
 ```
 
 
@@ -64,7 +74,9 @@ output: html_document
    #sum trips per route
       per_route <- trains %>%  
         group_by(departure_station, arrival_station) %>%
-        summarise(trips = n()) %>% 
+        summarise(
+           delay_pct = mean(delay_pct)
+           ) %>% 
         ungroup()
 
    #append station ID to routes
@@ -73,7 +85,7 @@ output: html_document
         rename(from = id) %>% 
         left_join(nodes, by = c("arrival_station" = "station")) %>% 
         rename(to = id) %>%
-        select(from, to, trips)
+        select(from, to, delay_pct)
 ```
 
 
@@ -93,31 +105,34 @@ output: html_document
    
    ggraph(routes_tidy) +
       geom_edge_link(
-         edge_color = "red"
-      ) +
-      geom_node_point() +
+         aes (edge_color = delay_pct),
+         edge_width = 0.3, edge_alpha = 0.5
+         ) +
+      geom_node_point(shape = 1, size = 0.5) +
       geom_node_text(
-         aes(label = station),
-         size = 1, repel = TRUE
+         aes (label = station),
+         size = 2.4, family = "Yanone Kaffeesatz", repel = TRUE
          ) +
-      scale_edge_width(range = c(0.2, 2)) +
+      scale_edge_color_viridis(option = "plasma") +
       theme_graph() +
-      labs(
-         title = "Train Delays in France",
-         subtitle = " ",
-         y = "# of Adoptable Dogs",
-         caption = "Each node (point) is a train station. Each edge (line) is a route between stations.\nUniverse is adoptable dogs in U.S. on Petfinder.com as of September 9, 2019.\nVisualization: Joel Soroos @soroosj  |  Data: National Society of French Railways (SNCF) via R4DS Tidy Tuesday"
-         )  +
       theme (
-         plot.title = element_text(hjust = 0.5, vjust = 0, size = 11, face = "bold", margin = margin (0,0,5,0)),
+         plot.title = element_text(hjust = 0.5, vjust = 0, family = "Yanone Kaffeesatz", size = 15, face = "bold", margin = margin (0,0,0,0)),
          plot.title.position = "plot",
-         plot.subtitle = element_text(hjust = 0.5, vjust = 0, size = 6, margin = margin (0,0,2,0)),
-         plot.caption = element_text(hjust = 0, size = 6, face = "plain", margin = margin (5,0,0,0)),
+         plot.subtitle = element_text(hjust = 0.5, vjust = 0, size = 11, margin = margin (2,0,12,0), family = "Yanone Kaffeesatz"),
+         plot.caption = element_text(hjust = 0, vjust = 1, size = 9, face = "plain", margin = margin (10,0,10,0), family = "Yanone Kaffeesatz"),
          plot.caption.position = "plot",
-         legend.position = "none",
-         text = element_text(family = "Gaegu")
+         legend.title = element_text(size = 9, hjust = 0.5, vjust = 0.5),
+         legend.text = element_text(size = 9, hjust = 0.5, vjust = 0.5),
+         legend.direction = "horizontal",
+         legend.position = c(0.79,.89),
+         text = element_text(family = "Yanone Kaffeesatz")
          ) +
-      ggsave("trains.png", width = 14, height = 14, units = "cm")
+      labs(
+         title = "High Speed Train Delays en France",
+         subtitle = "You will wait the longest when journeying from Lyon Part Dieu to either Montpellier, Marseille St. Charles or Marne La Vallee.",
+         caption = "Each node (point) is a train station. Each edge (line) is a route between stations.  Edge width is the average delay as percentage of journey time.\nHigh speed train journeys in France between 2015 and 2018.\nVisualization: Joel Soroos @soroosj  |  Data: National Society of French Railways (SNCF) via R4DS Tidy Tuesday"
+         )  +
+      ggsave("trains.png", width = , height = , units = "cm")
 ```   
    
    
