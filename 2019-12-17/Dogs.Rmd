@@ -116,7 +116,7 @@
          plot.caption.position = "plot",
          axis.title.y = element_text(margin = margin(0,10,0,0)),
          axis.text.x=element_blank(),
-         axis.text.y=element_text(family = "Gaegu", size = 7),
+         axis.text.y=element_text(size = 7),
          axis.ticks.x=element_blank(),
          legend.position = "none",
          text = element_text(family = "Gaegu")

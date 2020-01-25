@@ -1,0 +1,183 @@
+---
+title: "Spotify - Cal Webb"
+author: "Joel Soroos"
+date: "1/25/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# Script v2 extended and with year of release weighting
+library(tidyverse)
+library(ggdendro)
+library(extrafont)
+library(broom)
+library(mltools)
+
+# data
+spotify_songs <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-01-21/spotify_songs.csv')
+unique(spotify_songs$playlist_genre)
+## [1] "pop"   "rap"   "rock"  "latin" "r&b"   "edm"
+spotify_songs
+## # A tibble: 32,833 x 23
+##    track_id track_name track_artist track_popularity track_album_id
+##    <chr>    <chr>      <chr>                   <dbl> <chr>         
+##  1 6f807x0… I Don't C… Ed Sheeran                 66 2oCs0DGTsRO98…
+##  2 0r7CVbZ… Memories … Maroon 5                   67 63rPSO264uRjW…
+##  3 1z1Hg7V… All the T… Zara Larsson               70 1HoSmj2eLcsrR…
+##  4 75Fpbth… Call You … The Chainsm…               60 1nqYsOef1yKKu…
+##  5 1e8PAfc… Someone Y… Lewis Capal…               69 7m7vv9wlQ4i0L…
+##  6 7fvUMiy… Beautiful… Ed Sheeran                 67 2yiy9cd2QktrN…
+##  7 2OAylPU… Never Rea… Katy Perry                 62 7INHYSeusaFly…
+##  8 6b1RNvA… Post Malo… Sam Feldt                  69 6703SRPsLkS4b…
+##  9 7bF6tCO… Tough Lov… Avicii                     68 7CvAfGvq4RlIw…
+## 10 1IXGILk… If I Can'… Shawn Mendes               67 4QxzbfSsVryEQ…
+## # … with 32,823 more rows, and 18 more variables: track_album_name <chr>,
+## #   track_album_release_date <chr>, playlist_name <chr>, playlist_id <chr>,
+## #   playlist_genre <chr>, playlist_subgenre <chr>, danceability <dbl>,
+## #   energy <dbl>, key <dbl>, loudness <dbl>, mode <dbl>, speechiness <dbl>,
+## #   acousticness <dbl>, instrumentalness <dbl>, liveness <dbl>, valence <dbl>,
+## #   tempo <dbl>, duration_ms <dbl>
+# Filter out duplicates and select genre, extract year, remove zero popularity songs
+spotify_songs <-  spotify_songs %>% 
+  filter(!duplicated(paste(track_name, " - ", track_artist))) %>% 
+  filter(playlist_genre == "edm" & track_popularity > 0) %>% 
+  mutate(
+    track_year = as.numeric(str_extract(track_album_release_date, "^.{4}"))  
+  )
+
+# Weight track popularity by year of release using linear model
+edm_model <- lm(data = spotify_songs, 
+                formula = track_popularity ~ I(relevel(as.factor(track_year), ref = "2019")))
+edm_model <- tidy(edm_model) %>% 
+  mutate(
+    year = ifelse(str_detect(term, "Intercept"), 2019, as.numeric(str_sub(term, -4, -1))),
+    year_weight = ifelse(str_detect(term, "Intercept"), estimate, estimate)
+  )
+## Warning in ifelse(str_detect(term, "Intercept"), 2019,
+## as.numeric(str_sub(term, : NAs introduced by coercion
+spotify_songs <- left_join(spotify_songs, edm_model %>% select(year, year_weight), 
+                           by = c("track_year" = "year")) %>%
+  mutate(
+    weighted_popularity = ifelse(track_year != 2019, 
+                                 track_popularity - year_weight, 
+                                 track_popularity)
+  )
+
+
+# Filter the top 200ish songs by year of release weighted popularity
+spotify_songs <- spotify_songs %>% 
+  mutate(track_rank = rank(-weighted_popularity)) %>% 
+  filter(track_rank < 200)
+
+
+# Create distance matrix based on danceability, energy, loudness, mode, speechiness, acousticness
+# instrumentalness, liveness, valence and tempo
+spotify_songs_distdata <- as.data.frame(spotify_songs)
+rownames(spotify_songs_distdata) <- paste0(spotify_songs_distdata$track_artist, " - ", spotify_songs_distdata$track_name)
+
+# Filter out only variables to predict on
+spotify_songs_distdata <- spotify_songs_distdata %>% 
+  select(danceability, energy, loudness, mode, speechiness,
+         acousticness, instrumentalness, liveness, valence,
+         tempo)
+
+# Distance matrix
+dist_spotify <- dist(spotify_songs_distdata)
+
+# Hierarchical cluster
+clusters_spotify <- hclust(dist_spotify)
+clusters_data <- as.dendrogram(clusters_spotify)
+
+# Dendro data conversion for plotting with ggdendro
+clusters_data_ggd <- dendro_data(clusters_data, type = "rectangle")
+seg_data <- segment(clusters_data_ggd)
+
+
+# Calculate angles and orientation for label placement
+number_of_bar <- nrow(clusters_data_ggd$labels)
+angle <-  90 - 360 * (as.numeric(rownames(clusters_data_ggd$labels)) - 0.5) / number_of_bar
+clusters_data_ggd$labels$hjust <- ifelse( angle < -90, 1, 0)
+clusters_data_ggd$labels$angle <- ifelse(angle < -90, angle+180, angle)
+
+# Add layers with data on other variables
+label_data <- as_tibble(clusters_data_ggd$labels)
+label_data <- label_data %>% mutate(
+  danceability_y = 8, # most inner
+  energy_y = 7.66, 
+  loudness_y = 7.33, 
+  speechiness_y = 7, 
+  acousticness_y = 6.66, 
+  valence_y = 6.33, 
+  tempo_y = 6 # most outer
+)
+
+# edm colour scheme: 
+edm_col_scheme <- colorRampPalette(c("#00A6D7", "#86FAF2"))(7)
+
+label_data <- left_join(label_data, as_tibble(spotify_songs_distdata, rownames = "label"), by = "label") %>%
+  mutate_at(vars(danceability:tempo), scale) %>%
+  mutate_at(vars(danceability:tempo), ~ntile(., 10))
+## Warning: Column `label` joining factor and character vector, coercing into
+## character vector
+# Add a dummy empty row for space at the top of the plot to avoid label clash
+endpoint_data <- as.tibble(seg_data %>% filter(yend == 0)) %>% add_row(yend = 0, x = max(seg_data$x) + 1)
+## Warning: `as.tibble()` is deprecated, use `as_tibble()` (but mind the new semantics).
+## This warning is displayed once per session.
+clusters_data_ggd$labels <- clusters_data_ggd$labels %>% add_row(label = "", x = max(clusters_data_ggd$labels$x) + 1, y = 0, hjust = 0, angle = 90)
+
+# Plot circular dendrogram with acoustic features in centre for most edmular 200 release year weighted 
+# edm songs
+edm_plot <- ggplot(seg_data) +
+  geom_segment(aes(x = x, y = log(y+1), xend = xend, yend = log(yend+1)),
+               alpha = 0.6,
+               col = edm_col_scheme[7]) +
+  geom_point(data = endpoint_data,
+             aes(x = x, y = log(yend+1)),
+             col = edm_col_scheme[7]) +
+  geom_text(data = clusters_data_ggd$labels,
+            aes(x=x, y= log(y+1) - 0.3, label = label, hjust = hjust), 
+            size = 1.8,
+            angle = clusters_data_ggd$labels$angle, inherit.aes = FALSE,
+            col = edm_col_scheme[7]) +
+  # feature layers ordered from inner to outer
+  geom_point(data = label_data,
+             aes(x = x, y = speechiness_y, size = speechiness), 
+             col = edm_col_scheme[4], stroke = 0, alpha = 0.99, shape = 18) +
+  geom_point(data = label_data,
+             aes(x = x, y = loudness_y, size = loudness), 
+             col = edm_col_scheme[5], stroke = 0, alpha = 0.99, shape = 18) +
+  geom_point(data = label_data,
+             aes(x = x, y = acousticness_y, size = acousticness), 
+             col = edm_col_scheme[3], stroke = 0, alpha = 0.99, shape = 18) +
+  geom_point(data = label_data,
+             aes(x = x, y = energy_y, size = energy), 
+             col = edm_col_scheme[6], stroke = 0, alpha = 0.99, shape = 18) +
+  geom_point(data = label_data,
+             aes(x = x, y = valence_y, size = valence), 
+             col = edm_col_scheme[2], stroke = 0, alpha = 0.99, shape = 18) +
+  geom_point(data = label_data,
+             aes(x = x, y = danceability_y, size = danceability), 
+             col = edm_col_scheme[7], stroke = 0, alpha = 0.99, shape = 18) +
+  geom_point(data = label_data,
+             aes(x = x, y = tempo_y, size = tempo), 
+             col = edm_col_scheme[1], stroke = 0, alpha = 0.99, shape = 18) +
+  # annotate("text", x = 0, y = 8, label = "edm", col = "#FE1D6B", size = 12, 
+  #          alpha = 1, vjust = 1.5) +
+  coord_polar(start = 0) + 
+  scale_y_reverse(limits = c(8, -10), 
+                  expand = c(0.2, 0)) +
+  scale_size(range = c(0.1, 1.5)) +
+  theme_minimal() +
+  theme(
+    axis.text = element_blank(),
+    axis.title = element_blank(),
+    panel.grid = element_blank(),
+    plot.background = element_rect(color = "black", fill = "black"),  
+    panel.background = element_rect(fill = "black", color  =  NA),
+    text = element_text(family = "Helvetica"),
+    legend.position = "none"
+  )
+
+edm_plot
+```

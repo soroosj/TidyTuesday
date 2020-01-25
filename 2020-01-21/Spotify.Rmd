@@ -1,0 +1,68 @@
+---
+title: "Spotify"
+author: "Joel Soroos"
+date: "January 28, 2020"
+output: html_document
+---
+
+#Idea from Cal Webb: http://calumwebb.uk/posts/spotifyr/
+
+#1.  Source data
+```{r source, include=FALSE}
+   knitr::opts_chunk$set(echo = TRUE)
+
+   library(tidytuesdayR)
+   library(janitor)
+
+   tuesdata <- tidytuesdayR::tt_load('2020-01-21')
+   songs_raw <- tuesdata$spotify_songs %>%
+      clean_names()
+   
+```
+
+
+#2a.  Isolate required fields, observations
+```{r core data, warning = F, results = F, message = F, echo = T}
+
+   library(tidyverse)  
+   library(glue)
+ 
+   songs <- songs_raw %>% 
+      filter(
+         !duplicated(paste(track_name, " - ", track_artist)),
+         playlist_genre == "edm",
+         track_popularity > 0
+         ) %>% 
+      mutate(
+         #track_year = as.numeric(str_extract(track_album_release_date, "^.{4}")),
+         track_name_artist = glue ('{track_name} - {track_artist}'),
+         track_year = as.numeric(str_sub(track_album_release_date, 1,4)),
+         track_rank = rank(-track_popularity)
+         ) %>% 
+      filter(track_rank < 20) %>%
+      select(track_name_artist, danceability, energy, loudness, mode, speechiness, acousticness, instrumentalness, liveness, valence, tempo)
+
+```
+
+
+#2b.  Create distance matrix
+```{r} 
+
+   library (broom)
+
+   dist_songs <- dist(songs)
+   dist_songs_tidy <- tidy (dist_songs)
+   
+   clusters_songs <- hclust(dist_songs)
+```
+
+
+#3.  Visualize
+```{r visualize, warning = F, results = F, message = F, echo = T}
+   
+   library(ggdendro)
+   
+      ggdendrogram(clusters_songs, rotate = FALSE, size = 2) + 
+         ggsave ('songs.png')
+
+```   
