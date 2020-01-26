@@ -45,24 +45,47 @@ output: html_document
 ```
 
 
-#2b.  Create distance matrix
-```{r} 
+#2b.  Create distance matrix and clusters
+```{r cluster, warning = F, results = F, message = F, echo = T}
 
    library (broom)
 
-   dist_songs <- dist(songs)
-   dist_songs_tidy <- tidy (dist_songs)
+   songs_distance <- dist(songs)
+   songs_distance_tidy <- tidy (songs_distance)
    
-   clusters_songs <- hclust(dist_songs)
+   songs_cluster <- hclust(songs_distance)
+```
+
+#2c.  Create dendogram components
+```{r cluster, warning = F, results = F, message = F, echo = T}
+
+   library(ggdendro)
+
+   songs_dendro <- songs_cluster %>%
+      as.dendrogram() %>%
+      dendro_data(type = "triangle")
+   
+   songs_dendro_segment <- segment(songs_dendro)
+   songs_dendro_label <- label(songs_dendro)
+   songs_dendro_leaf_label <- leaf_label(songs_dendro)
 ```
 
 
 #3.  Visualize
 ```{r visualize, warning = F, results = F, message = F, echo = T}
    
-   library(ggdendro)
-   
-      ggdendrogram(clusters_songs, rotate = FALSE, size = 2) + 
-         ggsave ('songs.png')
+   ggplot() + 
+      geom_segment(
+         data = songs_dendro_segment,
+         aes(x = x, y = y, xend = xend, yend = yend)
+         ) + 
+      geom_text(
+         data = songs_dendro_label,
+         aes(x = x, y = y, label = label, hjust = 0)
+         ) +
+      coord_flip() + 
+      scale_y_reverse(expand = c(0.2, 0)) +
+      theme_dendro() +
+      ggsave ('songs.png')
 
 ```   
