@@ -16,8 +16,7 @@ output: html_document
 
    tuesdata <- tidytuesdayR::tt_load('2020-01-21')
    songs_raw <- tuesdata$spotify_songs %>%
-      clean_names()
-   
+      clean_names() 
 ```
 
 
@@ -30,18 +29,16 @@ output: html_document
    songs <- songs_raw %>% 
       filter(
          !duplicated(paste(track_name, " - ", track_artist)),
-         playlist_genre == "edm",
+         playlist_genre == "rock",
          track_popularity > 0
          ) %>% 
       mutate(
-         #track_year = as.numeric(str_extract(track_album_release_date, "^.{4}")),
          track_name_artist = glue ('{track_name} - {track_artist}'),
-         track_year = as.numeric(str_sub(track_album_release_date, 1,4)),
          track_rank = rank(-track_popularity)
          ) %>% 
-      filter(track_rank < 20) %>%
-      select(track_name_artist, danceability, energy, loudness, mode, speechiness, acousticness, instrumentalness, liveness, valence, tempo)
-
+      filter(track_rank < 25) %>%
+      column_to_rownames("track_name_artist") %>%
+      select(danceability, energy, loudness, mode, speechiness, acousticness, instrumentalness, liveness, valence, tempo)
 ```
 
 
@@ -63,11 +60,10 @@ output: html_document
 
    songs_dendro <- songs_cluster %>%
       as.dendrogram() %>%
-      dendro_data(type = "triangle")
+      dendro_data(type = "rectangle")
    
    songs_dendro_segment <- segment(songs_dendro)
    songs_dendro_label <- label(songs_dendro)
-   songs_dendro_leaf_label <- leaf_label(songs_dendro)
 ```
 
 
@@ -81,11 +77,12 @@ output: html_document
          ) + 
       geom_text(
          data = songs_dendro_label,
-         aes(x = x, y = y, label = label, hjust = 0)
+         aes(x = x, y = y, label = label, hjust = 0),
+         size = 2
          ) +
       coord_flip() + 
       scale_y_reverse(expand = c(0.2, 0)) +
       theme_dendro() +
-      ggsave ('songs.png')
+      ggsave('songs.png')
 
 ```   
