@@ -26,17 +26,21 @@ output: html_document
    library(tidyverse)  
    library(glue)
  
-   songs <- songs_raw %>% 
+   songs_unique <- songs_raw %>% 
+      mutate(
+         track_name_artist = glue ('{track_name} - {track_artist}')
+         ) %>% 
       filter(
-         !duplicated(paste(track_name, " - ", track_artist)),
+         !duplicated(track_name_artist),
          playlist_genre == "rock",
          track_popularity > 0
-         ) %>% 
-      mutate(
-         track_name_artist = glue ('{track_name} - {track_artist}'),
-         track_rank = rank(-track_popularity)
-         ) %>% 
-      filter(track_rank < 25) %>%
+         )
+      
+   songs <- songs_unique %>%
+      mutate (track_rank = rank(-track_popularity)) %>%
+      filter  (
+         track_rank < 25
+         ) %>%
       column_to_rownames("track_name_artist") %>%
       select(danceability, energy, loudness, mode, speechiness, acousticness, instrumentalness, liveness, valence, tempo)
 ```
@@ -53,6 +57,7 @@ output: html_document
    songs_cluster <- hclust(songs_distance)
 ```
 
+
 #2c.  Create dendogram components
 ```{r cluster, warning = F, results = F, message = F, echo = T}
 
@@ -63,7 +68,11 @@ output: html_document
       dendro_data(type = "rectangle")
    
    songs_dendro_segment <- segment(songs_dendro)
-   songs_dendro_label <- label(songs_dendro)
+   songs_dendro_label <- 
+      label(songs_dendro) %>%
+      left_join (songs_unique, by = c("label" = "track_name_artist")) %>%
+      select (x,y, label, playlist_subgenre)
+      
 ```
 
 
@@ -77,7 +86,7 @@ output: html_document
          ) + 
       geom_text(
          data = songs_dendro_label,
-         aes(x = x, y = y, label = label, hjust = 0),
+         aes(x = x, y = y, label = label, color = playlist_subgenre, hjust = 0),
          size = 2
          ) +
       coord_flip() + 
