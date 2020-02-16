@@ -21,28 +21,38 @@ output: html_document
 
 
 #2a.  Isolate required fields, observations
-```{r core data, warning = F, results = F, message = F, echo = T}
+```{r data, warning = F, results = F, message = F, echo = T, include = F}
 
    library(tidyverse)  
    library(glue)
  
    songs_unique <- songs_raw %>% 
       mutate(
-         track_name_artist = glue ('{track_name} - {track_artist}')
+         track_name_artist = glue ('{track_name} - {track_artist}'),
+         track_year = as.numeric(str_extract(track_album_release_date, "^.{4}"))  
          ) %>% 
       filter(
          !duplicated(track_name_artist),
-         playlist_genre == "rock",
+         #playlist_genre == "edm",
          track_popularity > 0
          )
       
    songs <- songs_unique %>%
-      mutate (track_rank = rank(-track_popularity)) %>%
+      mutate (
+         track_rank = rank(-track_popularity)
+         ) %>%
       filter  (
          track_rank < 25
          ) %>%
       column_to_rownames("track_name_artist") %>%
       select(danceability, energy, loudness, mode, speechiness, acousticness, instrumentalness, liveness, valence, tempo)
+   
+   songs_plot <- songs_unique %>%
+      group_by (track_year) %>%
+      summarize (median = median(track_popularity))
+   
+   ggplot (songs_plot, (aes( x = track_year, median))) +
+      geom_line ()
 ```
 
 
