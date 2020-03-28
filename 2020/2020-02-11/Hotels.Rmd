@@ -11,9 +11,17 @@ https://juliasilge.com/blog/hotels-recipes/
 ```{r source, include=FALSE}
    knitr::opts_chunk$set(echo = TRUE)
 
+<<<<<<< HEAD
    library(janitor)
 
    hotels_raw <- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-02-11/hotels.csv") %>%
+=======
+   library(tidytuesdayR)
+   library(janitor)
+
+   tuesdata <- tidytuesdayR::tt_load('2020-02-11')
+   hotels_raw <- tuesdata$H1 %>%
+>>>>>>> dd5179ef2405223f67b5619233b6c0fb388598e2
       clean_names()
 ```
  
@@ -35,6 +43,7 @@ https://juliasilge.com/blog/hotels-recipes/
    library(tidyverse)  
    library(skimr)
    library(GGally)
+<<<<<<< HEAD
    library(kableExtra)
    
    hotels_raw %>%
@@ -63,6 +72,22 @@ https://juliasilge.com/blog/hotels-recipes/
      select(is_canceled, required_car_parking_spaces) %>%
      mutate (is_canceled = as.character(is_canceled)) %>%
      ggpairs(mapping = aes(color = is_canceled))
+=======
+   
+   hotels_raw %>%
+      group_by(previous_cancellations, is_canceled)%>%
+      summarize(n=n())%>%
+      mutate(rel_freq = paste0(round(100 * n/sum(n), 0), "%")) %>%
+      select (-n) %>%
+      pivot_wider (names_from = is_canceled, values_from = rel_freq)
+   
+   skim(hotels_raw)
+   
+   #hotels_raw %>%
+     #select(is_canceled, adr,required_car_parking_spaces,total_of_special_requests) %>%
+     #mutate (is_canceled = as.character(is_canceled)) %>%
+     #ggpairs(mapping = aes(color = is_canceled))
+>>>>>>> dd5179ef2405223f67b5619233b6c0fb388598e2
 ```
 
 
