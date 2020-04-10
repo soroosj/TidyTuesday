@@ -1,0 +1,81 @@
+---
+title: "Cleaning Learn"
+author: "Joel Soroos"
+date: "4/10/2020"
+output: html_document
+---
+
+### 1. Source data
+```{r source, warning = TRUE, results = FALSE, message = FALSE}
+
+   library("tidyverse")
+   library("ggmap")
+   library("janitor")
+
+   stages_raw <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-04-07/tdf_stages.csv") %>%
+      clean_names()
+   
+   register_google(key = Sys.getenv("GOOGLE_MAPS_API"))
+```
+
+
+### 2.  Transform data
+```{r transform, message = F, results = F}
+
+   cities_origin <- stages_raw %>% 
+      distinct (origin) %>%
+      rename (city = origin)
+
+   cities_destination <- stages_raw %>% 
+      distinct (destination) %>%
+      rename (city = destination)
+      
+   cities_all <- full_join (cities_origin, cities_destination) %>%
+      head (10) %>%
+      geocode(city)
+```
+
+
+### 3. Visualize data
+```{r visualize}
+
+   library (ggdark)
+
+   ggmap(
+      get_googlemap(
+         center = c("Central Park"),
+         zoom = 13, scale = 2, color = 'color',
+         maptype ='roadmap',
+         style = 'style=feature:all|element:labels|visibility:off'
+         )
+      ) +
+      geom_point(
+         data = squirrels, 
+         aes(x = long, y = lat),
+         size = 0.05, alpha = 0.7, color = "blue"
+         ) +
+      scale_x_continuous(limits = c(-73.982, -73.95)) +
+      scale_y_continuous(limits = c(40.765, 40.80)) +
+      dark_mode(theme_minimal()) +
+      theme(
+         plot.title = element_text(hjust = 0, vjust = 0, size = 17, face = "bold", margin = margin (0,0,4,0)),
+         plot.subtitle = element_text(hjust = 0, vjust = 0, size = 8, margin = margin (0,0,25,0)),
+         plot.caption = element_text (hjust = 1, size = 7, face = "plain", margin = margin (10,0,0,0), color="#6D7C83"),
+         axis.title=element_blank(),
+         axis.text=element_blank(),
+         axis.ticks=element_blank(),
+         strip.text = element_text (size = 8),
+         legend.title=element_blank()
+         ) +
+      facet_wrap (
+         facets = vars(activity),
+         nrow = 3
+         ) +
+      labs(
+         title = "Squirrel Behaviors in New York's Central Park",
+         subtitle = "      - Movements such as climbing/foraging far more common than sounds such as kuks/moans.\n      - Results from a study conducted by Jamie Allen and a team of 300 volunteers from October 6-20, 2018.",
+         caption = "Visualization: Joel Soroos @soroosj  |  Data: The Squirrel Census via R4DS Tidy Tuesday"
+         ) +
+      ggsave("squirrels.png", width = 15, height = 17, units = "cm")
+```
+
