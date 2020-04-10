@@ -22,6 +22,8 @@ output: html_document
 ### 2.  Transform data
 ```{r transform, message = F, results = F}
 
+   library (lubridate)
+
    cities_origin <- stages_raw %>% 
       distinct (origin) %>%
       rename (city = origin)
@@ -30,9 +32,19 @@ output: html_document
       distinct (destination) %>%
       rename (city = destination)
       
-   cities_all <- full_join (cities_origin, cities_destination) %>%
-      head (10) %>%
-      geocode(city)
+   cities_all <- 
+      full_join (cities_origin, cities_destination) %>%
+      slice (1:10) %>%
+      mutate_geocode(city)
+   
+   stages <- 
+      left_join (stages_raw, cities_all, by = c("origin" = "city")) %>%
+      rename (origin_lat = lat, origin_lon = lon) %>%
+      left_join (cities_all, by = c("destination" = "city")) %>%
+      rename (destination_lat = lat, destination_lon = lon) %>%
+      mutate (year = year(date)) %>%
+      select (year, stage, origin, origin_lat, origin_lon, destination, destination_lat, destination_lon) %>%
+      arrange (year, stage)
 ```
 
 
