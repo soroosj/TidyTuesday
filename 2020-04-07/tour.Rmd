@@ -20,7 +20,7 @@ output: html_document
    
    register_google(key = Sys.getenv("GOOGLE_MAPS_API"))
    
-   year_select <- 2012
+   year_select <- c(2015:2016)
 ```
 
 
@@ -28,13 +28,14 @@ output: html_document
 ```{r source, warning = TRUE, results = FALSE, message = FALSE}
 
    library (lubridate)
+   library (glue)
 
    stages <- stages_raw %>%
       mutate (
          year = year(date),
          stage = as.integer(stage)
          ) %>%
-      filter (year == year_select) %>%
+      filter (year %in% year_select) %>%
       select (year, stage, origin, destination) %>%
       arrange (year, stage)
 
@@ -68,7 +69,7 @@ output: html_document
 
    winners <- winners_raw %>%
       mutate (year = year(start_date)) %>%
-      filter (year == year_select) %>%
+      filter (year > 2012) %>%
       select (winner_name, nationality, winner_team, stage_wins, time_margin, time_overall) %>%
       rename (
          name = winner_name,
@@ -91,8 +92,9 @@ output: html_document
 ```{r visualize}
 
    library (ggdark)
-   library (glue)
+   library (gganimate)
    library (grid)
+   library (gifski)
 
    ggmap(
       get_googlemap(
@@ -105,7 +107,8 @@ output: html_document
       geom_segment(
          data = stages,
          aes (x = origin_lon, xend = destination_lon,
-              y = origin_lat, yend = destination_lat
+              y = origin_lat, yend = destination_lat,
+              group = year
             ),
          color = "black", alpha = 0.3,
          arrow = arrow(length=unit(0.10,"cm"), type = "closed")
@@ -115,11 +118,11 @@ output: html_document
          aes (
             x = (origin_lon + destination_lon)/2, 
             y = (origin_lat + destination_lat)/2, 
-            label = stage
+            label = stage, group = year
             ),
          color = "black", size = 3
       ) +
-      ggmap::inset (grob = winners, xmin = -11.3, xmax = -6, ymin = 45, ymax = 49) +
+      #ggmap::inset (grob = winners, xmin = -11.3, xmax = -6, ymin = 45, ymax = 49) +
       dark_mode(theme_minimal()) +
       theme(
          plot.title = element_text(hjust = 0.5, vjust = 0, size = 17, face = "bold", margin = margin (0,0,4,0)),
@@ -129,10 +132,13 @@ output: html_document
          axis.ticks=element_blank(),
          legend.title=element_blank()
          ) +
+      transition_manual(year) +
       labs(
-         title = glue("Tour De France Summary - {year_select}"),
+         title = glue("Tour De France Summary - {closest_state}"),
          caption = "Visualization: Joel Soroos @soroosj  |  Data: Wikipedia"
-         ) +
-      ggsave("tour.png")
+         ) 
+      #animate(g, renderer = gifski_renderer(),height = 500, width =1000,fps = 10)
+      
+      #https://duvancho321.github.io/Tidyuesday/Folder/2020/2020-01-07/
 ```
 
