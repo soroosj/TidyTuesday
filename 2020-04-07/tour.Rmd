@@ -131,10 +131,10 @@ output: html_document
          axis.text=element_blank(),
          axis.ticks=element_blank(),
          legend.title=element_blank()
-         ) +
-      transition_manual(year) +
+      ) +
+      transition_states(year) +
       labs(
-         title = glue("Tour De France Summary - {closest_state}"),
+         title = "Tour De France Summary - {closest_state}",
          caption = "Visualization: Joel Soroos @soroosj  |  Data: Wikipedia"
          ) 
       #animate(g, renderer = gifski_renderer(),height = 500, width =1000,fps = 10)
