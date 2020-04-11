@@ -96,7 +96,7 @@ output: html_document
    library (grid)
    library (gifski)
 
-   ggmap(
+   tour_map <- ggmap(
       get_googlemap(
          center = c("France"),
          zoom = 5, scale = 2, color = 'color',
@@ -122,6 +122,8 @@ output: html_document
             ),
          color = "black", size = 3
       ) +
+      scale_x_continuous(limits = c(-7, 12)) +
+      scale_y_continuous(limits = c(40, 55)) +
       #ggmap::inset (grob = winners, xmin = -11.3, xmax = -6, ymin = 45, ymax = 49) +
       dark_mode(theme_minimal()) +
       theme(
@@ -136,8 +138,9 @@ output: html_document
       labs(
          title = "Tour De France Summary - {closest_state}",
          caption = "Visualization: Joel Soroos @soroosj  |  Data: Wikipedia"
-         ) 
-      #animate(g, renderer = gifski_renderer(),height = 500, width =1000,fps = 10)
+         )
+
+      animate(tour_map, renderer = gifski_renderer())
       
       #https://duvancho321.github.io/Tidyuesday/Folder/2020/2020-01-07/
 ```
