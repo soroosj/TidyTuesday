@@ -20,7 +20,7 @@ output: html_document
    
    register_google(key = Sys.getenv("GOOGLE_MAPS_API"))
    
-   year_select <- 2016
+   year_select <- 2014
 ```
 
 
@@ -70,10 +70,19 @@ output: html_document
    winners <- winners_raw %>%
       mutate (year = year(start_date)) %>%
       filter (year == year_select) %>%
-      select (winner_name, winner_team, nationality, stage_wins, time_margin, time_overall) %>%
-      mutate (time_margin = round (time_margin,2)) %>%
+      select (winner_name, nationality, winner_team, stage_wins, time_margin, time_overall) %>%
+      rename (
+         name = winner_name,
+         team = winner_team
+         ) %>%
+      mutate (
+         time_margin = round (time_margin,2),
+         time_margin = glue ("{time_margin} hours"),
+         time_overall = glue ("{time_overall} hours")
+         ) %>%
       mutate_all(as.character) %>%
-      pivot_longer (winner_name:time_overall) %>%
+      pivot_longer (name:time_overall) %>%
+      rename (winner_metric = name) %>%
       tableGrob (theme=ttheme_minimal(base_size = 7))
 ```
 
@@ -98,7 +107,7 @@ output: html_document
          aes (x = origin_lon, xend = destination_lon,
               y = origin_lat, yend = destination_lat
             ),
-         color = "black", alpha = 0.4,
+         color = "black", alpha = 0.3,
          arrow = arrow(length=unit(0.10,"cm"), type = "closed")
          ) +
       geom_text (
