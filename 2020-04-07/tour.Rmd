@@ -1,0 +1,131 @@
+---
+title: "Tour de France"
+author: "Joel Soroos"
+date: "4/10/2020"
+output: html_document
+---
+
+### 1. Source data
+```{r source, warning = TRUE, results = FALSE, message = FALSE}
+
+   library("tidyverse")
+   library("ggmap")
+   library("janitor")
+
+   stages_raw <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-04-07/tdf_stages.csv") %>%
+      clean_names()
+   
+   winners_raw <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-04-07/tdf_winners.csv") %>%
+      clean_names()
+   
+   register_google(key = Sys.getenv("GOOGLE_MAPS_API"))
+   
+   year_select <- 2016
+```
+
+
+### 2.  Transform stage master data
+```{r source, warning = TRUE, results = FALSE, message = FALSE}
+
+   library (lubridate)
+   library (glue)
+
+   stages <- stages_raw %>%
+      mutate (
+         year = year(date),
+         stage = as.integer(stage)
+         ) %>%
+      filter (year == year_select) %>%
+      select (year, stage, origin, destination) %>%
+      arrange (year, stage)
+
+   cities_origin <- stages %>% 
+      distinct (origin) %>%
+      rename (city = origin)
+
+   cities_destination <- stages %>% 
+      distinct (destination) %>%
+      rename (city = destination)
+      
+   cities_all <- 
+      full_join (cities_origin, cities_destination) %>%
+      mutate_geocode(city) %>%
+      mutate (city_corrected = ifelse(lon < -10, glue ("{city}, France"), city)) %>%
+      mutate_geocode (city_corrected) %>%
+      select (-lat, -lon, -city_corrected) %>%
+      rename (lat = lat1, lon = lon1)
+   
+   stages <- 
+      left_join (stages, cities_all, by = c("origin" = "city")) %>%
+      rename (origin_lat = lat, origin_lon = lon) %>%
+      left_join (cities_all, by = c("destination" = "city")) %>%
+      rename (destination_lat = lat, destination_lon = lon) %>%
+      select (year, stage, origin, destination, origin_lat, origin_lon, destination_lat, destination_lon) %>%
+      arrange (year, stage)
+```
+```{r}
+
+   library (gridExtra)
+
+   winners <- winners_raw %>%
+      mutate (year = year(start_date)) %>%
+      filter (year == year_select) %>%
+      select (winner_name, winner_team, nationality, stage_wins, time_margin, time_overall) %>%
+      mutate (time_margin = round (time_margin,2)) %>%
+      mutate_all(as.character) %>%
+      pivot_longer (winner_name:time_overall) %>%
+      tableGrob (theme=ttheme_minimal(base_size = 7))
+```
+
+
+### 3. Visualize data
+```{r visualize}
+
+   library (ggdark)
+   library (ggmap)
+   library (grid)
+
+   ggmap(
+      get_googlemap(
+         center = c("France"),
+         zoom = 5, scale = 2, color = 'color',
+         maptype ='terrain',
+         style = 'style=feature:all|element:labels|visibility:off'
+         )
+      ) +
+      geom_segment(
+         data = stages,
+         aes (x = origin_lon, xend = destination_lon,
+              y = origin_lat, yend = destination_lat
+            ),
+         color = "black", alpha = 0.4,
+         arrow = arrow(length=unit(0.10,"cm"), type = "closed")
+         ) +
+      geom_text (
+         data = stages,
+         aes (
+            x = (origin_lon + destination_lon)/2, 
+            y = (origin_lat + destination_lat)/2, 
+            label = stage
+            ),
+         color = "black", size = 3
+      ) +
+      ggmap::inset (grob = winners, xmin = -11, xmax = -6, ymin = 45, ymax = 49) +
+      dark_mode(theme_minimal()) +
+      theme(
+         plot.title = element_text(hjust = 0.5, vjust = 0, size = 17, face = "bold", margin = margin (0,0,4,0)),
+         plot.subtitle = element_text(hjust = 0, vjust = 0, size = 8, margin = margin (0,0,25,0)),
+         plot.caption = element_text (hjust = 1, size = 7, face = "plain", margin = margin (10,0,0,0), color="#6D7C83"),
+         axis.title=element_blank(),
+         axis.text=element_blank(),
+         axis.ticks=element_blank(),
+         legend.title=element_blank()
+         ) +
+      labs(
+         title = "Tour De France",
+         subtitle = "      - Movements such as climbing/foraging far more common than sounds such as kuks/moans.",
+         caption = "Visualization: Joel Soroos @soroosj  |  Data: Wikipedia"
+         ) +
+      ggsave("tour.png")
+```
+
