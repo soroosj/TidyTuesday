@@ -163,7 +163,8 @@ output: html_document
       animate(
          tour_map, 
          renderer = gifski_renderer("tour.gif"),
-         duration = 30
+         duration = 30, nframes = 10,
+         height = 800, width = 600
          )
       #https://milosvil.github.io/2018-01-04/Traffic-collisions-in-Belgrade
 ```
