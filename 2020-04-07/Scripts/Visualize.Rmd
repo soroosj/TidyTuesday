@@ -1,5 +1,5 @@
 ---
-title: "Tour de France"
+title: "Tour de France - Visualize"
 author: "Joel Soroos"
 date: "4/12/2020"
 output: html_document
@@ -10,10 +10,13 @@ output: html_document
 
    library(tidyverse)
    library(ggmap)
+   library(here)
 
    #source from wrangle.Rmd
-   stages <- read_csv("stages_full.csv")
-   winners <- read_csv("winners.csv")
+   stages_full <- read_csv(here("2020-04-07", "data", "stages_full.csv"))
+   winners <- read_csv(here("2020-04-07", "data", "winners.csv"))
+   
+   register_google(key = Sys.getenv("GOOGLE_MAPS_API"))
 ```   
    
 
@@ -25,6 +28,10 @@ output: html_document
    library (ggdark)
    library (gifski)
    library (grid)
+   library (showtext)
+   
+   font_add("Tour de France", "shlop rg.ttf")
+   showtext_auto()    
 
    tour_map <- ggmap(
       get_googlemap(
@@ -41,59 +48,59 @@ output: html_document
             y = origin_lat, yend = destination_lat,
             group = year
             ),
-         color = "blue", size = 1, alpha = 0.23,
+         color = "blue", size = 1, alpha = 0.28,
          arrow = arrow(length=unit(0.20,"cm"), type = "closed")
+         ) +
+      geom_text_repel (
+         data = stages_full,
+         aes (
+            x = (origin_lon * 0.42 + destination_lon *0.58), 
+            y = (origin_lat * 0.42 + destination_lat *0.58), 
+            label = winner, group = year
+            ),
+         color = "darkgreen", size = 4, alpha = 0.7, fontface = "plain", seed = 124
          ) +
       geom_text_repel (
          data = stages_full,
          aes (
             x = (origin_lon + destination_lon)/2, 
             y = (origin_lat + destination_lat)/2, 
-            label = winner, group = year
+            label = stage, group = year, seed = 124
             ),
-         color = "red", size = 4, alpha = 0.7, fontface = "bold"
-         ) +
-      geom_text (
-         data = stages_full,
-         aes (
-            x = (origin_lon + destination_lon)/2, 
-            y = (origin_lat + destination_lat)/2, 
-            label = stage, group = year
-            ),
-         color = "blue", size = 5, alpha = 0.5, fontface = "bold"
+         color = "red", size = 4.5, alpha = 0.9, fontface = "bold"
          ) +
       geom_text (
          data = winners,
          aes (label = name_full, group = year),
-         color = "black", size = 5, x = 4, y = 54.85
+         color = "blue", size = 5, x = 4, y = 54.85
          )+
       geom_text (
          data = winners,
          aes (label = time_overall, group = year),
-         color = "black", size = 5, x = 4, y = 54.5
+         color = "blue", size = 5, x = 4, y = 54.5
          )+
       geom_text (
          data = winners,
          aes (label = time_margin, group = year),
-         color = "black", size = 5, x = 4, y = 54.15
+         color = "blue", size = 5, x = 4, y = 54.15
          )+
       geom_text (
          data = winners,
          aes (label = stage_wins, group = year),
-         color = "black", size = 5, x = 4, y = 53.80
+         color = "blue", size = 5, x = 4, y = 53.80
          )+
       scale_x_continuous(limits = c(-7, 12)) +
       scale_y_continuous(limits = c(40, 55)) +
       dark_mode(theme_minimal()) +
       theme(
          plot.title = element_text(hjust = 0.5, vjust = 0, size = 20, face = "bold", margin = margin (0,0,4,0)),
-         plot.caption = element_text (hjust = 0, size = 10, margin = margin (10,0,0,0), color="white"),
+         plot.caption = element_text (hjust = 0, size = 13, margin = margin (10,0,0,0), color="white"),
          axis.title=element_blank(),
          axis.text=element_blank(),
          axis.ticks=element_blank(),
          legend.title=element_blank()
          ) +
-      transition_states(year, transition_length = 5, state_length = 5, wrap = F) +
+      transition_states(year, transition = 0) +
       labs(
          title = "Tour De France - {closest_state}",
          caption = "Visualization: Joel Soroos @soroosj  |  Data: Wikipedia, TDF Package, R4DS Tidy Tuesday"
@@ -101,9 +108,8 @@ output: html_document
 
       animate(
          tour_map, 
-         renderer = gifski_renderer("tour.gif"),
-         duration = 30, nframes = 10,
-         height = 900, width = 650
+         renderer = gifski_renderer(here("2020-04-07", "output", "tour.gif")),
+         duration = 40, nframes = 10, height = 900, width = 650
          )
       #https://milosvil.github.io/2018-01-04/Traffic-collisions-in-Belgrade
 ```

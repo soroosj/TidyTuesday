@@ -1,5 +1,5 @@
 ---
-title: "Tour de France"
+title: "Tour de France - Wrangle"
 author: "Joel Soroos"
 date: "4/12/2020"
 output: html_document
@@ -19,8 +19,6 @@ output: html_document
       clean_names()
    
    register_google(key = Sys.getenv("GOOGLE_MAPS_API"))
-   
-   year_select <- c(2016:2017)
 ```
 
 
@@ -29,6 +27,8 @@ output: html_document
 
    library (lubridate)
    library (glue)
+
+   year_select <- c(2011:2017)
 
    stages <- stages_raw %>%
       mutate (
@@ -69,6 +69,7 @@ output: html_document
 ```{r, warning = TRUE, results = FALSE, message = FALSE}
 
    library (gridExtra)
+   library (here)
 
    winners <- winners_raw %>%
       mutate (year = year(start_date)) %>%
@@ -89,7 +90,7 @@ output: html_document
          ) %>%
       select (year, name, name_full, nationality, stage_wins, time_margin, time_overall, stage_wins)
    
-   write_csv(winners, "winners.csv")
+   write_csv(winners, here("2020-04-07", "data", "winners.csv"))
 ```
 
 
@@ -98,6 +99,6 @@ output: html_document
 
    stages_full <- left_join (stages, winners, by = "year") 
    
-   write_csv(stages_full, "stages_full.csv")
+   write_csv(stages_full, here("2020-04-07", "data", "stages_full.csv"))
 ```
 
