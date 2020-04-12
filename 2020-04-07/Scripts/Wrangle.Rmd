@@ -1,0 +1,103 @@
+---
+title: "Tour de France"
+author: "Joel Soroos"
+date: "4/12/2020"
+output: html_document
+---
+
+### 1. Source data
+```{r source, warning = TRUE, results = FALSE, message = FALSE}
+
+   library(tidyverse)
+   library(ggmap)
+   library(janitor)
+
+   stages_raw <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-04-07/tdf_stages.csv") %>%
+      clean_names()
+   
+   winners_raw <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-04-07/tdf_winners.csv") %>%
+      clean_names()
+   
+   register_google(key = Sys.getenv("GOOGLE_MAPS_API"))
+   
+   year_select <- c(2016:2017)
+```
+
+
+### 2.  Transform stage data
+```{r source, warning = TRUE, results = FALSE, message = FALSE}
+
+   library (lubridate)
+   library (glue)
+
+   stages <- stages_raw %>%
+      mutate (
+         year = year(date),
+         stage = as.integer(stage),
+         winner = str_extract(winner,"[ ].+")
+         ) %>%
+      filter (year %in% year_select) %>%
+      select (year, stage, origin, destination, winner) %>%
+      arrange (year, stage)
+
+   cities_origin <- stages %>% 
+      distinct (origin) %>%
+      rename (city = origin)
+
+   cities_destination <- stages %>% 
+      distinct (destination) %>%
+      rename (city = destination)
+      
+   cities_all <- 
+      full_join (cities_origin, cities_destination) %>%
+      mutate_geocode(city) %>%
+      mutate (city_corrected = ifelse(lon < -10, glue ("{city}, Europe"), city)) %>%
+      mutate_geocode (city_corrected) %>%
+      select (-lat, -lon, -city_corrected) %>%
+      rename (lat = lat1, lon = lon1)
+   
+   stages <- 
+      left_join (stages, cities_all, by = c("origin" = "city")) %>%
+      rename (origin_lat = lat, origin_lon = lon) %>%
+      left_join (cities_all, by = c("destination" = "city")) %>%
+      rename (destination_lat = lat, destination_lon = lon) %>%
+      select (year, stage, origin, destination, origin_lat, origin_lon, destination_lat, destination_lon, winner) %>%
+      arrange (year, stage)
+```
+
+### 3.  Transform winners data
+```{r, warning = TRUE, results = FALSE, message = FALSE}
+
+   library (gridExtra)
+
+   winners <- winners_raw %>%
+      mutate (year = year(start_date)) %>%
+      filter (year %in% year_select) %>%
+      rename (
+         name = winner_name,
+         team = winner_team
+         ) %>%
+      mutate (
+         time_margin = round (time_margin,2),
+         time_margin = glue ("{time_margin} hours"),
+         time_overall = round (time_overall,2),
+         time_overall = glue ("{time_overall} hours"),
+         name_full = glue ("Winner: {name} ({str_trim(nationality)})"),
+         time_margin = glue ("Winning Margin: {time_margin}"),
+         time_overall = glue ("Overall Time: {time_overall}"),
+         stage_wins = glue ("Stage Wins: {stage_wins}")
+         ) %>%
+      select (year, name, name_full, nationality, stage_wins, time_margin, time_overall, stage_wins)
+   
+   write_csv(winners, "winners.csv")
+```
+
+
+### 4.  Combine stages and winners data
+```{r}
+
+   stages_full <- left_join (stages, winners, by = "year") 
+   
+   write_csv(stages_full, "stages_full.csv")
+```
+

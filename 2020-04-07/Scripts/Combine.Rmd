@@ -96,16 +96,16 @@ output: html_document
 ### 4. Visualize data
 ```{r visualize, warning = TRUE, results = FALSE, message = FALSE}
 
-   library (ggdark)
    library (gganimate)
-   library (grid)
-   library (gifski)
    library (ggrepel)
+   library (ggdark)
+   library (gifski)
+   library (grid)
 
    tour_map <- ggmap(
       get_googlemap(
          center = c("France"),
-         zoom = 5, scale = 2, color = 'color',
+         zoom = 5, scale = 2, color = 'bw',
          maptype ='roadmap',
          style = 'style=feature:all|element:labels|visibility:off'
          )
