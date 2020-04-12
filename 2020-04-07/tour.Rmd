@@ -20,7 +20,7 @@ output: html_document
    
    register_google(key = Sys.getenv("GOOGLE_MAPS_API"))
    
-   year_select <- c(2014:2016)
+   year_select <- c(2010:2017)
 ```
 
 
@@ -96,7 +96,7 @@ output: html_document
    library (grid)
    library (gifski)
 
-   ggmap(
+   tour_map <- ggmap(
       get_googlemap(
          center = c("France"),
          zoom = 5, scale = 2, color = 'color',
@@ -148,18 +148,17 @@ output: html_document
          plot.title = element_text(hjust = 0.5, vjust = 0, size = 17, face = "bold", margin = margin (0,0,4,0)),
          plot.caption = element_text (hjust = 0, size = 9, face = "plain", margin = margin (10,0,0,0), color="#6D7C83"),
          axis.title=element_blank(),
-         #axis.text=element_blank(),
+         axis.text=element_blank(),
          axis.ticks=element_blank(),
          legend.title=element_blank()
          ) +
-      transition_states(year) +
+      transition_states(year, transition_length = 5, state_length = 5, wrap = F) +
       labs(
          title = "Tour De France - {closest_state}",
          caption = "Visualization: Joel Soroos @soroosj  |  Data: Wikipedia"
          )
 
-      #animate(tour_map, renderer = gifski_renderer())
-      
+      animate(tour_map, renderer = gifski_renderer("tour.gif"))
       #https://milosvil.github.io/2018-01-04/Traffic-collisions-in-Belgrade
 ```
 
