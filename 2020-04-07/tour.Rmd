@@ -36,7 +36,7 @@ output: html_document
          stage = as.integer(stage)
          ) %>%
       filter (year %in% year_select) %>%
-      select (year, stage, origin, destination) %>%
+      select (year, stage, origin, destination, winner) %>%
       arrange (year, stage)
 
    cities_origin <- stages %>% 
@@ -60,14 +60,14 @@ output: html_document
       rename (origin_lat = lat, origin_lon = lon) %>%
       left_join (cities_all, by = c("destination" = "city")) %>%
       rename (destination_lat = lat, destination_lon = lon) %>%
-      select (year, stage, origin, destination, origin_lat, origin_lon, destination_lat, destination_lon) %>%
+      select (year, stage, origin, destination, origin_lat, origin_lon, destination_lat, destination_lon, winner) %>%
       arrange (year, stage)
 ```
 
 ### 3.  Transform winners data
-```{r}
+```{r, warning = TRUE, results = FALSE, message = FALSE}
 
-   library (gridExtra, warning = TRUE, results = FALSE, message = FALSE)
+   library (gridExtra)
 
    winners <- winners_raw %>%
       mutate (year = year(start_date)) %>%
@@ -81,12 +81,14 @@ output: html_document
          time_margin = glue ("{time_margin} hours"),
          time_overall = round (time_overall,2),
          time_overall = glue ("{time_overall} hours"),
-         name = glue ("Winner: {name} ({str_trim(nationality)})"),
+         name_full = glue ("Winner: {name} ({str_trim(nationality)})"),
          time_margin = glue ("Winning Margin: {time_margin}"),
          time_overall = glue ("Overall Time: {time_overall}"),
          stage_wins = glue ("Stage Wins: {stage_wins}")
          ) %>%
-      select (year, name, nationality, team, stage_wins, time_margin, time_overall, stage_wins)
+      select (year, name, name_full, nationality, stage_wins, time_margin, time_overall, stage_wins)
+   
+   stages_full <- left_join (stages, winners, by = "year")
 ```
 
 
@@ -97,6 +99,7 @@ output: html_document
    library (gganimate)
    library (grid)
    library (gifski)
+   library (ggrepel)
 
    tour_map <- ggmap(
       get_googlemap(
@@ -107,48 +110,53 @@ output: html_document
          )
       ) +
       geom_segment(
-         data = stages,
-         aes (x = origin_lon, xend = destination_lon,
-              y = origin_lat, yend = destination_lat,
+         data = stages_full,
+         aes (x = origin_lon, xend = origin_lon,
+              y = origin_lat, yend = origin_lat,
               group = year),
-         color = "black", alpha = 0.3,
-         arrow = arrow(length=unit(0.10,"cm"), type = "closed")
+         color = "black", size = 2,
+         arrow = arrow(length=unit(0.20,"cm"), type = "closed")
          ) +
-      geom_text (
-         data = stages,
+      geom_text_repel (
+         data = stages_full,
          aes (
             x = (origin_lon + destination_lon)/2, 
             y = (origin_lat + destination_lat)/2, 
-            label = stage, group = year
+            label = winner, group = year
             ),
-         color = "black", size = 3
+         color = "black", size = 3, alpha = 0.5
+         ) +
+      geom_text (
+         data = stages_full,
+         aes (x = destination_lon, y = destination_lat, label = stage, group = year),
+         color = "black", size = 4, alpha = 0.7
          ) +
       geom_text (
          data = winners,
-         aes (label = name, group = year),
-         color = "black", size = 3, x = 4, y = 54.85
+         aes (label = name_full, group = year),
+         color = "black", size = 4, x = 4, y = 54.85
          )+
       geom_text (
          data = winners,
          aes (label = time_overall, group = year),
-         color = "black", size = 3, x = 4, y = 54.5
+         color = "black", size = 4, x = 4, y = 54.5
          )+
       geom_text (
          data = winners,
          aes (label = time_margin, group = year),
-         color = "black", size = 3, x = 4, y = 54.15
+         color = "black", size = 4, x = 4, y = 54.15
          )+
       geom_text (
          data = winners,
          aes (label = stage_wins, group = year),
-         color = "black", size = 3, x = 4, y = 53.80
+         color = "black", size = 4, x = 4, y = 53.80
          )+
       scale_x_continuous(limits = c(-7, 12)) +
       scale_y_continuous(limits = c(40, 55)) +
       dark_mode(theme_minimal()) +
       theme(
-         plot.title = element_text(hjust = 0.5, vjust = 0, size = 17, face = "bold", margin = margin (0,0,4,0)),
-         plot.caption = element_text (hjust = 0, size = 9, face = "plain", margin = margin (10,0,0,0), color="#6D7C83"),
+         plot.title = element_text(hjust = 0.5, vjust = 0, size = 20, face = "bold", margin = margin (0,0,4,0)),
+         plot.caption = element_text (hjust = 0, size = 10, margin = margin (10,0,0,0), color="white"),
          axis.title=element_blank(),
          axis.text=element_blank(),
          axis.ticks=element_blank(),
@@ -157,14 +165,14 @@ output: html_document
       transition_states(year, transition_length = 5, state_length = 5, wrap = F) +
       labs(
          title = "Tour De France - {closest_state}",
-         caption = "Visualization: Joel Soroos @soroosj  |  Data: Wikipedia"
+         caption = "Visualization: Joel Soroos @soroosj  |  Data: Wikipedia, TDF Package, R4DS Tidy Tuesday"
          )
 
       animate(
          tour_map, 
          renderer = gifski_renderer("tour.gif"),
          duration = 30, nframes = 10,
-         height = 800, width = 600
+         height = 900, width = 650
          )
       #https://milosvil.github.io/2018-01-04/Traffic-collisions-in-Belgrade
 ```
