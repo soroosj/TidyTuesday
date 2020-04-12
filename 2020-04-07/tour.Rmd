@@ -20,11 +20,11 @@ output: html_document
    
    register_google(key = Sys.getenv("GOOGLE_MAPS_API"))
    
-   year_select <- c(2010:2017)
+   year_select <- c(2014:2017)
 ```
 
 
-### 2.  Transform stage master data
+### 2.  Transform stage data
 ```{r source, warning = TRUE, results = FALSE, message = FALSE}
 
    library (lubridate)
@@ -63,9 +63,11 @@ output: html_document
       select (year, stage, origin, destination, origin_lat, origin_lon, destination_lat, destination_lon) %>%
       arrange (year, stage)
 ```
+
+### 3.  Transform winners data
 ```{r}
 
-   library (gridExtra)
+   library (gridExtra, warning = TRUE, results = FALSE, message = FALSE)
 
    winners <- winners_raw %>%
       mutate (year = year(start_date)) %>%
@@ -88,8 +90,8 @@ output: html_document
 ```
 
 
-### 3. Visualize data
-```{r visualize}
+### 4. Visualize data
+```{r visualize, warning = TRUE, results = FALSE, message = FALSE}
 
    library (ggdark)
    library (gganimate)
@@ -158,7 +160,11 @@ output: html_document
          caption = "Visualization: Joel Soroos @soroosj  |  Data: Wikipedia"
          )
 
-      animate(tour_map, renderer = gifski_renderer("tour.gif"))
+      animate(
+         tour_map, 
+         renderer = gifski_renderer("tour.gif"),
+         duration = 30
+         )
       #https://milosvil.github.io/2018-01-04/Traffic-collisions-in-Belgrade
 ```
 
