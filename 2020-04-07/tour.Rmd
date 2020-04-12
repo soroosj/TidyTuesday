@@ -111,25 +111,25 @@ output: html_document
       ) +
       geom_segment(
          data = stages_full,
-         aes (x = origin_lon, xend = origin_lon,
-              y = origin_lat, yend = origin_lat,
+         aes (x = origin_lon, xend = destination_lon,
+              y = origin_lat, yend = destination_lat,
               group = year),
-         color = "black", size = 2,
+         color = "black", size = 1, alpha = 0.3,
          arrow = arrow(length=unit(0.20,"cm"), type = "closed")
          ) +
       geom_text_repel (
          data = stages_full,
-         aes (
-            x = (origin_lon + destination_lon)/2, 
-            y = (origin_lat + destination_lat)/2, 
-            label = winner, group = year
-            ),
-         color = "black", size = 3, alpha = 0.5
+         aes (x = destination_lon, y = destination_lat, label = winner, group = year),
+         color = "black", size = 4, alpha = 0.5
          ) +
       geom_text (
          data = stages_full,
-         aes (x = destination_lon, y = destination_lat, label = stage, group = year),
-         color = "black", size = 4, alpha = 0.7
+         aes (
+            x = (origin_lon + destination_lon)/2, 
+            y = (origin_lat + destination_lat)/2, 
+            label = stage, group = year
+            ),
+         color = "black", size = 4, alpha = 0.5
          ) +
       geom_text (
          data = winners,
