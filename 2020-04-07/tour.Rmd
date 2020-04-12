@@ -20,7 +20,7 @@ output: html_document
    
    register_google(key = Sys.getenv("GOOGLE_MAPS_API"))
    
-   year_select <- c(2014:2017)
+   year_select <- c(2014:2015)
 ```
 
 
@@ -33,7 +33,8 @@ output: html_document
    stages <- stages_raw %>%
       mutate (
          year = year(date),
-         stage = as.integer(stage)
+         stage = as.integer(stage),
+         winner = str_extract(winner,"[ ].+")
          ) %>%
       filter (year %in% year_select) %>%
       select (year, stage, origin, destination, winner) %>%
@@ -50,7 +51,7 @@ output: html_document
    cities_all <- 
       full_join (cities_origin, cities_destination) %>%
       mutate_geocode(city) %>%
-      mutate (city_corrected = ifelse(lon < -10, glue ("{city}, France"), city)) %>%
+      mutate (city_corrected = ifelse(lon < -10, glue ("{city}, Europe"), city)) %>%
       mutate_geocode (city_corrected) %>%
       select (-lat, -lon, -city_corrected) %>%
       rename (lat = lat1, lon = lon1)
@@ -105,22 +106,28 @@ output: html_document
       get_googlemap(
          center = c("France"),
          zoom = 5, scale = 2, color = 'color',
-         maptype ='terrain',
+         maptype ='roadmap',
          style = 'style=feature:all|element:labels|visibility:off'
          )
       ) +
       geom_segment(
          data = stages_full,
-         aes (x = origin_lon, xend = destination_lon,
-              y = origin_lat, yend = destination_lat,
-              group = year),
-         color = "black", size = 1, alpha = 0.3,
+         aes (
+            x = origin_lon, xend = destination_lon,
+            y = origin_lat, yend = destination_lat,
+            group = year
+            ),
+         color = "blue", size = 1, alpha = 0.23,
          arrow = arrow(length=unit(0.20,"cm"), type = "closed")
          ) +
       geom_text_repel (
          data = stages_full,
-         aes (x = destination_lon, y = destination_lat, label = winner, group = year),
-         color = "black", size = 4, alpha = 0.5
+         aes (
+            x = (origin_lon + destination_lon)/2, 
+            y = (origin_lat + destination_lat)/2, 
+            label = winner, group = year
+            ),
+         color = "red", size = 4, alpha = 0.7, fontface = "bold"
          ) +
       geom_text (
          data = stages_full,
@@ -129,27 +136,27 @@ output: html_document
             y = (origin_lat + destination_lat)/2, 
             label = stage, group = year
             ),
-         color = "black", size = 4, alpha = 0.5
+         color = "blue", size = 5, alpha = 0.5, fontface = "bold"
          ) +
       geom_text (
          data = winners,
          aes (label = name_full, group = year),
-         color = "black", size = 4, x = 4, y = 54.85
+         color = "black", size = 5, x = 4, y = 54.85
          )+
       geom_text (
          data = winners,
          aes (label = time_overall, group = year),
-         color = "black", size = 4, x = 4, y = 54.5
+         color = "black", size = 5, x = 4, y = 54.5
          )+
       geom_text (
          data = winners,
          aes (label = time_margin, group = year),
-         color = "black", size = 4, x = 4, y = 54.15
+         color = "black", size = 5, x = 4, y = 54.15
          )+
       geom_text (
          data = winners,
          aes (label = stage_wins, group = year),
-         color = "black", size = 4, x = 4, y = 53.80
+         color = "black", size = 5, x = 4, y = 53.80
          )+
       scale_x_continuous(limits = c(-7, 12)) +
       scale_y_continuous(limits = c(40, 55)) +
