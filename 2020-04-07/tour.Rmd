@@ -20,7 +20,7 @@ output: html_document
    
    register_google(key = Sys.getenv("GOOGLE_MAPS_API"))
    
-   year_select <- c(2015:2016)
+   year_select <- c(2014:2016)
 ```
 
 
@@ -69,8 +69,7 @@ output: html_document
 
    winners <- winners_raw %>%
       mutate (year = year(start_date)) %>%
-      filter (year > 2012) %>%
-      select (winner_name, nationality, winner_team, stage_wins, time_margin, time_overall) %>%
+      filter (year %in% year_select) %>%
       rename (
          name = winner_name,
          team = winner_team
@@ -79,12 +78,13 @@ output: html_document
          time_margin = round (time_margin,2),
          time_margin = glue ("{time_margin} hours"),
          time_overall = round (time_overall,2),
-         time_overall = glue ("{time_overall} hours")
+         time_overall = glue ("{time_overall} hours"),
+         name = glue ("Winner: {name} ({str_trim(nationality)})"),
+         time_margin = glue ("Winning Margin: {time_margin}"),
+         time_overall = glue ("Overall Time: {time_overall}"),
+         stage_wins = glue ("Stage Wins: {stage_wins}")
          ) %>%
-      mutate_all(as.character) %>%
-      pivot_longer (name:time_overall) %>%
-      rename (winner_metric = name) %>%
-      tableGrob (theme=ttheme_minimal(base_size = 7))
+      select (year, name, nationality, team, stage_wins, time_margin, time_overall, stage_wins)
 ```
 
 
@@ -96,7 +96,7 @@ output: html_document
    library (grid)
    library (gifski)
 
-   tour_map <- ggmap(
+   ggmap(
       get_googlemap(
          center = c("France"),
          zoom = 5, scale = 2, color = 'color',
@@ -108,8 +108,7 @@ output: html_document
          data = stages,
          aes (x = origin_lon, xend = destination_lon,
               y = origin_lat, yend = destination_lat,
-              group = year
-            ),
+              group = year),
          color = "black", alpha = 0.3,
          arrow = arrow(length=unit(0.10,"cm"), type = "closed")
          ) +
@@ -121,27 +120,46 @@ output: html_document
             label = stage, group = year
             ),
          color = "black", size = 3
-      ) +
+         ) +
+      geom_text (
+         data = winners,
+         aes (label = name, group = year),
+         color = "black", size = 3, x = 4, y = 54.85
+         )+
+      geom_text (
+         data = winners,
+         aes (label = time_overall, group = year),
+         color = "black", size = 3, x = 4, y = 54.5
+         )+
+      geom_text (
+         data = winners,
+         aes (label = time_margin, group = year),
+         color = "black", size = 3, x = 4, y = 54.15
+         )+
+      geom_text (
+         data = winners,
+         aes (label = stage_wins, group = year),
+         color = "black", size = 3, x = 4, y = 53.80
+         )+
       scale_x_continuous(limits = c(-7, 12)) +
       scale_y_continuous(limits = c(40, 55)) +
-      #ggmap::inset (grob = winners, xmin = -11.3, xmax = -6, ymin = 45, ymax = 49) +
       dark_mode(theme_minimal()) +
       theme(
          plot.title = element_text(hjust = 0.5, vjust = 0, size = 17, face = "bold", margin = margin (0,0,4,0)),
          plot.caption = element_text (hjust = 0, size = 9, face = "plain", margin = margin (10,0,0,0), color="#6D7C83"),
          axis.title=element_blank(),
-         axis.text=element_blank(),
+         #axis.text=element_blank(),
          axis.ticks=element_blank(),
          legend.title=element_blank()
-      ) +
+         ) +
       transition_states(year) +
       labs(
-         title = "Tour De France Summary - {closest_state}",
+         title = "Tour De France - {closest_state}",
          caption = "Visualization: Joel Soroos @soroosj  |  Data: Wikipedia"
          )
 
-      animate(tour_map, renderer = gifski_renderer())
+      #animate(tour_map, renderer = gifski_renderer())
       
-      #https://duvancho321.github.io/Tidyuesday/Folder/2020/2020-01-07/
+      #https://milosvil.github.io/2018-01-04/Traffic-collisions-in-Belgrade
 ```
 
