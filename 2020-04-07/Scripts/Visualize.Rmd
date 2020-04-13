@@ -48,52 +48,52 @@ output: html_document
             y = origin_lat, yend = destination_lat,
             group = year
             ),
-         color = "blue", size = 1, alpha = 0.28,
+         color = "blue", size = 1, alpha = 0.5,
          arrow = arrow(length=unit(0.20,"cm"), type = "closed")
          ) +
-      geom_text_repel (
+      geom_text (
          data = stages_full,
          aes (
-            x = (origin_lon * 0.42 + destination_lon *0.58), 
-            y = (origin_lat * 0.42 + destination_lat *0.58), 
-            label = winner, group = year
+            x = origin_lon, y = origin_lat, 
+            label = stage, group = year
             ),
-         color = "darkgreen", size = 4, alpha = 0.7, fontface = "plain", seed = 124
+         color = "blue", size = 5, alpha = 0.9, fontface = "bold", seed = 124
          ) +
       geom_text_repel (
          data = stages_full,
          aes (
             x = (origin_lon + destination_lon)/2, 
             y = (origin_lat + destination_lat)/2, 
-            label = stage, group = year, seed = 124
+            label = winner, group = year, seed = 124
             ),
-         color = "red", size = 4.5, alpha = 0.9, fontface = "bold"
+         color = "red", size = 4, alpha = 0.9, fontface = "plain", segment.size = 1
          ) +
       geom_text (
          data = winners,
          aes (label = name_full, group = year),
-         color = "blue", size = 5, x = 4, y = 54.85
+         color = "blue", size = 4.5, x = 4, y = 54.45
          )+
       geom_text (
          data = winners,
          aes (label = time_overall, group = year),
-         color = "blue", size = 5, x = 4, y = 54.5
+         color = "blue", size = 4.5, x = 4, y = 54.15
          )+
       geom_text (
          data = winners,
          aes (label = time_margin, group = year),
-         color = "blue", size = 5, x = 4, y = 54.15
+         color = "blue", size = 4.5, x = 4, y = 53.85
          )+
       geom_text (
          data = winners,
          aes (label = stage_wins, group = year),
-         color = "blue", size = 5, x = 4, y = 53.80
+         color = "blue", size = 4.5, x = 4, y = 53.55
          )+
-      scale_x_continuous(limits = c(-7, 12)) +
-      scale_y_continuous(limits = c(40, 55)) +
+      scale_x_continuous(limits = c(-5, 10)) +
+      scale_y_continuous(limits = c(40, 54)) +
       dark_mode(theme_minimal()) +
       theme(
-         plot.title = element_text(hjust = 0.5, vjust = 0, size = 20, face = "bold", margin = margin (0,0,4,0)),
+         plot.title = element_text(hjust = 0.5, vjust = 0, size = 27, face = "bold", margin = margin (0,0,4,0)),
+         plot.subtitle = element_text(hjust = 0.5, vjust = 0, size = 15, margin = margin (0,0,25,0)),
          plot.caption = element_text (hjust = 0, size = 13, margin = margin (10,0,0,0), color="white"),
          axis.title=element_blank(),
          axis.text=element_blank(),
@@ -103,6 +103,7 @@ output: html_document
       transition_states(year, transition = 0) +
       labs(
          title = "Tour De France - {closest_state}",
+         subtitle = "Stage numbers denoted in blue, stage winners listed in red.",
          caption = "Visualization: Joel Soroos @soroosj  |  Data: Wikipedia, TDF Package, R4DS Tidy Tuesday"
          )
 

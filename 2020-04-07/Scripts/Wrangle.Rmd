@@ -28,7 +28,7 @@ output: html_document
    library (lubridate)
    library (glue)
 
-   year_select <- c(2011:2017)
+   year_select <- c(2016:2017)
 
    stages <- stages_raw %>%
       mutate (
@@ -79,13 +79,9 @@ output: html_document
          team = winner_team
          ) %>%
       mutate (
-         time_margin = round (time_margin,2),
-         time_margin = glue ("{time_margin} hours"),
-         time_overall = round (time_overall,2),
-         time_overall = glue ("{time_overall} hours"),
          name_full = glue ("Winner: {name} ({str_trim(nationality)})"),
-         time_margin = glue ("Winning Margin: {time_margin}"),
-         time_overall = glue ("Overall Time: {time_overall}"),
+         time_margin = glue ("Winning Margin: {round (time_margin,1)} hours"),
+         time_overall = glue ("Overall Time: {round (time_overall,1)} hours"),
          stage_wins = glue ("Stage Wins: {stage_wins}")
          ) %>%
       select (year, name, name_full, nationality, stage_wins, time_margin, time_overall, stage_wins)
