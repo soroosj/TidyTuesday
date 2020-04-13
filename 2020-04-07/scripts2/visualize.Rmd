@@ -25,13 +25,10 @@ output: html_document
 
    library (gganimate)
    library (ggrepel)
+   library (ggtext)
    library (ggdark)
    library (gifski)
    library (grid)
-   library (showtext)
-   
-   font_add("Tour de France", "shlop rg.ttf")
-   showtext_auto()    
 
    tour_map <- ggmap(
       get_googlemap(
@@ -93,7 +90,7 @@ output: html_document
       dark_mode(theme_minimal()) +
       theme(
          plot.title = element_text(hjust = 0.5, vjust = 0, size = 27, face = "bold", margin = margin (0,0,4,0)),
-         plot.subtitle = element_text(hjust = 0.5, vjust = 0, size = 15, margin = margin (0,0,25,0)),
+         plot.subtitle = element_markdown(hjust = 0.5, vjust = 0, size = 15, margin = margin (0,0,25,0)),
          plot.caption = element_text (hjust = 0, size = 13, margin = margin (10,0,0,0), color="white"),
          axis.title=element_blank(),
          axis.text=element_blank(),
@@ -103,7 +100,7 @@ output: html_document
       transition_states(year, transition = 0) +
       labs(
          title = "Tour De France - {closest_state}",
-         subtitle = "Stage numbers denoted in blue, stage winners listed in red.",
+         subtitle = "Stage numbers denoted in <span style = 'color:blue;'>blue;</span>, stage winners  in <span style = 'color:red;'>red;</span>.",
          caption = "Visualization: Joel Soroos @soroosj  |  Data: Wikipedia, TDF Package, R4DS Tidy Tuesday"
          )
 
