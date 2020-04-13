@@ -28,7 +28,7 @@ output: html_document
    library (lubridate)
    library (glue)
 
-   year_select <- c(2016:2017)
+   year_select <- c(2000:2017)
 
    stages <- stages_raw %>%
       mutate (

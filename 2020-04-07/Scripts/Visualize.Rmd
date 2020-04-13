@@ -66,30 +66,30 @@ output: html_document
             y = (origin_lat + destination_lat)/2, 
             label = winner, group = year, seed = 124
             ),
-         color = "red", size = 4, alpha = 0.9, fontface = "plain", segment.size = 1
+         color = "red", size = 4, alpha = 0.9, fontface = "bold", seed=123
          ) +
       geom_text (
          data = winners,
          aes (label = name_full, group = year),
-         color = "blue", size = 4.5, x = 4, y = 54.45
+         color = "blue", size = 4.5, x = 4, y = 54.25, fontface = "bold"
          )+
       geom_text (
          data = winners,
          aes (label = time_overall, group = year),
-         color = "blue", size = 4.5, x = 4, y = 54.15
+         color = "blue", size = 4.5, x = 4, y = 54.00, fontface = "bold"
          )+
       geom_text (
          data = winners,
          aes (label = time_margin, group = year),
-         color = "blue", size = 4.5, x = 4, y = 53.85
+         color = "blue", size = 4.5, x = 4, y = 53.75, fontface = "bold"
          )+
       geom_text (
          data = winners,
          aes (label = stage_wins, group = year),
-         color = "blue", size = 4.5, x = 4, y = 53.55
+         color = "blue", size = 4.5, x = 4, y = 53.50, fontface = "bold"
          )+
       scale_x_continuous(limits = c(-5, 10)) +
-      scale_y_continuous(limits = c(40, 54)) +
+      scale_y_continuous(limits = c(41, 54)) +
       dark_mode(theme_minimal()) +
       theme(
          plot.title = element_text(hjust = 0.5, vjust = 0, size = 27, face = "bold", margin = margin (0,0,4,0)),
@@ -110,7 +110,7 @@ output: html_document
       animate(
          tour_map, 
          renderer = gifski_renderer(here("2020-04-07", "output", "tour.gif")),
-         duration = 40, nframes = 10, height = 900, width = 650
+         duration = 150, nframes = 40, height = 900, width = 650
          )
       #https://milosvil.github.io/2018-01-04/Traffic-collisions-in-Belgrade
 ```
