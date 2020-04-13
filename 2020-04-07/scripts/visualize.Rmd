@@ -87,9 +87,8 @@ output: html_document
          )+
       scale_x_continuous(limits = c(-5, 10)) +
       scale_y_continuous(limits = c(41, 54)) +
-      dark_mode(theme_minimal()) +
       theme(
-         plot.title = element_text(hjust = 0.5, vjust = 0, size = 27, face = "bold", margin = margin (0,0,4,0)),
+         plot.title = element_text(hjust = 0.5, vjust = 0, size = 27, face = "bold", margin = margin (0,0,6,0)),
          plot.subtitle = element_markdown(hjust = 0.5, vjust = 0, size = 15, margin = margin (0,0,25,0)),
          plot.caption = element_text (hjust = 0, size = 13, margin = margin (10,0,0,0), color="white"),
          axis.title=element_blank(),
@@ -100,8 +99,8 @@ output: html_document
       transition_states(year, transition = 0) +
       labs(
          title = "Tour De France - {closest_state}",
-         subtitle = "Stage numbers denoted in <span style = 'color:blue;'>blue;</span>, stage winners  in <span style = 'color:red;'>red;</span>.",
-         caption = "Visualization: Joel Soroos @soroosj  |  Data: Wikipedia, TDF Package, R4DS Tidy Tuesday"
+         subtitle = "Stage numbers denoted in <span style = 'color:blue;'>blue</span>, stage winners  in <span style = 'color:red;'>red</span>.",
+         caption = "Visualization: Joel Soroos @soroosj  |  Data: Wikipedia via TDF Package via R4DS Tidy Tuesday"
          )
 
       animate(
