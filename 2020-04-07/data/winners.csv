@@ -1,4 +1,90 @@
 year,name,name_full,nationality,stage_wins,time_margin,time_overall
+1903,Maurice Garin,Winner: Maurice Garin (France), France,Stage Wins: 3,Winning Margin: 3 hours,Overall Time: 94.6 hours
+1904,Henri Cornet,Winner: Henri Cornet (France), France,Stage Wins: 1,Winning Margin: 2.3 hours,Overall Time: 96.1 hours
+1905,Louis Trousselier,Winner: Louis Trousselier (France), France,Stage Wins: 5,Winning Margin: NA hours,Overall Time: NA hours
+1906,René Pottier,Winner: René Pottier (France), France,Stage Wins: 5,Winning Margin: NA hours,Overall Time: NA hours
+1907,Lucien Petit-Breton,Winner: Lucien Petit-Breton (France), France,Stage Wins: 2,Winning Margin: NA hours,Overall Time: NA hours
+1908,Lucien Petit-Breton,Winner: Lucien Petit-Breton (France), France,Stage Wins: 5,Winning Margin: NA hours,Overall Time: NA hours
+1909,François Faber,Winner: François Faber (Luxembourg), Luxembourg,Stage Wins: 6,Winning Margin: NA hours,Overall Time: NA hours
+1910,Octave Lapize,Winner: Octave Lapize (France), France,Stage Wins: 4,Winning Margin: NA hours,Overall Time: NA hours
+1911,Gustave Garrigou,Winner: Gustave Garrigou (France), France,Stage Wins: 2,Winning Margin: NA hours,Overall Time: NA hours
+1912,Odile Defraye,Winner: Odile Defraye (Belgium), Belgium,Stage Wins: 3,Winning Margin: NA hours,Overall Time: NA hours
+1913,Philippe Thys,Winner: Philippe Thys (Belgium), Belgium,Stage Wins: 1,Winning Margin: 0.1 hours,Overall Time: 197.9 hours
+1914,Philippe Thys,Winner: Philippe Thys (Belgium), Belgium,Stage Wins: 1,Winning Margin: 0 hours,Overall Time: 200.5 hours
+1919,Firmin Lambot,Winner: Firmin Lambot (Belgium), Belgium,Stage Wins: 1,Winning Margin: 1.7 hours,Overall Time: 231.1 hours
+1920,Philippe Thys,Winner: Philippe Thys (Belgium), Belgium,Stage Wins: 4,Winning Margin: 1 hours,Overall Time: 228.6 hours
+1921,Léon Scieur,Winner: Léon Scieur (Belgium), Belgium,Stage Wins: 2,Winning Margin: 0.3 hours,Overall Time: 221.8 hours
+1922,Firmin Lambot,Winner: Firmin Lambot (Belgium), Belgium,Stage Wins: 0,Winning Margin: 0.7 hours,Overall Time: 222.1 hours
+1923,Henri Pélissier,Winner: Henri Pélissier (France), France,Stage Wins: 3,Winning Margin: 0.5 hours,Overall Time: 222.3 hours
+1924,Ottavio Bottecchia,Winner: Ottavio Bottecchia (Italy), Italy,Stage Wins: 4,Winning Margin: 0.6 hours,Overall Time: 226.3 hours
+1925,Ottavio Bottecchia,Winner: Ottavio Bottecchia (Italy), Italy,Stage Wins: 4,Winning Margin: 0.9 hours,Overall Time: 219.2 hours
+1926,Lucien Buysse,Winner: Lucien Buysse (Belgium), Belgium,Stage Wins: 2,Winning Margin: 1.4 hours,Overall Time: 238.7 hours
+1927,Nicolas Frantz,Winner: Nicolas Frantz (Luxembourg), Luxembourg,Stage Wins: 3,Winning Margin: 1.8 hours,Overall Time: 198.3 hours
+1928,Nicolas Frantz,Winner: Nicolas Frantz (Luxembourg), Luxembourg,Stage Wins: 5,Winning Margin: 0.8 hours,Overall Time: 192.8 hours
+1929,Maurice De Waele,Winner: Maurice De Waele (Belgium), Belgium,Stage Wins: 1,Winning Margin: 0.7 hours,Overall Time: 186.7 hours
+1930,André Leducq,Winner: André Leducq (France), France,Stage Wins: 2,Winning Margin: 0.2 hours,Overall Time: 172.2 hours
+1931,Antonin Magne,Winner: Antonin Magne (France), France,Stage Wins: 1,Winning Margin: 0.2 hours,Overall Time: 177.2 hours
+1932,André Leducq,Winner: André Leducq (France), France,Stage Wins: 6,Winning Margin: 0.4 hours,Overall Time: 154.2 hours
+1933,Georges Speicher,Winner: Georges Speicher (France), France,Stage Wins: 3,Winning Margin: 0.1 hours,Overall Time: 147.9 hours
+1934,Antonin Magne,Winner: Antonin Magne (France), France,Stage Wins: 3,Winning Margin: 0.5 hours,Overall Time: 147.2 hours
+1935,Romain Maes,Winner: Romain Maes (Belgium), Belgium,Stage Wins: 3,Winning Margin: 0.3 hours,Overall Time: 141.4 hours
+1936,Sylvère Maes,Winner: Sylvère Maes (Belgium), Belgium,Stage Wins: 4,Winning Margin: 0.4 hours,Overall Time: 142.8 hours
+1937,Roger Lapébie,Winner: Roger Lapébie (France), France,Stage Wins: 3,Winning Margin: 0.1 hours,Overall Time: 139 hours
+1938,Gino Bartali,Winner: Gino Bartali (Italy), Italy,Stage Wins: 2,Winning Margin: 0.3 hours,Overall Time: 148.5 hours
+1939,Sylvère Maes,Winner: Sylvère Maes (Belgium), Belgium,Stage Wins: 2,Winning Margin: 0.5 hours,Overall Time: 132.1 hours
+1947,Jean Robic,Winner: Jean Robic (France), France,Stage Wins: 3,Winning Margin: 0.1 hours,Overall Time: 148.2 hours
+1948,Gino Bartali,Winner: Gino Bartali (Italy), Italy,Stage Wins: 7,Winning Margin: 0.4 hours,Overall Time: 147.2 hours
+1949,Fausto Coppi,Winner: Fausto Coppi (Italy), Italy,Stage Wins: 3,Winning Margin: 0.2 hours,Overall Time: 149.7 hours
+1950,Ferdinand Kübler,Winner: Ferdinand Kübler (Switzerland),  Switzerland,Stage Wins: 3,Winning Margin: 0.2 hours,Overall Time: 145.6 hours
+1951,Hugo Koblet,Winner: Hugo Koblet (Switzerland),  Switzerland,Stage Wins: 5,Winning Margin: 0.4 hours,Overall Time: 142.3 hours
+1952,Fausto Coppi,Winner: Fausto Coppi (Italy), Italy,Stage Wins: 5,Winning Margin: 0.5 hours,Overall Time: 152 hours
+1953,Louison Bobet,Winner: Louison Bobet (France), France,Stage Wins: 2,Winning Margin: 0.2 hours,Overall Time: 129.4 hours
+1954,Louison Bobet,Winner: Louison Bobet (France), France,Stage Wins: 3,Winning Margin: 0.3 hours,Overall Time: 140.1 hours
+1955,Louison Bobet,Winner: Louison Bobet (France), France,Stage Wins: 2,Winning Margin: 0.1 hours,Overall Time: 130.5 hours
+1956,Roger Walkowiak,Winner: Roger Walkowiak (France), France,Stage Wins: 0,Winning Margin: 0 hours,Overall Time: 124 hours
+1957,Jacques Anquetil,Winner: Jacques Anquetil (France), France,Stage Wins: 4,Winning Margin: 0.2 hours,Overall Time: 135.7 hours
+1958,Charly Gaul,Winner: Charly Gaul (Luxembourg), Luxembourg,Stage Wins: 4,Winning Margin: 0.1 hours,Overall Time: 117 hours
+1959,Federico Bahamontes,Winner: Federico Bahamontes (Spain), Spain,Stage Wins: 1,Winning Margin: 0.1 hours,Overall Time: 123.8 hours
+1960,Gastone Nencini,Winner: Gastone Nencini (Italy), Italy,Stage Wins: 0,Winning Margin: 0.1 hours,Overall Time: 112.1 hours
+1961,Jacques Anquetil,Winner: Jacques Anquetil (France), France,Stage Wins: 2,Winning Margin: 0.2 hours,Overall Time: 122 hours
+1962,Jacques Anquetil,Winner: Jacques Anquetil (France), France,Stage Wins: 2,Winning Margin: 0.1 hours,Overall Time: 114.5 hours
+1963,Jacques Anquetil,Winner: Jacques Anquetil (France), France,Stage Wins: 4,Winning Margin: 0.1 hours,Overall Time: 113.5 hours
+1964,Jacques Anquetil,Winner: Jacques Anquetil (France), France,Stage Wins: 4,Winning Margin: 0 hours,Overall Time: 127.2 hours
+1965,Felice Gimondi,Winner: Felice Gimondi (Italy), Italy,Stage Wins: 3,Winning Margin: 0 hours,Overall Time: 116.7 hours
+1966,Lucien Aimar,Winner: Lucien Aimar (France), France,Stage Wins: 0,Winning Margin: 0 hours,Overall Time: 117.6 hours
+1967,Roger Pingeon,Winner: Roger Pingeon (France), France,Stage Wins: 1,Winning Margin: 0.1 hours,Overall Time: 136.9 hours
+1968,Jan Janssen,Winner: Jan Janssen (Netherlands), Netherlands,Stage Wins: 2,Winning Margin: 0 hours,Overall Time: 133.8 hours
+1969,Eddy Merckx,Winner: Eddy Merckx (Belgium), Belgium,Stage Wins: 6,Winning Margin: 0.3 hours,Overall Time: 116.3 hours
+1970,Eddy Merckx,Winner: Eddy Merckx (Belgium), Belgium,Stage Wins: 8,Winning Margin: 0.2 hours,Overall Time: 119.5 hours
+1971,Eddy Merckx,Winner: Eddy Merckx (Belgium), Belgium,Stage Wins: 4,Winning Margin: 0.2 hours,Overall Time: 96.8 hours
+1972,Eddy Merckx,Winner: Eddy Merckx (Belgium), Belgium,Stage Wins: 6,Winning Margin: 0.2 hours,Overall Time: 108.3 hours
+1973,Luis Ocaña,Winner: Luis Ocaña (Spain), Spain,Stage Wins: 6,Winning Margin: 0.3 hours,Overall Time: 122.4 hours
+1974,Eddy Merckx,Winner: Eddy Merckx (Belgium), Belgium,Stage Wins: 8,Winning Margin: 0.1 hours,Overall Time: 116.3 hours
+1975,Bernard Thévenet,Winner: Bernard Thévenet (France), France,Stage Wins: 2,Winning Margin: 0 hours,Overall Time: 114.6 hours
+1976,Lucien Van Impe,Winner: Lucien Van Impe (Belgium), Belgium,Stage Wins: 1,Winning Margin: 0.1 hours,Overall Time: 116.4 hours
+1977,Bernard Thévenet,Winner: Bernard Thévenet (France), France,Stage Wins: 1,Winning Margin: 0 hours,Overall Time: 115.6 hours
+1978,Bernard Hinault,Winner: Bernard Hinault (France), France,Stage Wins: 3,Winning Margin: 0.1 hours,Overall Time: 108.3 hours
+1979,Bernard Hinault,Winner: Bernard Hinault (France), France,Stage Wins: 7,Winning Margin: 0.2 hours,Overall Time: 103.1 hours
+1980,Joop Zoetemelk,Winner: Joop Zoetemelk (Netherlands), Netherlands,Stage Wins: 2,Winning Margin: 0.1 hours,Overall Time: 109.3 hours
+1981,Bernard Hinault,Winner: Bernard Hinault (France), France,Stage Wins: 5,Winning Margin: 0.2 hours,Overall Time: 96.3 hours
+1982,Bernard Hinault,Winner: Bernard Hinault (France), France,Stage Wins: 4,Winning Margin: 0.1 hours,Overall Time: 92.1 hours
+1983,Laurent Fignon,Winner: Laurent Fignon (France), France,Stage Wins: 1,Winning Margin: 0.1 hours,Overall Time: 105.1 hours
+1984,Laurent Fignon,Winner: Laurent Fignon (France), France,Stage Wins: 5,Winning Margin: 0.2 hours,Overall Time: 112.1 hours
+1985,Bernard Hinault,Winner: Bernard Hinault (France), France,Stage Wins: 2,Winning Margin: 0 hours,Overall Time: 113.4 hours
+1986,Greg LeMond,Winner: Greg LeMond (United States), United States,Stage Wins: 1,Winning Margin: 0.1 hours,Overall Time: 110.6 hours
+1987,Stephen Roche,Winner: Stephen Roche (Ireland), Ireland,Stage Wins: 1,Winning Margin: 0 hours,Overall Time: 115.5 hours
+1988,Pedro Delgado,Winner: Pedro Delgado (Spain), Spain,Stage Wins: 1,Winning Margin: 0.1 hours,Overall Time: 84.5 hours
+1989,Greg LeMond,Winner: Greg LeMond (United States), United States,Stage Wins: 3,Winning Margin: 0 hours,Overall Time: 87.6 hours
+1990,Greg LeMond,Winner: Greg LeMond (United States), United States,Stage Wins: 0,Winning Margin: 0 hours,Overall Time: 90.7 hours
+1991,Miguel Induráin,Winner: Miguel Induráin (Spain), Spain,Stage Wins: 2,Winning Margin: 0.1 hours,Overall Time: 101 hours
+1992,Miguel Induráin,Winner: Miguel Induráin (Spain), Spain,Stage Wins: 3,Winning Margin: 0.1 hours,Overall Time: 100.8 hours
+1993,Miguel Induráin,Winner: Miguel Induráin (Spain), Spain,Stage Wins: 2,Winning Margin: 0.1 hours,Overall Time: 96 hours
+1994,Miguel Induráin,Winner: Miguel Induráin (Spain), Spain,Stage Wins: 1,Winning Margin: 0.1 hours,Overall Time: 103.6 hours
+1995,Miguel Induráin,Winner: Miguel Induráin (Spain), Spain,Stage Wins: 2,Winning Margin: 0.1 hours,Overall Time: 92.7 hours
+1996,Bjarne Riis,Winner: Bjarne Riis (Denmark), Denmark,Stage Wins: 2,Winning Margin: 0 hours,Overall Time: 96 hours
+1997,Jan Ullrich,Winner: Jan Ullrich (Germany), Germany,Stage Wins: 2,Winning Margin: 0.2 hours,Overall Time: 100.5 hours
+1998,Marco Pantani,Winner: Marco Pantani (Italy), Italy,Stage Wins: 2,Winning Margin: 0.1 hours,Overall Time: 92.8 hours
+1999,Lance Armstrong,Winner: Lance Armstrong (United States), United States,Stage Wins: 4,Winning Margin: 0.1 hours,Overall Time: 91.5 hours
 2000,Lance Armstrong,Winner: Lance Armstrong (United States), United States,Stage Wins: 1,Winning Margin: 0.1 hours,Overall Time: 92.6 hours
 2001,Lance Armstrong,Winner: Lance Armstrong (United States), United States,Stage Wins: 4,Winning Margin: 0.1 hours,Overall Time: 86.3 hours
 2002,Lance Armstrong,Winner: Lance Armstrong (United States), United States,Stage Wins: 4,Winning Margin: 0.1 hours,Overall Time: 82.1 hours

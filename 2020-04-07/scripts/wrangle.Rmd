@@ -28,12 +28,14 @@ output: html_document
    library (lubridate)
    library (glue)
 
-   year_select <- c(2000:2017)
+   year_select <- c(1903:2017)
 
    stages <- stages_raw %>%
       mutate (
          year = year(date),
          stage = as.integer(stage),
+         origin = glue ("{origin}, Europe"),
+         destination = glue ("{destination}, Europe"),
          winner = str_extract(winner,"[ ].+")
          ) %>%
       filter (year %in% year_select) %>%
@@ -51,10 +53,7 @@ output: html_document
    cities_all <- 
       full_join (cities_origin, cities_destination) %>%
       mutate_geocode(city) %>%
-      mutate (city_corrected = ifelse(lon < -10, glue ("{city}, Europe"), city)) %>%
-      mutate_geocode (city_corrected) %>%
-      select (-lat, -lon, -city_corrected) %>%
-      rename (lat = lat1, lon = lon1)
+      select (city, lat, lon)
    
    stages <- 
       left_join (stages, cities_all, by = c("origin" = "city")) %>%
