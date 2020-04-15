@@ -101,13 +101,13 @@ output: html_document
       labs(
          title = "Tour De France - {closest_state}",
          subtitle = "Overall Tour winner statistics denoted in black at top (in North Sea).  \nStage winners listed in <span style = 'color:red;'>red</span>, stage path in <span style = 'color:blue;'>blue</span> and stage numbers in <span style = 'color:darkgreen;'>green</span>.",
-         caption = "Visualization: Joel Soroos @soroosj  |  Data: Wikipedia via TDF Package via R4DS Tidy Tuesday"
+         caption = "Visualization: Joel Soroos @soroosj  |  Data: R4DS Tidy Tuesday via TDF Package via Wikipedia"
          )
 
       animate(
          tour_map, 
          renderer = gifski_renderer(here("2020-04-07", "output", "tour.gif")),
-         duration = 130, nframes = 10, height = 800, width = 550
+         duration = 300, nframes = 104, height = 800, width = 550
          )
       #https://milosvil.github.io/2018-01-04/Traffic-collisions-in-Belgrade
 ```
