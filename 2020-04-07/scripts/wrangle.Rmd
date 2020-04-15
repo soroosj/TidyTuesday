@@ -79,11 +79,11 @@ output: html_document
          ) %>%
       mutate (
          name_full = glue ("Winner: {name} ({str_trim(nationality)})"),
-         time_margin = glue ("Winning Margin: {round (time_margin,1)} hours"),
+         time_margin = glue ("Winning Margin: {round (time_margin,2)} hours"),
          time_overall = glue ("Overall Time: {round (time_overall,1)} hours"),
          stage_wins = glue ("Stage Wins: {stage_wins}")
          ) %>%
-      select (year, name, name_full, nationality, stage_wins, time_margin, time_overall, stage_wins)
+      select (year, name_full, stage_wins, time_margin, time_overall, stage_wins)
    
    write_csv(winners, here("2020-04-07", "data", "winners.csv"))
 ```

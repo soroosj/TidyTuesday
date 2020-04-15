@@ -45,16 +45,17 @@ output: html_document
             y = origin_lat, yend = destination_lat,
             group = year
             ),
-         color = "blue", size = 1, alpha = 0.5,
-         arrow = arrow(length=unit(0.20,"cm"), type = "closed")
+         color = "blue", size = 1, alpha = 0.25,
+         arrow = arrow(length=unit(0.25,"cm"), type = "closed")
          ) +
       geom_text (
          data = stages_full,
          aes (
-            x = origin_lon, y = origin_lat, 
+            x = (origin_lon*8/10 + destination_lon*2/10), 
+            y = (origin_lat*8/10 + destination_lat*2/10), 
             label = stage, group = year
             ),
-         color = "blue", size = 5, alpha = 0.9, fontface = "bold", seed = 124
+         color = "darkgreen", size = 5, alpha = 1.0, fontface = "bold"
          ) +
       geom_text_repel (
          data = stages_full,
@@ -68,29 +69,29 @@ output: html_document
       geom_text (
          data = winners,
          aes (label = name_full, group = year),
-         color = "blue", size = 4.5, x = 4, y = 54.25, fontface = "bold"
-         )+
-      geom_text (
-         data = winners,
-         aes (label = time_overall, group = year),
-         color = "blue", size = 4.5, x = 4, y = 54.00, fontface = "bold"
+         color = "black", size = 4.25, x = 3.25, y = 53.40, fontface = "bold"
          )+
       geom_text (
          data = winners,
          aes (label = time_margin, group = year),
-         color = "blue", size = 4.5, x = 4, y = 53.75, fontface = "bold"
+         color = "black", size = 4.25, x = 3.25, y = 53.15, fontface = "bold"
+         )+
+      geom_text (
+         data = winners,
+         aes (label = time_overall, group = year),
+         color = "black", size = 4.25, x = 3.25, y = 52.90, fontface = "bold"
          )+
       geom_text (
          data = winners,
          aes (label = stage_wins, group = year),
-         color = "blue", size = 4.5, x = 4, y = 53.50, fontface = "bold"
+         color = "black", size = 4.25, x = 3.25, y = 52.65, fontface = "bold"
          )+
-      scale_x_continuous(limits = c(-5, 10)) +
-      scale_y_continuous(limits = c(41, 54)) +
+      scale_x_continuous(limits = c(-4.6, 9.47)) +
+      scale_y_continuous(limits = c(41.3, 53)) +
       theme(
-         plot.title = element_text(hjust = 0.5, vjust = 0, size = 27, face = "bold", margin = margin (0,0,6,0)),
+         plot.title = element_text(hjust = 0.5, vjust = 0, size = 27, face = "bold", margin = margin (0,0,7,0)),
          plot.subtitle = element_markdown(hjust = 0.5, vjust = 0, size = 15, margin = margin (0,0,25,0)),
-         plot.caption = element_text (hjust = 0, size = 13, margin = margin (10,0,0,0), color="white"),
+         plot.caption = element_text (hjust = 0.5, size = 12, margin = margin (9,0,0,0), color="black"),
          axis.title=element_blank(),
          axis.text=element_blank(),
          axis.ticks=element_blank(),
@@ -99,14 +100,14 @@ output: html_document
       transition_states(year, transition = 0) +
       labs(
          title = "Tour De France - {closest_state}",
-         subtitle = "Stage numbers denoted in <span style = 'color:blue;'>blue</span>, stage winners  in <span style = 'color:red;'>red</span>.",
+         subtitle = "Overall Tour winner statistics denoted in black at top (in North Sea).  \nStage winners listed in <span style = 'color:red;'>red</span>, stage path in <span style = 'color:blue;'>blue</span> and stage numbers in <span style = 'color:darkgreen;'>green</span>.",
          caption = "Visualization: Joel Soroos @soroosj  |  Data: Wikipedia via TDF Package via R4DS Tidy Tuesday"
          )
 
       animate(
          tour_map, 
          renderer = gifski_renderer(here("2020-04-07", "output", "tour.gif")),
-         duration = 150, nframes = 40, height = 900, width = 650
+         duration = 130, nframes = 10, height = 800, width = 550
          )
       #https://milosvil.github.io/2018-01-04/Traffic-collisions-in-Belgrade
 ```
