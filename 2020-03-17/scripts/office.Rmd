@@ -1,0 +1,31 @@
+---
+title: "The Office"
+author: "Joel Soroos"
+date: "3/17/2020"
+output: html_document
+---
+
+### 1. Source data
+```{r source, warning = TRUE, results = TRUE, message = FALSE}
+
+   library(tidyverse)
+   library(janitor)
+   library(schrute)
+   library(knitr)
+   
+   opts_chunk$set(warning = FALSE, message = FALSE, results = TRUE)
+
+   office_raw <- schrute::theoffice %>%
+      clean_names()
+
+   glimpse (office_raw)
+```
+
+
+### 2.  Transform stage data
+```{r transform, warning = TRUE, results = FALSE, message = FALSE}
+
+   office_episode <- office_raw %>%
+      select (season, episode, episode_name, air_date, director, writer, imdb_rating) %>%
+      distinct (season, episode, .keep_all = T)
+```
