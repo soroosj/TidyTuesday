@@ -28,11 +28,6 @@ output: html_document
    office_episode <- office_raw %>%
       select (season, episode, episode_name, air_date, director, writer, character, imdb_rating) %>%
       distinct (episode_name, .keep_all = T)
-
-   office_season %>%
-      group_by (season) %>%
-      summarize (n = n (), avg = mean(imdb_rating), sd = sd(imdb_rating)) %>%
-      arrange (-avg)
 ```
 
 ```{r}
@@ -41,12 +36,10 @@ output: html_document
       count (episode_name, character) %>%
       add_count (character, wt = n, name = "sum") %>%
       filter (sum > 800) %>%
-      select (-sum) %>%
-      #group_by (episode_name) %>%
-         #mutate (pct = n/sum(n)) %>%
-      #ungroup (episode_name) %>%
-      arrange (episode_name, -n) %>%
-      pivot_wider (names_from = character, values_from = n, values_fill = list(n=0)) 
+      group_by (episode_name) %>%
+      mutate (pct = round(n/sum(n),3)) %>%
+      select (-sum, -n) %>%
+      pivot_wider (names_from = character, values_from = pct, values_fill = list(pct=0)) 
 
    office_characters
 ```
@@ -54,7 +47,7 @@ output: html_document
    
    office_full <- 
       inner_join (office_episode, office_characters) %>%
-      select (-season, -episode, -air_date, -director, -writer, -character)
+      select (-episode, -air_date, -director, -writer, -character)
 
    office_full
 ```
@@ -62,7 +55,9 @@ output: html_document
 ```{r}
    library (tidymodels)
 
-   office_split <- initial_split (office_full)
+   office_split <- initial_split (office_full, strata = season)
+   office_train <- training (office_split)
+   office_test <- testing (office_split)
 ```
 
 
