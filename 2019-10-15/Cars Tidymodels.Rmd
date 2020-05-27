@@ -1,0 +1,157 @@
+---
+   title: "Vehicle MPG"
+   author: "Joel Soroos"
+   date: "October 20, 2019"
+   output: pdf_document
+---
+
+
+### 1. Source data
+```{r source, warning = TRUE, results = FALSE, message = FALSE}
+
+   library (tidyverse)
+   library (janitor) 
+   library (magick)
+   library (grid)
+
+   cars_raw <- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-10-15/big_epa_cars.csv")%>%
+      clean_names () 
+   	
+   pump_img <- image_read("petrol-pump.jpg") %>%
+      rasterGrob(width = unit(2,"in"))
+```
+
+
+### 2.  Transform data
+```{r transform, message = F, results = F}
+
+   cars <- cars_raw %>%
+      filter (year == 2019) %>%
+      select(id, make, model, eng_dscr, v_class, fuel_type1, comb08) %>%
+      rename (
+         fuel_type = fuel_type1,
+         vehicle_class = v_class,
+         mph_comb = comb08
+         ) %>%
+      mutate (vehicle_class = str_remove(vehicle_class, " 2WD| 4WD")) 
+```
+
+
+###3.  Model data
+```{r}
+
+   library (broom)
+
+   cars_tidy <- lm (mph_comb ~ vehicle_class + fuel_type, cars) %>%
+      tidy() %>%                 #coefficient estimates
+      mutate (
+         term = str_remove_all(term, "fuel_type|vehicle_class| -"),                  #remove field names
+         term = fct_reorder(term, estimate),
+         estimate_direction = ifelse(estimate >=0, "positive", "negative")
+         ) 
+```
+
+
+```{r}
+   library(tidymodels)
+
+   cars_split <- cars %>%
+     initial_split()
+   
+   cars_train <- training(cars_split)
+   cars_test <- testing(cars_split)
+   
+   lm_spec <- linear_reg() %>%
+     set_engine(engine = "lm")
+   
+   lm_fit <- lm_spec %>%
+     fit(
+        mph_comb ~ vehicle_class + fuel_type,
+        data = cars_train
+         )
+   
+   tidy(lm_fit)
+```
+
+
+```{r}
+   rf_spec <- rand_forest(mode = "regression") %>%
+     set_engine("ranger")
+   
+   rf_fit <- rf_spec %>%
+      fit(
+         mph_comb ~ vehicle_class + fuel_type,
+         data = cars_train
+         )
+   
+   rf_fit
+```
+
+```{r}
+   
+   results_train <- lm_fit %>%
+     predict(new_data = cars_train) %>%
+     mutate(
+       truth = cars_train$mph_comb,
+       model = "lm"
+     ) %>%
+     bind_rows(rf_fit %>%
+       predict(new_data = cars_train) %>%
+       mutate(
+         truth = cars_train$mph_comb,
+         model = "rf"
+       ))
+   
+   results_test <- lm_fit %>%
+     predict(new_data = cars_test) %>%
+     mutate(
+       truth = cars_test$mph_comb,
+       model = "lm"
+     ) %>%
+     bind_rows(rf_fit %>%
+       predict(new_data = cars_test) %>%
+       mutate(
+         truth = cars_test$mph_comb,
+         model = "rf"
+       ))
+   
+  results_train %>%
+     group_by(model) %>%
+     rmse(truth = truth, estimate = .pred)
+
+   results_test %>%
+     group_by(model) %>%
+     rmse(truth = truth, estimate = .pred)
+```
+
+### 4. Visualize data
+```{r}
+
+   ggplot(data = cars_tidy, aes(y = estimate, x = term, fill = estimate_direction)) +
+      geom_col() +
+      annotation_custom (pump_img, ymin = -10, xmin = -2) +
+      #scales
+         scale_y_continuous(limits = c (-20, 80)) +
+         scale_fill_manual(values = c("red", "darkgreen")) +
+         coord_flip () +
+      labs(
+         title = "How does your vehicle choice impact fuel efficiency?",
+         subtitle = "Electric cars contribute most marginal miles per hour on average, vans and pickup trucks detract most.",
+         x = "Regression term",
+         y = "Estimated marginal contribution (detraction) to mph",
+         caption = "Each row represents linear regression estimate of vehicle class & gasoline type indepedent variables vs. miles per gallon dependent variable.\nVisualization: Joel Soroos @soroosj  |  Data: U.S. EPA via R4DS Tidy Tuesday"
+         ) +
+      theme(
+         plot.title = element_text(hjust = 0, vjust = 0, size = 17, face = "bold", margin = margin (0,0,3,0)),
+         plot.title.position = "plot",
+         plot.subtitle = element_text(hjust = 0, vjust = 0, size = 10, face = "bold", margin = margin (0,0,25,0)),
+         plot.caption = element_text (hjust = 0, size = 8, face = "plain", margin = margin (20,0,0,0)),
+         plot.caption.position = "plot",
+         panel.background = element_rect (fill = "white"),
+         axis.title = element_text (size = 9, hjust = 0.75, color = "gray20"),
+         axis.line = element_line(color = "gray70"),
+         axis.ticks = element_line(color = "gray70"),
+         legend.position = "none"
+            ) +
+      ggsave("cars.png", width = 18, height = 13, units = "cm")
+```

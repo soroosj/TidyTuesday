@@ -58,6 +58,28 @@ output: html_document
    office_split <- initial_split (office_full, strata = season)
    office_train <- training (office_split)
    office_test <- testing (office_split)
+   
+   office_rec <- recipe(imdb_rating ~ ., data = office_train) %>%
+      update_role(episode_name, new_role = "ID") %>%
+      step_zv(all_numeric(), -all_outcomes()) %>%
+      step_normalize(all_numeric(), -all_outcomes())
+
+   office_prep <- office_rec %>%
+      prep(strings_as_factors = FALSE)
+   
+   lasso_spec <- linear_reg(penalty = 0.1, mixture = 1) %>%
+  set_engine("glmnet")
+
+   wf <- workflow() %>%
+     add_recipe(office_rec)
+   
+   lasso_fit <- wf %>%
+     add_model(lasso_spec) %>%
+     fit(data = office_train)
+   
+   lasso_fit %>%
+     pull_workflow_fit() %>%
+     tidy()
 ```
 
 
