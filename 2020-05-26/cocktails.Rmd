@@ -1,32 +1,22 @@
 ---
 title: "Cocktails"
 author: "Joel Soroos"
-date: "5/26/2020"
+date: "5/31/2020"
 output: html_document
 ---
 
 ### 1. Source data
 ```{r source, warning = TRUE, results = TRUE, message = FALSE}
 
-
-   library(janitor)
    library(tidyverse)
 
-   cocktails_raw <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-05-26/boston_cocktails.csv')
-    
+   cocktails_raw <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-05-26/boston_cocktails.csv')
 ```
 
 
-### 2.  Exploratory data analysis
-```{r transform, warning = TRUE, results = TRUE, message = FALSE}
-   
-   library (skimr)
-
-   skim (cocktails_raw)
-```
-
-
+#2. Consolide alternate spellings
 ```{r}
+
    cocktails <- cocktails_raw %>%
       mutate (
          ingredient = case_when (
@@ -34,31 +24,65 @@ output: html_document
             ingredient == "Juice of a Lemon" ~ "Lemon Juice",
             ingredient == "Fresh Lime Juice" ~ "Lime Juice",
             ingredient == "Juice of a Lime" ~ "Lime Juice",
+            ingredient == "Powdered Sugar" ~ "Simple Syrup",
+            ingredient == "Egg White" ~ "Egg",
+            ingredient == "Whole Egg" ~ "Egg",
+            ingredient == "Egg Yolk" ~ "Egg",
             TRUE ~ ingredient)
-              ) %>%
-      group_by (name) %>%
-      count (ingredient, sort = T)
+              )
 
-   top_ingredients = c ("Lemon Juice", "Simple Syrup", "Lime Juice", "Powdered Sugar", "Grenadine", "Egg White", "Pineapple Juice")
+   cocktails %>%
+      count (ingredient, sort = T)
+   
+   ingredients_top = c ("Lemon Juice", "Simple Syrup", "Lime Juice", "Orange Juice", "Grenadine", "Egg", "Pineapple Juice", "Grapefruit Juice")
+```
+
+
+#3a.  upsetR
+```{r}
+
+   cocktails %>%
+      select (name, ingredient, measure) %>%
+      filter (ingredient %in% ingredients_top) %>%
+      mutate (measure = if_else(is.na(measure),0,1)) %>%
+      pivot_wider (names_from = ingredient, values_from = measure) %>%
+      mutate_if (is.numeric, replace_na, 0)
+      
 
 ```
 
 
+
+#3b.  ggupset
 ```{r}
+
+   library (ggupset)
 
    cocktails_list <- cocktails %>%
       group_by (name) %>%
-      filter (ingredient %in% top_ingredients) %>%
+      filter (ingredient %in% ingredients_top) %>%
       summarize(ingredient = list(ingredient))
-
-```
-
-
-```{r}
  
-   library (ggupset)
-
    ggplot(cocktails_list, aes(x=ingredient)) +
       geom_bar() +
-      scale_x_upset()
+      scale_x_upset(n_intersections = 30) +
+      theme (
+         plot.title = element_text(hjust = 0.5, vjust = 0, size = 14, face = "bold", margin = margin (0,0,15,0)),
+         plot.title.position = "plot",
+         plot.subtitle = element_text(hjust = 0.5, vjust = 0, size = 6, margin = margin (0,0,2,0)),
+         plot.caption = element_text(hjust = 1, size = 8, face = "plain", margin = margin (15,0,0,0)),
+         plot.caption.position = "plot",
+         axis.title.y = element_text(margin = margin(0,10,0,0)),
+         axis.text.x=element_blank(),
+         axis.text.y=element_text(size = 7),
+         axis.ticks.x=element_blank(),
+         legend.position = "none"
+         ) +
+      labs(
+         title = "Most popular alcoholic mixers",
+         x = "Ingredient intersection",
+         y = "# of drinks",
+         caption = "Each column represents unique combinations of ingredients.  Universe is drinks in the Boston Bartender's Guide.\nVisualization: Joel Soroos @soroosj  |  Data: Mr. Boston Bartender's Guide via Kaggle via R4DS Tidy Tuesday"
+         ) +
+      ggsave("cocktails.png", width = 10, height = 18, units = "cm")
 ```
