@@ -41,13 +41,20 @@ output: html_document
 #3a.  upsetR
 ```{r}
 
-   cocktails %>%
+   library(UpSetR)
+
+   cocktails_matrix <- cocktails %>%
       select (name, ingredient, measure) %>%
       filter (ingredient %in% ingredients_top) %>%
       mutate (measure = if_else(is.na(measure),0,1)) %>%
       pivot_wider (names_from = ingredient, values_from = measure) %>%
-      mutate_if (is.numeric, replace_na, 0)
-      
+      mutate_if (is.numeric, replace_na, 0) %>%
+      mutate_if (is.numeric, as.integer, 0) 
+   
+   upset(
+      data = fromExpression(cocktails_matrix), 
+      #sets = ingredients_top,
+      nintersects = 30)
 
 ```
 
