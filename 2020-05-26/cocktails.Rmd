@@ -1,7 +1,7 @@
 ---
 title: "Cocktails"
 author: "Joel Soroos"
-date: "5/31/2020"
+date: "June 10, 2020"
 output: html_document
 ---
 
@@ -11,10 +11,12 @@ output: html_document
    library(tidyverse)
 
    cocktails_raw <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-05-26/boston_cocktails.csv')
+   
+   #cocktails_raw
 ```
 
 
-#2. Consolide alternate spellings
+#### Similar ingredients with different spellings can be consolidated.
 ```{r}
 
    cocktails <- cocktails_raw %>%
@@ -31,10 +33,15 @@ output: html_document
             TRUE ~ ingredient)
               )
 
-   cocktails %>%
+``` 
+
+```{r}
+   ingredients_all <- cocktails %>%
       count (ingredient, sort = T)
-   
-   ingredients_top = c ("Lemon Juice", "Simple Syrup", "Lime Juice", "Orange Juice", "Grenadine", "Egg", "Pineapple Juice", "Grapefruit Juice")
+
+   ingredients_top <- ingredients_all %>%
+      pull (ingredient) %>%
+      head (8)
 ```
 
 
@@ -43,21 +50,28 @@ output: html_document
 
    library(UpSetR)
 
+   #https://timothykylethomas.me/post/r_notebook/tidytuesday22/tidytuesday22/
+   #https://www.r-bloggers.com/upset-plots/
+
    cocktails_matrix <- cocktails %>%
-      select (name, ingredient, measure) %>%
+      select (name, ingredient) %>%
       filter (ingredient %in% ingredients_top) %>%
-      mutate (measure = if_else(is.na(measure),0,1)) %>%
-      pivot_wider (names_from = ingredient, values_from = measure) %>%
-      mutate_if (is.numeric, replace_na, 0) %>%
-      mutate_if (is.numeric, as.integer, 0) 
+      mutate (ingredient_population = TRUE) %>%
+      pivot_wider (
+         id_cols = name,
+         names_from = ingredient, 
+         values_from = ingredient_population, 
+         values_fill = FALSE,
+         values_fn = length
+         ) %>%
+      as.data.frame()
    
-   upset(
-      data = fromList(cocktails_matrix), 
-      #sets = ingredients_top,
-      nintersects = 30)
-
+      upset(
+         data = cocktails_matrix, 
+         order.by = c("freq"),
+         nsets = 8, nintersects = 30
+         )
 ```
-
 
 
 #3b.  ggupset
@@ -70,7 +84,7 @@ output: html_document
       filter (ingredient %in% ingredients_top) %>%
       summarize(ingredient = list(ingredient))
  
-   ggplot(cocktails_list, aes(x=ingredient)) +
+      ggplot(cocktails_list, aes(x=ingredient)) +
       geom_bar() +
       scale_x_upset(n_intersections = 30) +
       theme (
