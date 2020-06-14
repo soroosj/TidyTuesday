@@ -1,11 +1,11 @@
 ---
-title: "Cocktails"
+title: "Cocktail Ingredients"
 author: "Joel Soroos"
 date: "June 10, 2020"
 output: html_document
 ---
 
-### 1. Source data
+##Source 
 ```{r source, warning = TRUE, results = TRUE, message = FALSE}
 
    library(tidyverse)
@@ -16,7 +16,18 @@ output: html_document
 ```
 
 
-#### Similar ingredients with different spellings can be consolidated.
+##Explore
+The dataset containes 989 cocktails ("names") comprsised of 569 unique ingredients.  Each cocktail-ingredient combination is a separate record.
+```{r}
+
+   library (skimr)
+   
+   skim (cocktails_raw)
+```
+
+
+##Transform 
+Similar ingredients with different spellings can be consolidated.
 ```{r}
 
    cocktails <- cocktails_raw %>%
@@ -32,49 +43,22 @@ output: html_document
             ingredient == "Egg Yolk" ~ "Egg",
             TRUE ~ ingredient)
               )
-
 ``` 
 
-```{r}
-   ingredients_all <- cocktails %>%
-      count (ingredient, sort = T)
 
-   ingredients_top <- ingredients_all %>%
+An upset chart can be unwieldy with too many rows.  Through trial and error, I limited to eight sets.
+```{r}
+
+   ingredients_top <- cocktails %>%
+      count (ingredient, sort = T) %>%
       pull (ingredient) %>%
       head (8)
 ```
 
 
-#3a.  upsetR
-```{r}
+##Visualing - ggupset package
 
-   library(UpSetR)
-
-   #https://timothykylethomas.me/post/r_notebook/tidytuesday22/tidytuesday22/
-   #https://www.r-bloggers.com/upset-plots/
-
-   cocktails_matrix <- cocktails %>%
-      select (name, ingredient) %>%
-      filter (ingredient %in% ingredients_top) %>%
-      mutate (ingredient_population = TRUE) %>%
-      pivot_wider (
-         id_cols = name,
-         names_from = ingredient, 
-         values_from = ingredient_population, 
-         values_fill = FALSE,
-         values_fn = length
-         ) %>%
-      as.data.frame()
-   
-      upset(
-         data = cocktails_matrix, 
-         order.by = c("freq"),
-         nsets = 8, nintersects = 30
-         )
-```
-
-
-#3b.  ggupset
+The ggupset package is tidyverse-friendly so I immediately felt at home.  Just a bit of transformation was needed into the tidy format - converting separate rows per ingredient into unique rows per cocktail.  
 ```{r}
 
    library (ggupset)
@@ -83,7 +67,13 @@ output: html_document
       group_by (name) %>%
       filter (ingredient %in% ingredients_top) %>%
       summarize(ingredient = list(ingredient))
- 
+```
+
+
+Once transformed I was able to utilize my familiar ggplot2 techniques such as themes and headers.  The upset chart was created by simply adding one row with the scale_x_upset function.
+
+This was appealing, but I discovered limitations.  The traditional ingredient count to the far left was not available.  
+```{r}
       ggplot(cocktails_list, aes(x=ingredient)) +
       geom_bar() +
       scale_x_upset(n_intersections = 30) +
@@ -107,3 +97,42 @@ output: html_document
          ) +
       ggsave("cocktails.png", width = 10, height = 18, units = "cm")
 ```
+ 
+
+##Visualing - UpSetR package
+
+The UpSetR package requires the data to be stored in a specific format.  More expereinced with tidyverse packages, I struggled to transform but ultimately achieved through trial and error and hacking other solutions.  Ideas from  Timothy Kyle Thomas (see [here](https://timothykylethomas.me/post/r_notebook/tidytuesday22/tidytuesday22/)) and Kieran Healy (see [here](https://www.r-bloggers.com/upset-plots/)) were particulary helpful.
+```{r}
+
+   library(UpSetR)
+
+   cocktails_matrix <- cocktails %>%
+      select (name, ingredient) %>%
+      filter (ingredient %in% ingredients_top) %>%
+      mutate (ingredient_population = TRUE) %>%
+      pivot_wider (
+         id_cols = name,
+         names_from = ingredient, 
+         values_from = ingredient_population, 
+         values_fill = FALSE,
+         values_fn = length
+         ) %>%
+      as.data.frame()
+   
+
+```
+
+
+Once I had the data in the proper format, creating the charts was relatively straightforward.  I liked the ability to add the ingredient count to the left.
+```{r}
+      upset(
+         data = cocktails_matrix, 
+         order.by = c("freq"),
+         nintersects = 30
+         )
+```
+
+##Conclusion
+
+Due to my tidyverse background I liked the ggupset format better.  The ingredient counts at left were an advantage of the UpSetR package but not worth the incremental time contorting into the matrix format - as well as ability to quickly add ggplot2 headers.
+
