@@ -1,28 +1,36 @@
 ---
 title: "Cocktail Ingredients"
 author: "Joel Soroos"
-date: "June 10, 2020"
+date: "July 10, 2020"
 output: html_document
 ---
 
+##Motivation
+
 ##Source 
+The dataset is the weekly project for the [R for Data Science Tidy Tuesday May 26, 2020](https://github.com/rfordatascience/tidytuesday/blob/master/data/2020/2020-05-26/readme.md) user group.  The data is sourced originally from the [Mr. Boston Bartender's Guide](http://swizzle.ru/uploads/article_file/17/mr_boston.pdf) via Kaggle.   
 ```{r source, warning = TRUE, results = TRUE, message = FALSE}
 
-   library(tidyverse)
+library(tidyverse)
+library(janitor)
 
-   cocktails_raw <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-05-26/boston_cocktails.csv')
-   
-   #cocktails_raw
+cocktails_raw <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-05-26/boston_cocktails.csv")
 ```
 
 
 ##Explore
-The dataset containes 989 cocktails ("names") comprsised of 569 unique ingredients.  Each cocktail-ingredient combination is a separate record.
+The dataset containes 3,643 rows comprising 989 unique cocktail drinks ("names") with 569 unique ingredients.  Each cocktail-ingredient combination is a separate record.  
+
+The cocktails are grouped into 11 cocktail categories such as brandy, gin and rum.
+
+Ingredient proportions are listed in the Measure field.
 ```{r}
 
-   library (skimr)
-   
-   skim (cocktails_raw)
+cocktails_raw
+
+library(skimr)
+
+skim(cocktails_raw)
 ```
 
 
@@ -30,109 +38,120 @@ The dataset containes 989 cocktails ("names") comprsised of 569 unique ingredien
 Similar ingredients with different spellings can be consolidated.
 ```{r}
 
-   cocktails <- cocktails_raw %>%
-      mutate (
-         ingredient = case_when (
-            ingredient == "Fresh lemon juice" ~ "Lemon Juice",
-            ingredient == "Juice of a Lemon" ~ "Lemon Juice",
-            ingredient == "Fresh Lime Juice" ~ "Lime Juice",
-            ingredient == "Juice of a Lime" ~ "Lime Juice",
-            ingredient == "Powdered Sugar" ~ "Simple Syrup",
-            ingredient == "Egg White" ~ "Egg",
-            ingredient == "Whole Egg" ~ "Egg",
-            ingredient == "Egg Yolk" ~ "Egg",
-            TRUE ~ ingredient)
-              )
+tabyl(cocktails_raw, ingredient) %>%
+  arrange(-percent) %>%
+  head(20)
+
+cocktails <- cocktails_raw %>%
+  mutate(
+    ingredient = case_when(
+      ingredient == "Fresh lemon juice" ~ "Lemon Juice",
+      ingredient == "Juice of a Lemon" ~ "Lemon Juice",
+      ingredient == "Fresh Lime Juice" ~ "Lime Juice",
+      ingredient == "Juice of a Lime" ~ "Lime Juice",
+      ingredient == "Powdered Sugar" ~ "Simple Syrup",
+      ingredient == "Egg White" ~ "Egg",
+      ingredient == "Whole Egg" ~ "Egg",
+      ingredient == "Egg Yolk" ~ "Egg",
+      TRUE ~ ingredient
+    )
+  )
+
+tabyl(cocktails, ingredient) %>%
+  arrange(-percent) %>%
+  head(20)
 ``` 
+##Visualizing
 
-
-An upset chart can be unwieldy with too many rows.  Through trial and error, I limited to eight sets.
+An upset chart can be unwieldy with too many rows.  I decided to limit to eight sets.
 ```{r}
 
-   ingredients_top <- cocktails %>%
-      count (ingredient, sort = T) %>%
-      pull (ingredient) %>%
-      head (8)
+ingredients_top <- cocktails %>%
+  count(ingredient, sort = T) %>%
+  pull(ingredient) %>%
+  head(8)
 ```
 
 
-##Visualing - ggupset package
-
-The ggupset package is tidyverse-friendly so I immediately felt at home.  Just a bit of transformation was needed into the tidy format - converting separate rows per ingredient into unique rows per cocktail.  
-```{r}
-
-   library (ggupset)
-
-   cocktails_list <- cocktails %>%
-      group_by (name) %>%
-      filter (ingredient %in% ingredients_top) %>%
-      summarize(ingredient = list(ingredient))
-```
-
-
-Once transformed I was able to utilize my familiar ggplot2 techniques such as themes and headers.  The upset chart was created by simply adding one row with the scale_x_upset function.
-
-This was appealing, but I discovered limitations.  The traditional ingredient count to the far left was not available.  
-```{r}
-      ggplot(cocktails_list, aes(x=ingredient)) +
-      geom_bar() +
-      scale_x_upset(n_intersections = 30) +
-      theme (
-         plot.title = element_text(hjust = 0.5, vjust = 0, size = 14, face = "bold", margin = margin (0,0,15,0)),
-         plot.title.position = "plot",
-         plot.subtitle = element_text(hjust = 0.5, vjust = 0, size = 6, margin = margin (0,0,2,0)),
-         plot.caption = element_text(hjust = 1, size = 8, face = "plain", margin = margin (15,0,0,0)),
-         plot.caption.position = "plot",
-         axis.title.y = element_text(margin = margin(0,10,0,0)),
-         axis.text.x=element_blank(),
-         axis.text.y=element_text(size = 7),
-         axis.ticks.x=element_blank(),
-         legend.position = "none"
-         ) +
-      labs(
-         title = "Most popular alcoholic mixers",
-         x = "Ingredient intersection",
-         y = "# of drinks",
-         caption = "Each column represents unique combinations of ingredients.  Universe is drinks in the Boston Bartender's Guide.\nVisualization: Joel Soroos @soroosj  |  Data: Mr. Boston Bartender's Guide via Kaggle via R4DS Tidy Tuesday"
-         ) +
-      ggsave("cocktails.png", width = 10, height = 18, units = "cm")
-```
- 
-
-##Visualing - UpSetR package
+###Option 1 - UpSetR package
 
 The UpSetR package requires the data to be stored in a specific format.  More expereinced with tidyverse packages, I struggled to transform but ultimately achieved through trial and error and hacking other solutions.  Ideas from  Timothy Kyle Thomas (see [here](https://timothykylethomas.me/post/r_notebook/tidytuesday22/tidytuesday22/)) and Kieran Healy (see [here](https://www.r-bloggers.com/upset-plots/)) were particulary helpful.
 ```{r}
 
-   library(UpSetR)
+library(UpSetR)
 
-   cocktails_matrix <- cocktails %>%
-      select (name, ingredient) %>%
-      filter (ingredient %in% ingredients_top) %>%
-      mutate (ingredient_population = TRUE) %>%
-      pivot_wider (
-         id_cols = name,
-         names_from = ingredient, 
-         values_from = ingredient_population, 
-         values_fill = FALSE,
-         values_fn = length
-         ) %>%
-      as.data.frame()
-   
-
+cocktails_matrix <- cocktails %>%
+  select(name, ingredient) %>%
+  filter(ingredient %in% ingredients_top) %>%
+  mutate(ingredient_population = TRUE) %>%
+  pivot_wider(
+    id_cols = name,
+    names_from = ingredient,
+    values_from = ingredient_population,
+    values_fill = FALSE,
+    values_fn = length
+  ) %>%
+  as.data.frame()
 ```
 
 
 Once I had the data in the proper format, creating the charts was relatively straightforward.  I liked the ability to add the ingredient count to the left.
 ```{r}
-      upset(
-         data = cocktails_matrix, 
-         order.by = c("freq"),
-         nintersects = 30
-         )
+upset(
+  data = cocktails_matrix,
+  order.by = c("freq"),
+  nintersects = 30
+)
 ```
 
+
+###Option 2 - ggupset package
+
+The [ggupset](https://cran.r-project.org/web/packages/ggupset/readme/README.html) package by Constantin Ahlmann-Eltze is tidyverse-friendly so I immediately felt at home.  Just a bit of transformation was needed into the tidy format - converting separate rows per ingredient into unique rows per cocktail.  
+```{r, message = F}
+
+library(ggupset)
+
+cocktails_list <- cocktails %>%
+  group_by(name) %>%
+  filter(ingredient %in% ingredients_top) %>%
+  summarize(ingredient = list(ingredient))
+
+cocktails_list
+```
+
+
+The tidyverse-friendly package enables leveraging familiar ggplot2 constructs such as themes, labels and headers/captions.  The upset chart was created by simply adding one row with ggupset's scale_x_upset function.
+
+I could quickly see which ingredients (or combination of ingredients) were in the most drinks.  For single ingredients, lemon juice led the way, followed by lime juice, vodka and gin. The most popular combinations of ingredients are gin with dry vermouth, lemon juice with simple syrup, then gin with lemon juice.
+
+```{r, warning =F}
+ggplot(cocktails_list, aes(x = ingredient)) +
+  geom_bar() +
+  scale_x_upset(n_intersections = 30) +
+  theme(
+    plot.title = element_text(hjust = 0.5, vjust = 0, size = 14, face = "bold", margin = margin(0, 0, 15, 0)),
+    plot.title.position = "plot",
+    plot.subtitle = element_text(hjust = 0.5, vjust = 0, size = 6, margin = margin(0, 0, 2, 0)),
+    plot.caption = element_text(hjust = 1, size = 8, face = "plain", margin = margin(15, 0, 0, 0)),
+    plot.caption.position = "plot",
+    axis.title.y = element_text(margin = margin(0, 10, 0, 0)),
+    axis.text.x = element_blank(),
+    axis.text.y = element_text(size = 7),
+    axis.ticks.x = element_blank(),
+    legend.position = "none"
+  ) +
+  labs(
+    title = "Most popular cocktail ingredients",
+    x = "Ingredient intersection",
+    y = "# of drinks",
+    caption = "Each column represents unique combinations of ingredients.  Universe is drinks in the Boston Bartender's Guide.\nVisualization: Joel Soroos @soroosj  |  Data: Mr. Boston Bartender's Guide via Kaggle via R4DS Tidy Tuesday"
+  ) +
+  ggsave("cocktails.png", width = 10, height = 18, units = "cm")
+```
+This was appealing, but I discovered limitations.  The traditional ingredient count to the far left was not available.  
+
+ 
 ##Conclusion
 
 Due to my tidyverse background I liked the ggupset format better.  The ingredient counts at left were an advantage of the UpSetR package but not worth the incremental time contorting into the matrix format - as well as ability to quickly add ggplot2 headers.
-
