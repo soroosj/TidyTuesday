@@ -75,7 +75,10 @@ ingredients_top <- cocktails %>%
 
 ###Option 1 - UpSetR package
 
-The UpSetR package requires the data to be stored in a specific format.  More expereinced with tidyverse packages, I struggled to transform but ultimately achieved through trial and error and hacking other solutions.  Ideas from  Timothy Kyle Thomas (see [here](https://timothykylethomas.me/post/r_notebook/tidytuesday22/tidytuesday22/)) and Kieran Healy (see [here](https://www.r-bloggers.com/upset-plots/)) were particulary helpful.
+The [UpSetR package](https://www.rdocumentation.org/packages/UpSetR/versions/1.4.0) by Jack Conway seems to be most widely-referenced so started there.  Installing via CRAN was a breeze.
+
+First required step was transforming the raw data to a matrix format.  Instructions were thorough but I struggled to convert, a large part because I am more familiar with the R tidyverse format.  Ultimately I achieved through hacking other solutions.  Ideas from  Timothy Kyle Thomas (see [here](https://timothykylethomas.me/post/r_notebook/tidytuesday22/tidytuesday22/)) and Kieran Healy (see [here](https://www.r-bloggers.com/upset-plots/)) were particulary helpful.
+
 ```{r}
 
 library(UpSetR)
@@ -92,15 +95,20 @@ cocktails_matrix <- cocktails %>%
     values_fn = length
   ) %>%
   as.data.frame()
+
+cocktails_matrix %>% head(5)
 ```
 
 
-Once I had the data in the proper format, creating the charts was relatively straightforward.  I liked the ability to add the ingredient count to the left.
+Once I had the data in the proper format, creating the charts was pleasingly straightforward in one function call. 
+
+The chart format was clean and easy to interpret.  I could quickly see which ingredients (or combination of ingredients) were in the most drinks.  For single ingredients, lemon juice led the way, followed by lime juice, vodka and gin. The most popular combinations of ingredients are gin with dry vermouth, lemon juice with simple syrup, then gin with lemon juice.
+
 ```{r}
 upset(
   data = cocktails_matrix,
   order.by = c("freq"),
-  nintersects = 30
+  nsets =8, nintersects = 30
 )
 ```
 
@@ -121,9 +129,11 @@ cocktails_list
 ```
 
 
-The tidyverse-friendly package enables leveraging familiar ggplot2 constructs such as themes, labels and headers/captions.  The upset chart was created by simply adding one row with ggupset's scale_x_upset function.
+The upset chart was created by simply adding one row with ggupset's scale_x_upset function.
 
-I could quickly see which ingredients (or combination of ingredients) were in the most drinks.  For single ingredients, lemon juice led the way, followed by lime juice, vodka and gin. The most popular combinations of ingredients are gin with dry vermouth, lemon juice with simple syrup, then gin with lemon juice.
+The tidyverse-friendly package enables leveraging familiar ggplot2 constructs such as themes, labels and headers/captions.
+
+
 
 ```{r, warning =F}
 ggplot(cocktails_list, aes(x = ingredient)) +
@@ -149,9 +159,9 @@ ggplot(cocktails_list, aes(x = ingredient)) +
   ) +
   ggsave("cocktails.png", width = 10, height = 18, units = "cm")
 ```
-This was appealing, but I discovered limitations.  The traditional ingredient count to the far left was not available.  
+
 
  
 ##Conclusion
 
-Due to my tidyverse background I liked the ggupset format better.  The ingredient counts at left were an advantage of the UpSetR package but not worth the incremental time contorting into the matrix format - as well as ability to quickly add ggplot2 headers.
+Due to my tidyverse background I preferred the ggupset format.  The ingredient counts at left were an advantage of the UpSetR package but not worth the incremental time contorting into the matrix format - as well as ability to quickly add ggplot2 headers.
