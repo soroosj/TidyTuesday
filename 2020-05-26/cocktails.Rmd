@@ -6,27 +6,30 @@ output: html_document
 ---
 
 ##Motivation
+For the May 26 2020 R4DS Tidy Tuesday data set, I explored [UpSet charts](https://caleydo.org/tools/UpSet/), which simplify visualizing overlap of large numbers of sets.  Laura Ellis has a [useful explanation](https://www.littlemissdata.com/blog/set-analysis) of how Venn and Euler diagrams become unwieldy for intersections of greater than two sets.
+
+I analyzed which ingredients, as well as combination of ingredients, are most common in U.S. cocktail drinks.
 
 ##Source 
-The dataset is the weekly project for the [R for Data Science Tidy Tuesday May 26, 2020](https://github.com/rfordatascience/tidytuesday/blob/master/data/2020/2020-05-26/readme.md) user group.  The data is sourced originally from the [Mr. Boston Bartender's Guide](http://swizzle.ru/uploads/article_file/17/mr_boston.pdf) via Kaggle.   
+The [cocktail ingredients data](https://github.com/rfordatascience/tidytuesday/blob/master/data/2020/2020-05-26/readme.md) is originally from the [Mr. Boston Bartender's Guide](http://swizzle.ru/uploads/article_file/17/mr_boston.pdf) via Kaggle.   
 ```{r source, warning = TRUE, results = TRUE, message = FALSE}
 
 library(tidyverse)
 library(janitor)
 
 cocktails_raw <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-05-26/boston_cocktails.csv")
+
+cocktails_raw
 ```
 
 
 ##Explore
 The dataset containes 3,643 rows comprising 989 unique cocktail drinks ("names") with 569 unique ingredients.  Each cocktail-ingredient combination is a separate record.  
 
-The cocktails are grouped into 11 cocktail categories such as brandy, gin and rum.
+Ingredients and corresponding serving size for cocktails are listed in the Ingredient and Measure fields.  The cocktails are grouped into 11 cocktail categories such as brandy, gin and rum.
 
-Ingredient proportions are listed in the Measure field.
+
 ```{r}
-
-cocktails_raw
 
 library(skimr)
 
@@ -63,7 +66,7 @@ tabyl(cocktails, ingredient) %>%
 ``` 
 ##Visualizing
 
-An upset chart can be unwieldy with too many rows.  I decided to limit to eight sets.
+An UpSet chart can be unwieldy with too many rows.  I decided to limit to eight sets.
 ```{r}
 
 ingredients_top <- cocktails %>%
@@ -108,7 +111,7 @@ The chart format was clean and easy to interpret.  I could quickly see which ing
 upset(
   data = cocktails_matrix,
   order.by = c("freq"),
-  nsets =8, nintersects = 30
+  nsets = 8, nintersects = 30
 )
 ```
 
@@ -132,8 +135,6 @@ cocktails_list
 The upset chart was created by simply adding one row with ggupset's scale_x_upset function.
 
 The tidyverse-friendly package enables leveraging familiar ggplot2 constructs such as themes, labels and headers/captions.
-
-
 
 ```{r, warning =F}
 ggplot(cocktails_list, aes(x = ingredient)) +
@@ -161,7 +162,8 @@ ggplot(cocktails_list, aes(x = ingredient)) +
 ```
 
 
- 
 ##Conclusion
 
-Due to my tidyverse background I preferred the ggupset format.  The ingredient counts at left were an advantage of the UpSetR package but not worth the incremental time contorting into the matrix format - as well as ability to quickly add ggplot2 headers.
+Due to my tidyverse background I ultimately preferred the ggupset format.
+
+The ingredient counts at left were an advantage of the UpSetR package but not worth the incremental time contorting into the matrix format.  Additionally, I much appreciated the ability to quickly add familiar ggplot2 themes, headers and captions.

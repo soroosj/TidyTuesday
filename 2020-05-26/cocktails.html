@@ -187,21 +187,18 @@ summary {
 
 <div id="motivation" class="section level2">
 <h2>Motivation</h2>
+<p>For the May 26 2020 R4DS Tidy Tuesday data set, I explored <a href="https://caleydo.org/tools/upset/">upset charts</a>, which simplify visualizing overlap of large numbers of sets. Laura Ellis has a <a href="https://www.littlemissdata.com/blog/set-analysis">useful explanation</a> of how Venn and Euler diagrams become unwieldy for intersections of greater than two sets.</p>
+<p>I analyzed which ingredients, as well as combination of ingredients, are most common in U.S. cocktail drinks.</p>
 </div>
 <div id="source" class="section level2">
 <h2>Source</h2>
-<p>The dataset is the weekly project for the <a href="https://github.com/rfordatascience/tidytuesday/blob/master/data/2020/2020-05-26/readme.md">R for Data Science Tidy Tuesday May 26, 2020</a> user group. The data is sourced originally from the <a href="http://swizzle.ru/uploads/article_file/17/mr_boston.pdf">Mr. Boston Bartender's Guide</a> via Kaggle.</p>
+<p>The <a href="https://github.com/rfordatascience/tidytuesday/blob/master/data/2020/2020-05-26/readme.md">cocktail ingredients data</a> is originally from the <a href="http://swizzle.ru/uploads/article_file/17/mr_boston.pdf">Mr. Boston Bartender's Guide</a> via Kaggle.</p>
 <pre class="r"><code>library(tidyverse)
 library(janitor)
 
-cocktails_raw &lt;- read_csv(&quot;https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-05-26/boston_cocktails.csv&quot;)</code></pre>
-</div>
-<div id="explore" class="section level2">
-<h2>Explore</h2>
-<p>The dataset containes 3,643 rows comprising 989 unique cocktail drinks (&quot;names&quot;) with 569 unique ingredients. Each cocktail-ingredient combination is a separate record.</p>
-<p>The cocktails are grouped into 11 cocktail categories such as brandy, gin and rum.</p>
-<p>Ingredient proportions are listed in the Measure field.</p>
-<pre class="r"><code>cocktails_raw</code></pre>
+cocktails_raw &lt;- read_csv(&quot;https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-05-26/boston_cocktails.csv&quot;)
+
+cocktails_raw</code></pre>
 <pre><code>## # A tibble: 3,643 x 6
 ##    name        category         row_id ingredient_number ingredient      measure
 ##    &lt;chr&gt;       &lt;chr&gt;             &lt;dbl&gt;             &lt;dbl&gt; &lt;chr&gt;           &lt;chr&gt;  
@@ -216,6 +213,11 @@ cocktails_raw &lt;- read_csv(&quot;https://raw.githubusercontent.com/rfordatasci
 ##  9 Apple Pie   Cordials and Li…      3                 1 Apple schnapps  3 oz   
 ## 10 Apple Pie   Cordials and Li…      3                 2 Cinnamon schna… 1 oz   
 ## # … with 3,633 more rows</code></pre>
+</div>
+<div id="explore" class="section level2">
+<h2>Explore</h2>
+<p>The dataset containes 3,643 rows comprising 989 unique cocktail drinks (&quot;names&quot;) with 569 unique ingredients. Each cocktail-ingredient combination is a separate record.</p>
+<p>Each cocktail's ingredient and corresponding serving size are listed in the Ingredient and Measure fields. The cocktails are grouped into 11 cocktail categories such as brandy, gin and rum.</p>
 <pre class="r"><code>library(skimr)
 
 skim(cocktails_raw)</code></pre>
@@ -470,8 +472,8 @@ cocktails_matrix %&gt;% head(5)</code></pre>
 ## 3            0   0     0
 ## 4            0   0     0
 ## 5            0   0     0</code></pre>
-<p>Once I had the data in the proper format, creating the charts was relatively straightforward.</p>
-<p>I could quickly see which ingredients (or combination of ingredients) were in the most drinks. For single ingredients, lemon juice led the way, followed by lime juice, vodka and gin. The most popular combinations of ingredients are gin with dry vermouth, lemon juice with simple syrup, then gin with lemon juice.</p>
+<p>Once I had the data in the proper format, creating the charts was pleasingly straightforward in one function call.</p>
+<p>The chart format was clean and easy to interpret. I could quickly see which ingredients (or combination of ingredients) were in the most drinks. For single ingredients, lemon juice led the way, followed by lime juice, vodka and gin. The most popular combinations of ingredients are gin with dry vermouth, lemon juice with simple syrup, then gin with lemon juice.</p>
 <pre class="r"><code>upset(
   data = cocktails_matrix,
   order.by = c(&quot;freq&quot;),
@@ -533,7 +535,7 @@ cocktails_list</code></pre>
 </div>
 <div id="conclusion" class="section level2">
 <h2>Conclusion</h2>
-<p>Due to my tidyverse background I liked the ggupset format better. The ingredient counts at left were an advantage of the UpSetR package but not worth the incremental time contorting into the matrix format - as well as ability to quickly add ggplot2 headers.</p>
+<p>Due to my tidyverse background I preferred the ggupset format. The ingredient counts at left were an advantage of the UpSetR package but not worth the incremental time contorting into the matrix format - as well as ability to quickly add ggplot2 headers.</p>
 </div>
 
 
