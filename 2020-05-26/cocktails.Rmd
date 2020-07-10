@@ -108,11 +108,19 @@ Once I had the data in the proper format, creating the charts was pleasingly str
 The chart format was clean and easy to interpret.  I could quickly see which ingredients (or combination of ingredients) were in the most drinks.  For single ingredients, lemon juice led the way, followed by lime juice, vodka and gin. The most popular combinations of ingredients are gin with dry vermouth, lemon juice with simple syrup, then gin with lemon juice.
 
 ```{r}
+library (grid)
+
+png(file="cocktails UpSetR.png") # or other device
+
 upset(
   data = cocktails_matrix,
   order.by = c("freq"),
   nsets = 8, nintersects = 30
 )
+grid.text("Most Popular Cocktail Ingredients (using UpSetR package)",x = 0.65, y=0.95, gp=gpar(fontsize=10))
+
+dev.off()
+
 ```
 
 
@@ -153,12 +161,12 @@ ggplot(cocktails_list, aes(x = ingredient)) +
     legend.position = "none"
   ) +
   labs(
-    title = "Most popular cocktail ingredients",
+    title = "Most popular cocktail ingredients (using ggupset package)",
     x = "Ingredient intersection",
     y = "# of drinks",
     caption = "Each column represents unique combinations of ingredients.  Universe is drinks in the Boston Bartender's Guide.\nVisualization: Joel Soroos @soroosj  |  Data: Mr. Boston Bartender's Guide via Kaggle via R4DS Tidy Tuesday"
   ) +
-  ggsave("cocktails.png", width = 10, height = 18, units = "cm")
+  ggsave("cocktails ggupset.png")
 ```
 
 
