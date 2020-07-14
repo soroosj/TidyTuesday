@@ -14,72 +14,72 @@ output: html_document
    
    opts_chunk$set(warning = FALSE, message = FALSE, results = TRUE)
    
-   coffee_all_data <- tidytuesdayR::tt_load('2020-07-07')
+   coffee_all <- tidytuesdayR::tt_load('2020-07-07')
 
-   coffee_ratings <- tuesdata$coffee_ratings
-
-   glimpse (coffee_ratings)
+   coffee_raw <- coffee_all$coffee_ratings
 ```
 
 
-### 2.  Transform stage data
+### 2.  Explore  data
+```{r explore}
+
+   library(skimr)
+
+   coffee_raw %>%
+      tabyl (country_of_origin) %>%
+      arrange (-percent) %>%
+      head(20)
+
+   skim (coffee_raw)
+
+```
+
+### 3.  Transform stage data
 ```{r transform, warning = TRUE, results = FALSE, message = FALSE}
 
-   office_episode <- office_raw %>%
-      select (season, episode, episode_name, air_date, director, writer, character, imdb_rating) %>%
-      distinct (episode_name, .keep_all = T)
+   coffee_top <- coffee_raw %>%
+      select (country_of_origin, total_cup_points) %>%
+      group_by (country_of_origin) %>%
+      summarize (avg = mean (total_cup_points)) %>%
+      arrange (-avg) %>%
+      head (10) %>%
+      pull (country_of_origin)
+   
+   coffee <- coffee_raw %>%
+      filter (country_of_origin %in% coffee_top) %>%
+      select (country_of_origin, aroma:sweetness) %>%
+      mutate (across(aroma:sweetness, scale)) %>%
+      drop_na () %>%
+      mutate (country_of_origin = recode (country_of_origin,
+              "United States (Hawaii)" = "USA",
+              "United States (Puerto Rico)" = "USA",
+              "United States" = "USA",
+              "Tanzania, United Republic Of" = "Tanzania"
+              ))
+   
+   coffee_sum <- coffee %>%
+      group_by (country_of_origin) %>%
+      summarize_all (list(mean)) %>%
+      pivot_longer (aroma:sweetness, names_to = "criteria", values_to = "rating")
 ```
 
-```{r}
-   office_characters <-
-      office_raw %>%
-      count (episode_name, character) %>%
-      add_count (character, wt = n, name = "sum") %>%
-      filter (sum > 800) %>%
-      group_by (episode_name) %>%
-      mutate (pct = round(n/sum(n),3)) %>%
-      select (-sum, -n) %>%
-      pivot_wider (names_from = character, values_from = pct, values_fill = list(pct=0)) 
+### 4.  Visualize data
+```{r transform, warning = TRUE, results = FALSE, message = FALSE}
 
-   office_characters
+   coffee_sum %>%
+      ggplot (aes (x = country_of_origin, y = rating, group = criteria, color = criteria)) +
+      geom_line (size = 1) +
+      coord_polar() +
+      theme (
+         plot.title = element_text(hjust = 0.5, vjust = 0, size = 15, face = "bold", margin = margin (0,0,7,0)),
+         plot.subtitle = element_text (hjust = 0.5, vjust = 0, size = 10, margin = margin (0,0,25,0)),
+         plot.caption = element_text (hjust = 0.5, size = 10, margin = margin (9,0,0,0), color="black")
+         ) +
+      labs(
+         title = "Coffee Ratings",
+         x = "Ingredient intersection",
+         y = "# of drinks",
+         caption = "Each column represents unique combinations of ingredients.  Universe is drinks in the Boston Bartender's Guide.\nVisualization: Joel Soroos @soroosj  |  Data: Coffee Quality Database via Kaggle via R4DS Tidy Tuesday"
+  ) +
+        ggsave("coffee.png")
 ```
-```{r}
-   
-   office_full <- 
-      inner_join (office_episode, office_characters) %>%
-      select (-episode, -air_date, -director, -writer, -character)
-
-   office_full
-```
-
-```{r}
-   library (tidymodels)
-
-   office_split <- initial_split (office_full, strata = season)
-   office_train <- training (office_split)
-   office_test <- testing (office_split)
-   
-   office_rec <- recipe(imdb_rating ~ ., data = office_train) %>%
-      update_role(episode_name, new_role = "ID") %>%
-      step_zv(all_numeric(), -all_outcomes()) %>%
-      step_normalize(all_numeric(), -all_outcomes())
-
-   office_prep <- office_rec %>%
-      prep(strings_as_factors = FALSE)
-   
-   lasso_spec <- linear_reg(penalty = 0.1, mixture = 1) %>%
-  set_engine("glmnet")
-
-   wf <- workflow() %>%
-     add_recipe(office_rec)
-   
-   lasso_fit <- wf %>%
-     add_model(lasso_spec) %>%
-     fit(data = office_train)
-   
-   lasso_fit %>%
-     pull_workflow_fit() %>%
-     tidy()
-```
-
-
