@@ -54,7 +54,7 @@ output: html_document
               "United States (Hawaii)" = "USA",
               "United States (Puerto Rico)" = "USA",
               "United States" = "USA",
-              "Tanzania, United Republic Of" = "Tanzania"
+              "Papua New Guinea" = "PNG"
               ))
    
    coffee_sum <- coffee %>%
