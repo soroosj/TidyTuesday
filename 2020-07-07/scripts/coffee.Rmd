@@ -36,50 +36,52 @@ output: html_document
 
 ### 3.  Transform stage data
 ```{r transform, warning = TRUE, results = FALSE, message = FALSE}
-
-   coffee_top <- coffee_raw %>%
-      select (country_of_origin, total_cup_points) %>%
-      group_by (country_of_origin) %>%
-      summarize (avg = mean (total_cup_points)) %>%
-      arrange (-avg) %>%
-      head (10) %>%
-      pull (country_of_origin)
    
+   country_significant <- coffee_raw %>%
+      count (country_of_origin) %>%
+      filter (n>2) %>%
+      arrange (n) %>%
+      pull (country_of_origin)   
+
    coffee <- coffee_raw %>%
-      filter (country_of_origin %in% coffee_top) %>%
-      select (country_of_origin, aroma:sweetness) %>%
-      mutate (across(aroma:sweetness, scale)) %>%
+      filter (
+         total_cup_points>0,
+         country_of_origin %in% country_significant
+         ) %>%
+      select (country_of_origin, total_cup_points) %>%
       drop_na () %>%
       mutate (country_of_origin = recode (country_of_origin,
               "United States (Hawaii)" = "USA",
               "United States (Puerto Rico)" = "USA",
               "United States" = "USA",
-              "Papua New Guinea" = "PNG"
-              ))
-   
-   coffee_sum <- coffee %>%
-      group_by (country_of_origin) %>%
-      summarize_all (list(mean)) %>%
-      pivot_longer (aroma:sweetness, names_to = "criteria", values_to = "rating")
+              "Tanzania, United Republic Of" = "Tanzania"
+              )) 
 ```
 
+ 
 ### 4.  Visualize data
 ```{r transform, warning = TRUE, results = FALSE, message = FALSE}
 
-   coffee_sum %>%
-      ggplot (aes (x = country_of_origin, y = rating, group = criteria, color = criteria)) +
-      geom_line (size = 1) +
-      coord_polar() +
+   library (gghighlight)
+   library (ggridges)
+
+   coffee %>%
+      filter (total_cup_points > 0) %>%
+      ggplot (aes (x = total_cup_points, y = reorder(country_of_origin, total_cup_points))) +
+      geom_density_ridges () +
+      #gghighlight(country_of_origin %in% coffee_top) +
       theme (
-         plot.title = element_text(hjust = 0.5, vjust = 0, size = 15, face = "bold", margin = margin (0,0,7,0)),
+         panel.background = element_rect(fill= "white"),
+         plot.title = element_text(hjust = 0.5, vjust = 0, size = 14, face = "bold", margin = margin (0,0,7,0)),
          plot.subtitle = element_text (hjust = 0.5, vjust = 0, size = 10, margin = margin (0,0,25,0)),
-         plot.caption = element_text (hjust = 0.5, size = 10, margin = margin (9,0,0,0), color="black")
+         plot.caption = element_text (hjust = 0.5, size = 8, margin = margin (9,0,0,0), color="black"),
+         legend.position = "none",
+         axis.ticks = element_blank()
          ) +
       labs(
          title = "Coffee Ratings",
-         x = "Ingredient intersection",
-         y = "# of drinks",
+         x = "Median Total Cup Points",
+         y = "",
          caption = "Each column represents unique combinations of ingredients.  Universe is drinks in the Boston Bartender's Guide.\nVisualization: Joel Soroos @soroosj  |  Data: Coffee Quality Database via Kaggle via R4DS Tidy Tuesday"
-  ) +
-        ggsave("coffee.png")
-```
+      ) 
+```   
