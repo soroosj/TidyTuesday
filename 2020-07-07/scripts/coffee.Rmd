@@ -45,7 +45,7 @@ output: html_document
 
    coffee <- coffee_raw %>%
       filter (
-         total_cup_points>0,
+         total_cup_points>65,
          country_of_origin %in% country_significant
          ) %>%
       select (country_of_origin, total_cup_points) %>%
@@ -66,15 +66,16 @@ output: html_document
    library (ggridges)
 
    coffee %>%
-      filter (total_cup_points > 0) %>%
       ggplot (aes (x = total_cup_points, y = reorder(country_of_origin, total_cup_points))) +
-      geom_density_ridges () +
+      stat_density_ridges (quantile_lines = T, quantiles = 2, size = 0.3) +
       #gghighlight(country_of_origin %in% coffee_top) +
       theme (
          panel.background = element_rect(fill= "white"),
          plot.title = element_text(hjust = 0.5, vjust = 0, size = 14, face = "bold", margin = margin (0,0,7,0)),
          plot.subtitle = element_text (hjust = 0.5, vjust = 0, size = 10, margin = margin (0,0,25,0)),
-         plot.caption = element_text (hjust = 0.5, size = 8, margin = margin (9,0,0,0), color="black"),
+         plot.caption = element_text (hjust = 0, size = 8, margin = margin (20,0,0,0), color="black"),
+         plot.caption.position = "plot",
+         axis.title = element_text (size = 10),
          legend.position = "none",
          axis.ticks = element_blank()
          ) +
@@ -82,6 +83,7 @@ output: html_document
          title = "Coffee Ratings",
          x = "Median Total Cup Points",
          y = "",
-         caption = "Each column represents unique combinations of ingredients.  Universe is drinks in the Boston Bartender's Guide.\nVisualization: Joel Soroos @soroosj  |  Data: Coffee Quality Database via Kaggle via R4DS Tidy Tuesday"
-      ) 
+         caption = "Each row represents distribution of total points earned by country.\nVisualization: Joel Soroos @soroosj  |  Data: Coffee Quality Database via Kaggle via R4DS Tidy Tuesday"
+      ) +
+      ggsave ("coffee.png")
 ```   
