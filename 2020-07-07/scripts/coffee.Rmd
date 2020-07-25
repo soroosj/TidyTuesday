@@ -61,48 +61,89 @@ output: html_document
       group_by (country_of_origin) %>% 
       summarize (
          rating_min = min (total_cup_points),
-         rating_med = median (total_cup_points)
+         rating_med = median (total_cup_points),
+         rating_n = n ()
          )
 ```
 
  
-### 4.  Visualize data
+### 4a.  Visualize - distribution plot
 ```{r transform, warning = TRUE, results = FALSE, message = FALSE}
 
-   library (gghighlight)
-   library (ggridges)
-   library (ggbeeswarm)
+   plot_distrib <-
+      ggplot (coffee, aes (x = total_cup_points, y = reorder(country_of_origin, total_cup_points))) +
+         geom_point( 
+            data = coffee_summ,
+            aes(
+               x = rating_med, 
+               y = reorder (country_of_origin, rating_med)
+               ),
+            shape = "|", color = "firebrick1", fill = "firebrick1", size = 3,
+            inherit.aes = F
+            ) +
+         geom_point(shape = "|", color = "white") +
+         theme (
+            plot.background = element_rect(fill= "#6F4E37", color = "#6F4E37"),
+            panel.background = element_rect(fill= "#6F4E37"),
+            panel.grid.major = element_blank(),
+            panel.grid.minor = element_blank(),
+            axis.title = element_text (size = 8, hjust = 0.5),
+            axis.text.x = element_text (color = "white"),
+            axis.text.y = element_blank (),
+            axis.ticks.x = element_line (color = "white"),
+            axis.ticks.y = element_blank(),
+            legend.position = "none",
+            text = element_text(color = "white")
+            ) +
+         labs(
+            x = "# of Entries",
+            y = ""
+            )
+```   
 
-   ggplot (coffee, aes (x = total_cup_points, y = reorder(country_of_origin, total_cup_points))) +
-   #geom_beeswarm (groupOnX = F) +
-   geom_point(shape = "|", color = "white") +
-   #geom_text (
-      #data = coffee_summ,
-      #aes(x = rating_min -2, y = country_of_origin, label = country_of_origin),
-      #inherit.aes = F,
-      #size = 3, color = "white"
-      #) +
-   theme (
-      plot.background = element_rect(fill= "#6F4E37"),
-      plot.title = element_text(hjust = 0.5, vjust = 0, size = 14, face = "bold", margin = margin (0,0,7,0)),
-      plot.subtitle = element_text (hjust = 0.5, vjust = 0, size = 10, margin = margin (0,0,25,0)),
-      plot.caption = element_text (hjust = 1, size = 8, margin = margin (10,0,0,0)),
-      plot.caption.position = "plot",
-      panel.background = element_rect(fill= "#6F4E37"),
-      panel.grid.major = element_blank(),
-      panel.grid.minor = element_blank(),
-      axis.title = element_text (size = 8, hjust = 0),
-      axis.text = element_text (color = "white"),
-      axis.ticks.y = element_blank(),
-      legend.position = "none",
-      text = element_text(color = "white")
-      ) +
-   labs(
+### 4b.  Visualize - count plot
+```{r transform, warning = TRUE, results = FALSE, message = FALSE}
+
+   plot_count <- 
+      ggplot (coffee_summ, aes (x = rating_n, y = reorder(country_of_origin, rating_med))) +
+         geom_col(color = "white", fill = "white") +
+         theme (
+            plot.background = element_rect(fill= "#6F4E37", color = "#6F4E37"),
+            panel.background = element_rect(fill= "#6F4E37"),
+            panel.grid.major = element_blank(),
+            panel.grid.minor = element_blank(),
+            axis.title = element_text (size = 8, hjust = 0.5, color = "white"),
+            axis.text.x = element_text (size = 8, hjust = 0.5, color = "white"),
+            axis.text.y = element_text (size = 8, hjust = 0.5, color = "white"),
+            axis.ticks.x = element_line (color = "white"),
+            axis.ticks.y = element_blank(),
+            legend.position = "none",
+            text = element_text(color = "white")
+            ) +
+         labs (
+            x = "Total Points",
+            y =""
+            )
+``` 
+
+
+### 4c.  Visualize - combine plots
+```{r transform, warning = TRUE, results = FALSE, message = FALSE}
+
+   library (patchwork)
+
+   plot_distrib + plot_count + plot_layout(widths = c(1, .25)) +
+   plot_annotation (
       title = "Coffee Ratings",
       subtitle = "Placeholder",
-      x = "Median Total Cup Points",
-      y = "",
-      caption = "Each row represents distribution of total points earned by country.\nVisualization: Joel Soroos @soroosj  |  Data: Coffee Quality Database via Kaggle via R4DS Tidy Tuesday"
-   ) +
-   ggsave ("coffee.png")
-```   
+      caption = "Visualization: Joel Soroos @soroosj  |  Data: Coffee Quality Database via Kaggle via R4DS Tidy Tuesday",
+      theme = theme (
+         plot.background = element_rect(fill= "#6F4E37", color = "#6F4E37"),
+         plot.title = element_text(hjust = 0, vjust = 0, size = 14, face = "bold", margin = margin (0,0,7,0), color = "white"),
+         plot.subtitle = element_text (hjust = 0, vjust = 0, size = 10, margin = margin (0,0,25,0), color = "white"),
+         plot.caption = element_text (hjust = 0, size = 8, margin = margin (20,0,0,0), color = "white"),
+         plot.caption.position = "plot"
+         )
+      )
+   ggsave("coffee.png")
+``` 
