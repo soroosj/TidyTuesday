@@ -39,7 +39,7 @@ output: html_document
    
    country_significant <- coffee_raw %>%
       count (country_of_origin) %>%
-      filter (n>2) %>%
+      filter (n>8) %>%
       arrange (n) %>%
       pull (country_of_origin)   
 
@@ -56,6 +56,13 @@ output: html_document
               "United States" = "USA",
               "Tanzania, United Republic Of" = "Tanzania"
               )) 
+   
+   coffee_summ <- coffee %>%
+      group_by (country_of_origin) %>% 
+      summarize (
+         rating_min = min (total_cup_points),
+         rating_med = median (total_cup_points)
+         )
 ```
 
  
@@ -64,26 +71,38 @@ output: html_document
 
    library (gghighlight)
    library (ggridges)
+   library (ggbeeswarm)
 
-   coffee %>%
-      ggplot (aes (x = total_cup_points, y = reorder(country_of_origin, total_cup_points))) +
-      stat_density_ridges (quantile_lines = T, quantiles = 2, size = 0.3) +
-      #gghighlight(country_of_origin %in% coffee_top) +
-      theme (
-         panel.background = element_rect(fill= "white"),
-         plot.title = element_text(hjust = 0.5, vjust = 0, size = 14, face = "bold", margin = margin (0,0,7,0)),
-         plot.subtitle = element_text (hjust = 0.5, vjust = 0, size = 10, margin = margin (0,0,25,0)),
-         plot.caption = element_text (hjust = 0, size = 8, margin = margin (20,0,0,0), color="black"),
-         plot.caption.position = "plot",
-         axis.title = element_text (size = 10),
-         legend.position = "none",
-         axis.ticks = element_blank()
-         ) +
-      labs(
-         title = "Coffee Ratings",
-         x = "Median Total Cup Points",
-         y = "",
-         caption = "Each row represents distribution of total points earned by country.\nVisualization: Joel Soroos @soroosj  |  Data: Coffee Quality Database via Kaggle via R4DS Tidy Tuesday"
+   ggplot (coffee, aes (x = total_cup_points, y = reorder(country_of_origin, total_cup_points))) +
+   #geom_beeswarm (groupOnX = F) +
+   geom_point(shape = "|", color = "white") +
+   #geom_text (
+      #data = coffee_summ,
+      #aes(x = rating_min -2, y = country_of_origin, label = country_of_origin),
+      #inherit.aes = F,
+      #size = 3, color = "white"
+      #) +
+   theme (
+      plot.background = element_rect(fill= "#6F4E37"),
+      plot.title = element_text(hjust = 0.5, vjust = 0, size = 14, face = "bold", margin = margin (0,0,7,0)),
+      plot.subtitle = element_text (hjust = 0.5, vjust = 0, size = 10, margin = margin (0,0,25,0)),
+      plot.caption = element_text (hjust = 1, size = 8, margin = margin (10,0,0,0)),
+      plot.caption.position = "plot",
+      panel.background = element_rect(fill= "#6F4E37"),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      axis.title = element_text (size = 8, hjust = 0),
+      axis.text = element_text (color = "white"),
+      axis.ticks.y = element_blank(),
+      legend.position = "none",
+      text = element_text(color = "white")
       ) +
-      ggsave ("coffee.png")
+   labs(
+      title = "Coffee Ratings",
+      subtitle = "Placeholder",
+      x = "Median Total Cup Points",
+      y = "",
+      caption = "Each row represents distribution of total points earned by country.\nVisualization: Joel Soroos @soroosj  |  Data: Coffee Quality Database via Kaggle via R4DS Tidy Tuesday"
+   ) +
+   ggsave ("coffee.png")
 ```   
