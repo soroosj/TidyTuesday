@@ -42,7 +42,7 @@ output: html_document
    
    country_significant <- coffee_raw %>%
       count (country_of_origin) %>%
-      filter (n>8) %>%
+      filter (n>9) %>%
       arrange (n) %>%
       pull (country_of_origin)   
 
@@ -51,7 +51,6 @@ output: html_document
          total_cup_points>65,
          country_of_origin %in% country_significant
          ) %>%
-      drop_na () %>%
       mutate (country_of_origin = recode (country_of_origin,
               "United States (Hawaii)" = "USA",
               "United States (Puerto Rico)" = "USA",
@@ -89,7 +88,7 @@ output: html_document
                x = rating_med, 
                y = reorder (country_of_origin, rating_med)
                ),
-            shape = "|", color = "firebrick1", fill = "firebrick1", size = 3,
+            shape = "|", color = "firebrick1", fill = "firebrick1", size = 4,
             inherit.aes = F
             ) +
          geom_point(shape = "|", color = "white") +
@@ -98,7 +97,7 @@ output: html_document
             panel.background = element_rect(fill= "#6F4E37"),
             panel.grid.major = element_blank(),
             panel.grid.minor = element_blank(),
-            axis.title = element_text (size = 8, hjust = 0.5),
+            axis.title = element_text (size = 8, hjust = 0.5, color = "white"),
             axis.text.x = element_text (color = "white"),
             axis.text.y = element_text (size = 8, color = "white"),
             axis.ticks.x = element_line (color = "white"),
@@ -106,7 +105,7 @@ output: html_document
             legend.position = "none"
             ) +
          labs(
-            x = "\nRating",
+            x = "\nOverall Rating",
             y = ""
             )
 ```   
@@ -146,14 +145,15 @@ output: html_document
             aes (color = grade_med)
             ) +
          scale_color_gradient (low = "#6F4E37", high = "white") +
-         #scale_x_discrete(position = "top") +
+         scale_x_discrete(position = "top") +
          theme (
             plot.background = element_rect(fill= "#6F4E37", color = "#6F4E37"),
             panel.background = element_rect(fill= "#6F4E37"),
             panel.grid.major = element_blank(),
             panel.grid.minor = element_blank(),
-            axis.title = element_text (size = 8, hjust = 0.5, color = "white"),
-            axis.text.x = element_text (size = 8, hjust = 0.5, color = "white", angle = 90),
+            #axis.title = element_text (size = 8, hjust = 0.5, color = "white"),
+            axis.title = element_blank (),
+            axis.text.x = element_text (size = 8, hjust = 0, color = "white", angle = 80),
             axis.text.y = element_blank (),
             axis.ticks.x = element_blank (),
             axis.ticks.y = element_blank(),
@@ -165,21 +165,21 @@ output: html_document
             )
 ``` 
 
-### 4c.  Visualize - combine plots
+### 4d.  Visualize - combine plots
 ```{r transform, warning = TRUE, results = FALSE, message = FALSE}
 
    library (patchwork)
 
-   plot_distrib + plot_count + plot_grade + plot_layout(widths = c(1, .25, .25)) +
+   # plot_distrib + plot_grade + plot_count + plot_layout(widths = c(1, .25, .35)) +
+   plot_distrib + plot_grade + plot_layout(widths = c(1, .35)) +
    plot_annotation (
-      title = "Coffee Ratings",
-      subtitle = "Placeholder",
       caption = "Visualization: Joel Soroos @soroosj  |  Data: Coffee Quality Database via Kaggle via R4DS Tidy Tuesday",
       theme = theme (
          plot.background = element_rect(fill= "#6F4E37", color = "#6F4E37"),
-         plot.title = element_text(hjust = 0.5, vjust = 0, size = 14, face = "bold", margin = margin (0,0,7,0), color = "white"),
-         plot.subtitle = element_text (hjust = 0.5, vjust = 0, size = 10, margin = margin (0,0,25,0), color = "white"),
-         plot.caption = element_text (hjust = 1, size = 8, margin = margin (20,0,0,0), color = "white")
+         plot.title = element_blank(),
+         #plot.title = element_text(hjust = 0.5, vjust = 0, size = 14, face = "bold", margin = margin (0,0,7,0), color = "white"),
+         #plot.subtitle = element_text (hjust = 0.5, vjust = 0, size = 10, margin = margin (0,0,25,0), color = "white"),
+         plot.caption = element_text (hjust = 1, size = 7, margin = margin (20,0,0,0), color = "white")
          )
       )
    ggsave("coffee.png")
