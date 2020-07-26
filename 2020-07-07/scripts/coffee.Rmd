@@ -17,6 +17,9 @@ output: html_document
    coffee_all <- tidytuesdayR::tt_load('2020-07-07')
 
    coffee_raw <- coffee_all$coffee_ratings
+   
+   #https://github.com/Z3tt/TidyTuesday/blob/master/R/2020_16_BestRapArtists.Rmd
+   #https://raw.githubusercontent.com/Z3tt/TidyTuesday/master/plots/2020_16/2020_16_BestRapArtists.png
 ```
 
 
@@ -48,7 +51,6 @@ output: html_document
          total_cup_points>65,
          country_of_origin %in% country_significant
          ) %>%
-      select (country_of_origin, total_cup_points) %>%
       drop_na () %>%
       mutate (country_of_origin = recode (country_of_origin,
               "United States (Hawaii)" = "USA",
@@ -64,6 +66,15 @@ output: html_document
          rating_med = median (total_cup_points),
          rating_n = n ()
          )
+   
+   coffee_grades <- coffee %>%
+      select (country_of_origin, aroma:uniformity) %>%
+      pivot_longer(aroma:uniformity, names_to = "grade_type", values_to = "grade_rating") %>%
+      group_by(grade_type) %>%
+      mutate (grade_rating = scale (grade_rating)) %>%
+      group_by(country_of_origin, grade_type) %>%
+      summarize (grade_med = median(grade_rating))
+   
 ```
 
  
@@ -89,14 +100,13 @@ output: html_document
             panel.grid.minor = element_blank(),
             axis.title = element_text (size = 8, hjust = 0.5),
             axis.text.x = element_text (color = "white"),
-            axis.text.y = element_blank (),
+            axis.text.y = element_text (size = 8, color = "white"),
             axis.ticks.x = element_line (color = "white"),
             axis.ticks.y = element_blank(),
-            legend.position = "none",
-            text = element_text(color = "white")
+            legend.position = "none"
             ) +
          labs(
-            x = "# of Entries",
+            x = "\nRating",
             y = ""
             )
 ```   
@@ -106,7 +116,8 @@ output: html_document
 
    plot_count <- 
       ggplot (coffee_summ, aes (x = rating_n, y = reorder(country_of_origin, rating_med))) +
-         geom_col(color = "white", fill = "white") +
+         geom_col(
+            color = "white", fill = "white", width = 0.001) +
          theme (
             plot.background = element_rect(fill= "#6F4E37", color = "#6F4E37"),
             panel.background = element_rect(fill= "#6F4E37"),
@@ -114,35 +125,61 @@ output: html_document
             panel.grid.minor = element_blank(),
             axis.title = element_text (size = 8, hjust = 0.5, color = "white"),
             axis.text.x = element_text (size = 8, hjust = 0.5, color = "white"),
-            axis.text.y = element_text (size = 8, hjust = 0.5, color = "white"),
+            axis.text.y = element_blank (),
             axis.ticks.x = element_line (color = "white"),
             axis.ticks.y = element_blank(),
-            legend.position = "none",
-            text = element_text(color = "white")
+            legend.position = "none"
             ) +
          labs (
-            x = "Total Points",
-            y =""
+            x = "\nNumber of Entries",
+            y = ""
             )
 ``` 
 
+
+### 4c.  Visualize - grade plot
+```{r transform, warning = TRUE, results = FALSE, message = FALSE}
+
+   plot_grade <- 
+      ggplot (coffee_grades, aes (x = grade_type, y = reorder(country_of_origin, grade_med))) +
+         geom_point(
+            aes (color = grade_med)
+            ) +
+         scale_color_gradient (low = "#6F4E37", high = "white") +
+         #scale_x_discrete(position = "top") +
+         theme (
+            plot.background = element_rect(fill= "#6F4E37", color = "#6F4E37"),
+            panel.background = element_rect(fill= "#6F4E37"),
+            panel.grid.major = element_blank(),
+            panel.grid.minor = element_blank(),
+            axis.title = element_text (size = 8, hjust = 0.5, color = "white"),
+            axis.text.x = element_text (size = 8, hjust = 0.5, color = "white", angle = 90),
+            axis.text.y = element_blank (),
+            axis.ticks.x = element_blank (),
+            axis.ticks.y = element_blank(),
+            legend.position = "none"
+            ) +
+         labs (
+            x = "\nGrade Rating",
+            y = ""
+            )
+``` 
 
 ### 4c.  Visualize - combine plots
 ```{r transform, warning = TRUE, results = FALSE, message = FALSE}
 
    library (patchwork)
 
-   plot_distrib + plot_count + plot_layout(widths = c(1, .25)) +
+   plot_distrib + plot_count + plot_grade + plot_layout(widths = c(1, .25, .25)) +
    plot_annotation (
       title = "Coffee Ratings",
       subtitle = "Placeholder",
       caption = "Visualization: Joel Soroos @soroosj  |  Data: Coffee Quality Database via Kaggle via R4DS Tidy Tuesday",
       theme = theme (
          plot.background = element_rect(fill= "#6F4E37", color = "#6F4E37"),
-         plot.title = element_text(hjust = 0, vjust = 0, size = 14, face = "bold", margin = margin (0,0,7,0), color = "white"),
-         plot.subtitle = element_text (hjust = 0, vjust = 0, size = 10, margin = margin (0,0,25,0), color = "white"),
-         plot.caption = element_text (hjust = 0, size = 8, margin = margin (20,0,0,0), color = "white"),
-         plot.caption.position = "plot"
+         plot.title = element_text(hjust = 0.5, vjust = 0, size = 14, face = "bold", margin = margin (0,0,7,0), color = "white"),
+         plot.subtitle = element_text (hjust = 0.5, vjust = 0, size = 10, margin = margin (0,0,25,0), color = "white"),
+         plot.caption = element_text (hjust = 1, size = 8, margin = margin (20,0,0,0), color = "white")
          )
       )
    ggsave("coffee.png")
