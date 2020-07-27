@@ -37,12 +37,12 @@ output: html_document
 
 ```
 
-### 3.  Transform stage data
+### 3.  Transform data
 ```{r transform, warning = TRUE, results = FALSE, message = FALSE}
    
    country_significant <- coffee_raw %>%
       count (country_of_origin) %>%
-      filter (n>7) %>%
+      filter (n>9) %>%
       arrange (n) %>%
       pull (country_of_origin)   
 
@@ -80,11 +80,11 @@ output: html_document
 ### 4a.  Visualize - median
 ```{r transform, warning = TRUE, results = FALSE, message = FALSE}
 
-   plot_median <- 
+   plot_median <-
       ggplot (coffee_summ, aes (x = 1, y = reorder(country_of_origin, rating_med))) +
          geom_text(
             aes (label = round(rating_med, 1)),
-            color = "white", size = 3, hjust = 0
+            color = "white", size = 3, hjust = 0.5
             ) +
          scale_x_discrete(position = "top") +
          theme (
@@ -92,14 +92,14 @@ output: html_document
             panel.background = element_rect(fill= "#6F4E37"),
             panel.grid.major = element_blank(),
             panel.grid.minor = element_blank(),
-            axis.title = element_blank (),
-            axis.text.x = element_text (size = 8, hjust = 0, color = "white", angle = 80),
+            axis.title = element_text (size = 8, hjust = 0.5, vjust = 1, color = "white", angle = 80),
+            axis.text.x = element_text (size = 8, hjust = 0, vjust = 0, color = "white"),
             axis.text.y = element_text (size = 8, color = "white"),
             axis.ticks = element_blank (),
             legend.position = "none"
             ) +
          labs (
-            x = "\nTotal",
+            x = "Total",
             y = ""
             )
 
@@ -179,7 +179,7 @@ output: html_document
             legend.position = "none"
             ) +
          labs(
-            x = "\nOverall Rating Distribution",
+            x = "\nOverall Ratings",
             y = ""
             )
 ```   
@@ -192,13 +192,13 @@ output: html_document
 
    plot_median + plot_grade + plot_count + plot_distrib + plot_layout(widths = c(.13, .44, .4, .65)) +
    plot_annotation (
+      title = "World Coffee Competition",
       caption = "Visualization: Joel Soroos @soroosj  |  Data: Coffee Quality Database via Kaggle via R4DS Tidy Tuesday",
       theme = theme (
          plot.background = element_rect(fill= "#6F4E37", color = "#6F4E37"),
-         plot.title = element_blank(),
-         #plot.title = element_text(hjust = 0.5, vjust = 0, size = 14, face = "bold", margin = margin (0,0,7,0), color = "white"),
-         #plot.subtitle = element_text (hjust = 0.5, vjust = 0, size = 10, margin = margin (0,0,25,0), color = "white"),
-         plot.caption = element_text (hjust = 1, size = 7, margin = margin (20,0,0,0), color = "white")
+         plot.title = element_text(hjust = 0.5, vjust = 0, size = 14, face = "bold", margin = margin (0,0,0,0), color = "white"),
+         plot.subtitle = element_text (hjust = 0.5, vjust = 0, size = 10, margin = margin (0,0,25,0), color = "white"),
+         plot.caption = element_text (hjust = 0, size = 7, margin = margin (10,0,0,0), color = "white")
          )
       )
    ggsave("coffee.png")
