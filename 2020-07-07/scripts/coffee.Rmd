@@ -83,22 +83,23 @@ output: html_document
    plot_median <- 
       ggplot (coffee_summ, aes (x = 1, y = reorder(country_of_origin, rating_med))) +
          geom_text(
-            aes (label = round(rating_med,1)),
+            aes (label = round(rating_med, 1)),
             color = "white", size = 3, hjust = 0
             ) +
+         scale_x_discrete(position = "top") +
          theme (
             plot.background = element_rect(fill= "#6F4E37", color = "#6F4E37"),
             panel.background = element_rect(fill= "#6F4E37"),
             panel.grid.major = element_blank(),
             panel.grid.minor = element_blank(),
             axis.title = element_blank (),
-            axis.text.x = element_blank (),
+            axis.text.x = element_text (size = 8, hjust = 0, color = "white", angle = 80),
             axis.text.y = element_text (size = 8, color = "white"),
             axis.ticks = element_blank (),
             legend.position = "none"
             ) +
          labs (
-            x = "\nTotal Median",
+            x = "\nTotal",
             y = ""
             )
 
@@ -133,7 +134,33 @@ output: html_document
 ``` 
 
 
-### 4c.  Visualize - distribution plot
+### 4c.  Visualize - count plot
+```{r}
+
+   plot_count <- 
+      ggplot (coffee_summ, aes (x = reorder(country_of_origin, rating_med), y = rating_n)) +
+         geom_col(fill = "white", width = .15) +
+         coord_flip () +
+         theme (
+            plot.background = element_rect(fill= "#6F4E37", color = "#6F4E37"),
+            panel.background = element_rect(fill= "#6F4E37"),
+            panel.grid.major = element_blank(),
+            panel.grid.minor = element_blank(),
+            axis.title = element_text (size = 8, hjust = 0.5, color = "white"),
+            axis.text.x = element_text (color = "white"),
+            axis.text.y = element_blank (),
+            axis.ticks.x = element_line (color = "white"),
+            axis.ticks.y = element_blank (),
+            legend.position = "none"
+            ) +
+         labs (
+            x = "",
+            y = "\n# Entries"
+            )	  
+```
+
+
+### 4d.  Visualize - distribution plot
 ```{r transform, warning = TRUE, results = FALSE, message = FALSE}
 
    plot_distrib <-
@@ -152,7 +179,7 @@ output: html_document
             legend.position = "none"
             ) +
          labs(
-            x = "\nOverall Rating",
+            x = "\nOverall Rating Distribution",
             y = ""
             )
 ```   
@@ -163,7 +190,7 @@ output: html_document
 
    library (patchwork)
 
-   plot_median + plot_grade + plot_distrib + plot_layout(widths = c(.13, .5, .8)) +
+   plot_median + plot_grade + plot_count + plot_distrib + plot_layout(widths = c(.13, .44, .4, .65)) +
    plot_annotation (
       caption = "Visualization: Joel Soroos @soroosj  |  Data: Coffee Quality Database via Kaggle via R4DS Tidy Tuesday",
       theme = theme (
