@@ -1,22 +1,21 @@
 ---
 title: "Coffee"
 author: "Joel Soroos"
-date: "7/7/2020"
+date: "7/31/2020"
 output: html_document
 ---
 
 ### 1. Source data
-```{r source, warning = TRUE, results = TRUE, message = FALSE}
+```{r source, warning = FALSE, results = FALSE, message = FALSE}
 
    library(tidyverse)
-   library(janitor)
    library(knitr)
-   
-   opts_chunk$set(warning = FALSE, message = FALSE, results = TRUE)
    
    coffee_all <- tidytuesdayR::tt_load('2020-07-07')
 
    coffee_raw <- coffee_all$coffee_ratings
+   
+   opts_chunk$set(warning = FALSE, message = FALSE, results = TRUE, echo = FALSE)
    
    #https://github.com/Z3tt/TidyTuesday/blob/master/R/2020_16_BestRapArtists.Rmd
    #https://raw.githubusercontent.com/Z3tt/TidyTuesday/master/plots/2020_16/2020_16_BestRapArtists.png
@@ -38,12 +37,11 @@ output: html_document
 ```
 
 ### 3.  Transform data
-```{r transform, warning = TRUE, results = FALSE, message = FALSE}
+```{r transform}
    
    country_significant <- coffee_raw %>%
       count (country_of_origin) %>%
       filter (n>9) %>%
-      arrange (n) %>%
       pull (country_of_origin)   
 
    coffee <- coffee_raw %>%
@@ -61,7 +59,6 @@ output: html_document
    coffee_summ <- coffee %>%
       group_by (country_of_origin) %>% 
       summarize (
-         rating_min = min (total_cup_points),
          rating_med = median (total_cup_points),
          rating_n = n ()
          )
@@ -73,12 +70,11 @@ output: html_document
       mutate (grade_rating = scale (grade_rating)) %>%
       group_by(country_of_origin, grade_type) %>%
       summarize (grade_med = median(grade_rating))
-   
 ```
 
 
 ### 4a.  Visualize - median
-```{r transform, warning = TRUE, results = FALSE, message = FALSE}
+```{r visualize_med}
 
    library (scales)
 
@@ -89,61 +85,53 @@ output: html_document
             color = "white", size = 3, hjust = 0.5
             ) +
          theme (
-            plot.background = element_rect(fill= "#6F4E37", color = "white"),
+            plot.background = element_rect(fill= "#6F4E37", color = "#6F4E37"),
             plot.title = element_text (hjust = 0.5, vjust = 0, color = "white", size = 9, margin = margin(0,0,10,0)),
             panel.background = element_rect(fill= "#6F4E37"),
             panel.grid.major = element_blank(),
             panel.grid.minor = element_blank(),
+            axis.title = element_blank (),
             axis.text.x = element_blank(),
             axis.text.y = element_text (size = 8, color = "white"),
             axis.ticks = element_blank (),
             legend.position = "none"
             ) +
-         labs (
-            title = "Overall",
-            x = "",
-            y = ""
-            )
+         labs (title = "Overall")
 ``` 
 
 
 ### 4b.  Visualize - grade plot
-```{r transform, warning = TRUE, results = FALSE, message = FALSE}
+```{r visualize_grade}
 
    plot_grade <- 
       ggplot (coffee_grades, aes (x = grade_type, y = reorder(country_of_origin, grade_med))) +
-         geom_point(
-            aes (color = grade_med)
-            ) +
+         geom_point(aes (color = grade_med)) +
          scale_color_gradient (low = "#6F4E37", high = "white") +
          theme (
-            plot.background = element_rect(fill= "#6F4E37", color = "white"),
+            plot.background = element_rect(fill= "#6F4E37", color = "#6F4E37"),
             plot.title = element_text (hjust = 0.5, vjust = 0, color = "white", size = 9, margin = margin(0,0,10,0)),
             panel.background = element_rect(fill= "#6F4E37"),
             panel.grid.major = element_blank(),
             panel.grid.minor = element_blank(),
+            axis.title = element_blank (),
             axis.text.x = element_text (size = 8, hjust = 0.5, vjust = 0.5, color = "white", angle = 80, margin = margin (0,0,0,0)),
             axis.text.y = element_blank (),
             axis.ticks = element_blank (),
             legend.position = "none"
             ) +
-         labs (
-            title = "Components",
-            x = "",
-            y = ""
-            )
+         labs (title = "Components")
 ``` 
 
 
 ### 4c.  Visualize - count plot
-```{r}
+```{r visualize_count}
 
    plot_count <- 
       ggplot (coffee_summ, aes (x = reorder(country_of_origin, rating_med), y = rating_n)) +
          geom_col(fill = "white", width = .15) +
          coord_flip () +
          theme (
-            plot.background = element_rect(fill= "#6F4E37", color = "white"),
+            plot.background = element_rect(fill= "#6F4E37", color = "#6F4E37"),
             plot.title = element_text (hjust = 0.5, vjust = 0, color = "white", size = 9, margin = margin(0,0,10,0)),
             panel.background = element_rect(fill= "#6F4E37"),
             panel.grid.major = element_blank(),
@@ -155,57 +143,50 @@ output: html_document
             axis.ticks.y = element_blank (),
             legend.position = "none"
             ) +
-         labs (
-            title = "# of Entries",
-            x = "",
-            y = ""
-            )	  
+         labs (title = "# of Entries")	  
 ```
 
 
 ### 4d.  Visualize - distribution plot
-```{r transform, warning = TRUE, results = FALSE, message = FALSE}
+```{r visualize_distribution}
 
    plot_distrib <-
       ggplot (coffee, aes (x = total_cup_points, y = reorder(country_of_origin, total_cup_points))) +
          geom_point(shape = "|", color = "white") +
          theme (
-            plot.background = element_rect(fill= "#6F4E37", color = "white"),
+            plot.background = element_rect(fill= "#6F4E37", color = "#6F4E37"),
             plot.title = element_text (hjust = 0.5, vjust = 0, color = "white", size = 9, margin = margin(0,0,10,0)),
             panel.background = element_rect(fill= "#6F4E37"),
             panel.grid.major = element_blank(),
             panel.grid.minor = element_blank(),
-            axis.title = element_text (size = 9, hjust = 0.5, color = "white"),
+            axis.title = element_blank(),
             axis.text.x = element_text (color = "white", size = 8),
             axis.text.y = element_blank (),
             axis.ticks.x = element_line (color = "white"),
             axis.ticks.y = element_blank(),
             legend.position = "none"
             ) +
-         labs(
-            title = "Overall Ratings Distribution",
-            x = "",
-            y = ""
-            )
+         labs (title = "Overall Ratings Distribution")
 ```   
 
 
-### 4d.  Visualize - combine plots
-```{r transform, warning = TRUE, results = FALSE, message = FALSE}
+### 4e.  Visualize - combine plots
+```{r visualize_all}
 
    library (patchwork)
+   library (here)
 
    plot_median + plot_grade + plot_count + plot_distrib + plot_layout(widths = c(.13, .44, .4, .65)) +
    plot_annotation (
-      title = "Coffee Quality Institute 2017 Ratings\n",
+      title = "Coffee Quality Institute 2017 Ratings",
       caption = "Visualization: Joel Soroos @soroosj  |  Data: Coffee Quality Institute via Kaggle via R4DS Tidy Tuesday",
       theme = theme (
          plot.background = element_rect(fill= "#6F4E37", color = "#6F4E37"),
-         plot.title = element_text(hjust = 0.5, vjust = 0.5, size = 14, face = "bold", margin = margin (0,0,10,0), color = "white"),
+         plot.title = element_text(hjust = 0.5, vjust = 0.5, size = 14, face = "bold", margin = margin (0,0,20,0), color = "white"),
          plot.subtitle = element_text (hjust = 0.5, vjust = 0, size = 10, margin = margin (0,0,25,0), color = "white"),
          plot.caption = element_text (hjust = 1, size = 7, margin = margin (15,0,0,0), color = "white") 
          )
       ) 
      
-   ggsave("coffee.png")
+   ggsave(here("2020-07-07", "output", "coffee.png"))
 ``` 
