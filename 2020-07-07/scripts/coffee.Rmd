@@ -67,8 +67,8 @@ output: html_document
          )
    
    coffee_grades <- coffee %>%
-      select (country_of_origin, aroma:cupper_points) %>%
-      pivot_longer(aroma:cupper_points, names_to = "grade_type", values_to = "grade_rating") %>%
+      select (country_of_origin, aroma:uniformity, sweetness) %>%
+      pivot_longer(aroma:sweetness, names_to = "grade_type", values_to = "grade_rating") %>%
       group_by(grade_type) %>%
       mutate (grade_rating = scale (grade_rating)) %>%
       group_by(country_of_origin, grade_type) %>%
@@ -80,29 +80,30 @@ output: html_document
 ### 4a.  Visualize - median
 ```{r transform, warning = TRUE, results = FALSE, message = FALSE}
 
+   library (scales)
+
    plot_median <-
       ggplot (coffee_summ, aes (x = 1, y = reorder(country_of_origin, rating_med))) +
          geom_text(
-            aes (label = round(rating_med, 1)),
+            aes (label = format(round(rating_med, 1), 1,format="f")),
             color = "white", size = 3, hjust = 0.5
             ) +
-         scale_x_discrete(position = "top") +
          theme (
-            plot.background = element_rect(fill= "#6F4E37", color = "#6F4E37"),
+            plot.background = element_rect(fill= "#6F4E37", color = "white"),
+            plot.title = element_text (hjust = 0.5, vjust = 0, color = "white", size = 9, margin = margin(0,0,10,0)),
             panel.background = element_rect(fill= "#6F4E37"),
             panel.grid.major = element_blank(),
             panel.grid.minor = element_blank(),
-            axis.title = element_text (size = 8, hjust = 0.5, vjust = 1, color = "white", angle = 80),
-            axis.text.x = element_text (size = 8, hjust = 0, vjust = 0, color = "white"),
+            axis.text.x = element_blank(),
             axis.text.y = element_text (size = 8, color = "white"),
             axis.ticks = element_blank (),
             legend.position = "none"
             ) +
          labs (
-            x = "Total",
+            title = "Overall",
+            x = "",
             y = ""
             )
-
 ``` 
 
 
@@ -115,20 +116,20 @@ output: html_document
             aes (color = grade_med)
             ) +
          scale_color_gradient (low = "#6F4E37", high = "white") +
-         scale_x_discrete(position = "top") +
          theme (
-            plot.background = element_rect(fill= "#6F4E37", color = "#6F4E37"),
+            plot.background = element_rect(fill= "#6F4E37", color = "white"),
+            plot.title = element_text (hjust = 0.5, vjust = 0, color = "white", size = 9, margin = margin(0,0,10,0)),
             panel.background = element_rect(fill= "#6F4E37"),
             panel.grid.major = element_blank(),
             panel.grid.minor = element_blank(),
-            axis.title = element_blank (),
-            axis.text.x = element_text (size = 8, hjust = 0, color = "white", angle = 80),
+            axis.text.x = element_text (size = 8, hjust = 0.5, vjust = 0.5, color = "white", angle = 80, margin = margin (0,0,0,0)),
             axis.text.y = element_blank (),
             axis.ticks = element_blank (),
             legend.position = "none"
             ) +
          labs (
-            x = "\nGrade Rating",
+            title = "Components",
+            x = "",
             y = ""
             )
 ``` 
@@ -142,20 +143,22 @@ output: html_document
          geom_col(fill = "white", width = .15) +
          coord_flip () +
          theme (
-            plot.background = element_rect(fill= "#6F4E37", color = "#6F4E37"),
+            plot.background = element_rect(fill= "#6F4E37", color = "white"),
+            plot.title = element_text (hjust = 0.5, vjust = 0, color = "white", size = 9, margin = margin(0,0,10,0)),
             panel.background = element_rect(fill= "#6F4E37"),
             panel.grid.major = element_blank(),
             panel.grid.minor = element_blank(),
-            axis.title = element_text (size = 8, hjust = 0.5, color = "white"),
-            axis.text.x = element_text (color = "white"),
+            axis.title = element_blank(),
+            axis.text.x = element_text (color = "white", size = 8),
             axis.text.y = element_blank (),
             axis.ticks.x = element_line (color = "white"),
             axis.ticks.y = element_blank (),
             legend.position = "none"
             ) +
          labs (
+            title = "# of Entries",
             x = "",
-            y = "\n# Entries"
+            y = ""
             )	  
 ```
 
@@ -167,19 +170,21 @@ output: html_document
       ggplot (coffee, aes (x = total_cup_points, y = reorder(country_of_origin, total_cup_points))) +
          geom_point(shape = "|", color = "white") +
          theme (
-            plot.background = element_rect(fill= "#6F4E37", color = "#6F4E37"),
+            plot.background = element_rect(fill= "#6F4E37", color = "white"),
+            plot.title = element_text (hjust = 0.5, vjust = 0, color = "white", size = 9, margin = margin(0,0,10,0)),
             panel.background = element_rect(fill= "#6F4E37"),
             panel.grid.major = element_blank(),
             panel.grid.minor = element_blank(),
-            axis.title = element_text (size = 8, hjust = 0.5, color = "white"),
-            axis.text.x = element_text (color = "white"),
+            axis.title = element_text (size = 9, hjust = 0.5, color = "white"),
+            axis.text.x = element_text (color = "white", size = 8),
             axis.text.y = element_blank (),
             axis.ticks.x = element_line (color = "white"),
             axis.ticks.y = element_blank(),
             legend.position = "none"
             ) +
          labs(
-            x = "\nOverall Ratings",
+            title = "Overall Ratings Distribution",
+            x = "",
             y = ""
             )
 ```   
@@ -192,14 +197,15 @@ output: html_document
 
    plot_median + plot_grade + plot_count + plot_distrib + plot_layout(widths = c(.13, .44, .4, .65)) +
    plot_annotation (
-      title = "World Coffee Competition",
-      caption = "Visualization: Joel Soroos @soroosj  |  Data: Coffee Quality Database via Kaggle via R4DS Tidy Tuesday",
+      title = "Coffee Quality Institute 2017 Ratings\n",
+      caption = "Visualization: Joel Soroos @soroosj  |  Data: Coffee Quality Institute via Kaggle via R4DS Tidy Tuesday",
       theme = theme (
          plot.background = element_rect(fill= "#6F4E37", color = "#6F4E37"),
-         plot.title = element_text(hjust = 0.5, vjust = 0, size = 14, face = "bold", margin = margin (0,0,0,0), color = "white"),
+         plot.title = element_text(hjust = 0.5, vjust = 0.5, size = 14, face = "bold", margin = margin (0,0,10,0), color = "white"),
          plot.subtitle = element_text (hjust = 0.5, vjust = 0, size = 10, margin = margin (0,0,25,0), color = "white"),
-         plot.caption = element_text (hjust = 0, size = 7, margin = margin (10,0,0,0), color = "white")
+         plot.caption = element_text (hjust = 1, size = 7, margin = margin (15,0,0,0), color = "white") 
          )
-      )
+      ) 
+     
    ggsave("coffee.png")
 ``` 
