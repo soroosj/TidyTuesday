@@ -116,6 +116,7 @@ output: html_document
          geom_col(fill = "white", width = .15) +
          coord_flip () +
          theme_all () +
+         theme (axis.text.x = element_text (color = "white", size = 8)) +
          labs (title = "# of Entries")	  
 
    plot_distrib <-
