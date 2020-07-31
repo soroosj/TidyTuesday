@@ -48,8 +48,8 @@ output: html_document
 
    coffee <- coffee_raw %>%
       filter (
-         total_cup_points>65,
-         country_of_origin %in% country_significant
+          country_of_origin %in% country_significant,
+          total_cup_points>65
          ) %>%
       mutate (country_of_origin = recode (country_of_origin,
               "United States (Hawaii)" = "USA",
@@ -80,8 +80,7 @@ output: html_document
 
    library (scales)
 
-   theme_all <- function() {
-      theme (
+   theme_all <- theme (
          plot.background = element_rect(fill= "#6F4E37", color = "#6F4E37"),
          plot.title = element_text (hjust = 0.5, vjust = 0, color = "white", size = 9, margin = margin(0,0,10,0)),
          panel.background = element_rect(fill= "#6F4E37"),
@@ -91,7 +90,6 @@ output: html_document
          axis.ticks = element_blank (),
          legend.position = "none"
          )
-      }
 
    plot_median <-
       ggplot (coffee_summ, aes (x = 1, y = reorder(country_of_origin, rating_med))) +
@@ -99,7 +97,7 @@ output: html_document
             aes (label = format(round(rating_med, 1), 1,format="f")),
             color = "white", size = 3, hjust = 0.5
             ) +
-         theme_all() +
+         theme_all +
          theme (axis.text.y = element_text (size = 8, color = "white")) +
          labs (title = "Overall")
 
@@ -107,7 +105,7 @@ output: html_document
       ggplot (coffee_grades, aes (x = grade_type, y = reorder(country_of_origin, grade_med))) +
          geom_point(aes (color = grade_med)) +
          scale_color_gradient (low = "#6F4E37", high = "white") +
-         theme_all () +
+         theme_all +
          theme (axis.text.x = element_text (size = 8, hjust = 0.5, vjust = 0.5, color = "white", angle = 80)) +
          labs (title = "Components")
 
@@ -115,14 +113,14 @@ output: html_document
       ggplot (coffee_summ, aes (x = reorder(country_of_origin, rating_med), y = rating_n)) +
          geom_col(fill = "white", width = .15) +
          coord_flip () +
-         theme_all () +
+         theme_all +
          theme (axis.text.x = element_text (color = "white", size = 8)) +
          labs (title = "# of Entries")	  
 
    plot_distrib <-
       ggplot (coffee, aes (x = total_cup_points, y = reorder(country_of_origin, total_cup_points))) +
          geom_point(shape = "|", color = "white") +
-         theme_all () +
+         theme_all +
          theme (axis.text.x = element_text (color = "white", size = 8)) +
          labs (title = "Overall Ratings Distribution")
 ```   
