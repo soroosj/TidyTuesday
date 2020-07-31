@@ -23,7 +23,7 @@ output: html_document
 ```
 
 
-### 2.  Explore  =data
+### 2.  Explore data
 ```{r explore}
 
    library(skimr)
