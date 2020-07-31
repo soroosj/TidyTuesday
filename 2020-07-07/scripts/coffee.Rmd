@@ -8,21 +8,22 @@ output: html_document
 ### 1. Source data
 ```{r source, warning = FALSE, results = FALSE, message = FALSE}
 
-   library(tidyverse)
    library(knitr)
+   library(tidyverse)
+
    
    coffee_all <- tidytuesdayR::tt_load('2020-07-07')
 
    coffee_raw <- coffee_all$coffee_ratings
    
-   opts_chunk$set(warning = FALSE, message = FALSE, results = TRUE, echo = FALSE)
+   opts_chunk$set(warning = FALSE, message = FALSE, results = FALSE, echo = FALSE)
    
    #https://github.com/Z3tt/TidyTuesday/blob/master/R/2020_16_BestRapArtists.Rmd
    #https://raw.githubusercontent.com/Z3tt/TidyTuesday/master/plots/2020_16/2020_16_BestRapArtists.png
 ```
 
 
-### 2.  Explore  data
+### 2.  Explore  =data
 ```{r explore}
 
    library(skimr)
@@ -56,14 +57,7 @@ output: html_document
               "United States" = "USA",
               "Tanzania, United Republic Of" = "Tanzania"
               )) 
-   
-   coffee_summ <- coffee %>%
-      group_by (country_of_origin) %>% 
-      summarize (
-         rating_med = median (total_cup_points),
-         rating_n = n ()
-         )
-   
+     
    coffee_grades <- coffee %>%
       select (country_of_origin, aroma:uniformity, sweetness) %>%
       pivot_longer(aroma:sweetness, names_to = "grade_type", values_to = "grade_rating") %>%
@@ -71,6 +65,13 @@ output: html_document
       mutate (grade_rating = scale (grade_rating)) %>%
       group_by(country_of_origin, grade_type) %>%
       summarize (grade_med = median(grade_rating))
+   
+   coffee_summ <- coffee %>%
+      group_by (country_of_origin) %>% 
+      summarize (
+         rating_med = median (total_cup_points),
+         rating_n = n ()
+         )
 ```
 
 
@@ -79,16 +80,14 @@ output: html_document
 
    library (scales)
 
-  theme_all <- function() {
+   theme_all <- function() {
       theme (
          plot.background = element_rect(fill= "#6F4E37", color = "#6F4E37"),
          plot.title = element_text (hjust = 0.5, vjust = 0, color = "white", size = 9, margin = margin(0,0,10,0)),
          panel.background = element_rect(fill= "#6F4E37"),
-         panel.grid.major = element_blank(),
-         panel.grid.minor = element_blank(),
+         panel.grid = element_blank(),
          axis.title = element_blank (),
-         axis.text.x = element_blank(),
-         axis.text.y = element_blank(),
+         axis.text = element_blank (),
          axis.ticks = element_blank (),
          legend.position = "none"
          )
@@ -144,7 +143,6 @@ output: html_document
          plot.subtitle = element_text (hjust = 0.5, vjust = 0, size = 10, margin = margin (0,0,25,0), color = "white"),
          plot.caption = element_text (hjust = 1, size = 7, margin = margin (15,0,0,0), color = "white") 
          )
-      ) 
-     
+      ) +
    ggsave(here("2020-07-07", "output", "coffee.png"))
 ``` 
