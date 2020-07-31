@@ -26,6 +26,7 @@ output: html_document
 ```{r explore}
 
    library(skimr)
+   library(janitor)
 
    coffee_raw %>%
       tabyl (country_of_origin) %>%
@@ -73,10 +74,25 @@ output: html_document
 ```
 
 
-### 4a.  Visualize - median
+### 4.  Visualize - indvidual charts
 ```{r visualize_med}
 
    library (scales)
+
+  theme_all <- function() {
+      theme (
+         plot.background = element_rect(fill= "#6F4E37", color = "#6F4E37"),
+         plot.title = element_text (hjust = 0.5, vjust = 0, color = "white", size = 9, margin = margin(0,0,10,0)),
+         panel.background = element_rect(fill= "#6F4E37"),
+         panel.grid.major = element_blank(),
+         panel.grid.minor = element_blank(),
+         axis.title = element_blank (),
+         axis.text.x = element_blank(),
+         axis.text.y = element_blank(),
+         axis.ticks = element_blank (),
+         legend.position = "none"
+         )
+      }
 
    plot_median <-
       ggplot (coffee_summ, aes (x = 1, y = reorder(country_of_origin, rating_med))) +
@@ -84,93 +100,35 @@ output: html_document
             aes (label = format(round(rating_med, 1), 1,format="f")),
             color = "white", size = 3, hjust = 0.5
             ) +
-         theme (
-            plot.background = element_rect(fill= "#6F4E37", color = "#6F4E37"),
-            plot.title = element_text (hjust = 0.5, vjust = 0, color = "white", size = 9, margin = margin(0,0,10,0)),
-            panel.background = element_rect(fill= "#6F4E37"),
-            panel.grid.major = element_blank(),
-            panel.grid.minor = element_blank(),
-            axis.title = element_blank (),
-            axis.text.x = element_blank(),
-            axis.text.y = element_text (size = 8, color = "white"),
-            axis.ticks = element_blank (),
-            legend.position = "none"
-            ) +
+         theme_all() +
+         theme (axis.text.y = element_text (size = 8, color = "white")) +
          labs (title = "Overall")
-``` 
-
-
-### 4b.  Visualize - grade plot
-```{r visualize_grade}
 
    plot_grade <- 
       ggplot (coffee_grades, aes (x = grade_type, y = reorder(country_of_origin, grade_med))) +
          geom_point(aes (color = grade_med)) +
          scale_color_gradient (low = "#6F4E37", high = "white") +
-         theme (
-            plot.background = element_rect(fill= "#6F4E37", color = "#6F4E37"),
-            plot.title = element_text (hjust = 0.5, vjust = 0, color = "white", size = 9, margin = margin(0,0,10,0)),
-            panel.background = element_rect(fill= "#6F4E37"),
-            panel.grid.major = element_blank(),
-            panel.grid.minor = element_blank(),
-            axis.title = element_blank (),
-            axis.text.x = element_text (size = 8, hjust = 0.5, vjust = 0.5, color = "white", angle = 80, margin = margin (0,0,0,0)),
-            axis.text.y = element_blank (),
-            axis.ticks = element_blank (),
-            legend.position = "none"
-            ) +
+         theme_all () +
+         theme (axis.text.x = element_text (size = 8, hjust = 0.5, vjust = 0.5, color = "white", angle = 80)) +
          labs (title = "Components")
-``` 
-
-
-### 4c.  Visualize - count plot
-```{r visualize_count}
 
    plot_count <- 
       ggplot (coffee_summ, aes (x = reorder(country_of_origin, rating_med), y = rating_n)) +
          geom_col(fill = "white", width = .15) +
          coord_flip () +
-         theme (
-            plot.background = element_rect(fill= "#6F4E37", color = "#6F4E37"),
-            plot.title = element_text (hjust = 0.5, vjust = 0, color = "white", size = 9, margin = margin(0,0,10,0)),
-            panel.background = element_rect(fill= "#6F4E37"),
-            panel.grid.major = element_blank(),
-            panel.grid.minor = element_blank(),
-            axis.title = element_blank(),
-            axis.text.x = element_text (color = "white", size = 8),
-            axis.text.y = element_blank (),
-            axis.ticks.x = element_line (color = "white"),
-            axis.ticks.y = element_blank (),
-            legend.position = "none"
-            ) +
+         theme_all () +
          labs (title = "# of Entries")	  
-```
-
-
-### 4d.  Visualize - distribution plot
-```{r visualize_distribution}
 
    plot_distrib <-
       ggplot (coffee, aes (x = total_cup_points, y = reorder(country_of_origin, total_cup_points))) +
          geom_point(shape = "|", color = "white") +
-         theme (
-            plot.background = element_rect(fill= "#6F4E37", color = "#6F4E37"),
-            plot.title = element_text (hjust = 0.5, vjust = 0, color = "white", size = 9, margin = margin(0,0,10,0)),
-            panel.background = element_rect(fill= "#6F4E37"),
-            panel.grid.major = element_blank(),
-            panel.grid.minor = element_blank(),
-            axis.title = element_blank(),
-            axis.text.x = element_text (color = "white", size = 8),
-            axis.text.y = element_blank (),
-            axis.ticks.x = element_line (color = "white"),
-            axis.ticks.y = element_blank(),
-            legend.position = "none"
-            ) +
+         theme_all () +
+         theme (axis.text.x = element_text (color = "white", size = 8)) +
          labs (title = "Overall Ratings Distribution")
 ```   
 
 
-### 4e.  Visualize - combine plots
+### 4b.  Visualize - combine plots
 ```{r visualize_all}
 
    library (patchwork)
