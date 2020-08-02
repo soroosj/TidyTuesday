@@ -28,10 +28,6 @@ output: html_document
    library(janitor)
 
    skim (astronauts_raw)
-
-   astronauts_raw %>%
-      tabyl (nationality) %>%
-      arrange (-percent)
 ```
 
 
@@ -39,40 +35,15 @@ output: html_document
 ```{r transform}
    
    #Identify countries with at least 10 submissions
-   country_significant <- coffee_raw %>%
-      count (country_of_origin) %>%
-      filter (n>9) %>%
-      pull (country_of_origin)   
-
-   # Filter out countries with fewer than 10 submissions, coffee firms with less than 65 total cup points
-   coffee <- coffee_raw %>%
-      filter (
-          country_of_origin %in% country_significant,
-          total_cup_points>65
-         ) %>%
-      mutate (country_of_origin = recode (country_of_origin,
-              "United States (Hawaii)" = "USA",
-              "United States (Puerto Rico)" = "USA",
-              "United States" = "USA",
-              "Tanzania, United Republic Of" = "Tanzania"
-              )) 
-  
-   #Calculate overall median ratings for each country.
-   coffee_summ <- coffee %>%
-      group_by (country_of_origin) %>% 
-      summarize (
-         rating_med = median (total_cup_points),
-         rating_n = n ()
-         ) 
-   
-   #Reshape coffee sub-component ratings to tidy (vertical) format.  Required for ggplot charting, simplifes median calculation. 
-   coffee_grades <- coffee %>%
-      select (country_of_origin, aroma:uniformity, sweetness) %>%
-      pivot_longer(aroma:sweetness, names_to = "grade_type", values_to = "grade_rating") %>%
-      group_by(grade_type) %>%
-      mutate (grade_rating = scale (grade_rating)) %>%
-      group_by(country_of_origin, grade_type) %>%
-      summarize (grade_med = median(grade_rating))
+   astronauts <- astronauts_raw %>%
+      select (name, nationality, sex, year_of_birth, total_number_of_missions, total_hrs_sum, mission_title, year_of_mission, hours_mission) %>%
+      rename (
+         year_birth = year_of_birth,
+         year_mission = year_of_mission,
+         mission_count = total_number_of_missions,
+         mission_hours = hours_mission,
+         space_hours = total_hrs_sum
+      )
 ```
 
 
