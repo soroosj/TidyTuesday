@@ -16,6 +16,8 @@ output: html_document
    astronauts_raw <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-07-14/astronauts.csv')
    
    opts_chunk$set(warning = FALSE, message = FALSE, results = "hide")
+   
+   #https://en.wikipedia.org/wiki/List_of_spaceflight-related_accidents_and_incidents
 ```
 
 
@@ -25,12 +27,11 @@ output: html_document
    library(skimr)
    library(janitor)
 
-   # ast_raw %>%
-   #    tabyl (country_of_origin) %>%
-   #    arrange (-percent) %>%
-   #    head(20)
-
    skim (astronauts_raw)
+
+   astronauts_raw %>%
+      tabyl (nationality) %>%
+      arrange (-percent)
 ```
 
 
