@@ -5,18 +5,18 @@ date: "7/31/2020"
 output: html_document
 ---
 
+
 ### 1. Source data
-```{r source, warning = FALSE, results = FALSE, message = FALSE}
+```{r source, warning = FALSE, results = "hide", message = FALSE}
 
    library(knitr)
    library(tidyverse)
 
-   
    coffee_all <- tidytuesdayR::tt_load('2020-07-07')
 
    coffee_raw <- coffee_all$coffee_ratings
    
-   opts_chunk$set(warning = FALSE, message = FALSE, results = FALSE, echo = FALSE)
+   opts_chunk$set(warning = FALSE, message = FALSE, results = "hide")
    
    #https://github.com/Z3tt/TidyTuesday/blob/master/R/2020_16_BestRapArtists.Rmd
    #https://raw.githubusercontent.com/Z3tt/TidyTuesday/master/plots/2020_16/2020_16_BestRapArtists.png
@@ -35,17 +35,19 @@ output: html_document
       head(20)
 
    skim (coffee_raw)
-
 ```
+
 
 ### 3.  Transform data
 ```{r transform}
    
+   #Identify countries with at least 10 submissions
    country_significant <- coffee_raw %>%
       count (country_of_origin) %>%
       filter (n>9) %>%
       pull (country_of_origin)   
 
+   # Filter out countries with fewer than 10 submissions, coffee firms with less than 65 total cup points
    coffee <- coffee_raw %>%
       filter (
           country_of_origin %in% country_significant,
@@ -57,7 +59,16 @@ output: html_document
               "United States" = "USA",
               "Tanzania, United Republic Of" = "Tanzania"
               )) 
-     
+  
+   #Calculate overall median ratings for each country.
+   coffee_summ <- coffee %>%
+      group_by (country_of_origin) %>% 
+      summarize (
+         rating_med = median (total_cup_points),
+         rating_n = n ()
+         ) 
+   
+   #Reshape coffee sub-component ratings to tidy (vertical) format.  Required for ggplot charting, simplifes median calculation. 
    coffee_grades <- coffee %>%
       select (country_of_origin, aroma:uniformity, sweetness) %>%
       pivot_longer(aroma:sweetness, names_to = "grade_type", values_to = "grade_rating") %>%
@@ -65,13 +76,6 @@ output: html_document
       mutate (grade_rating = scale (grade_rating)) %>%
       group_by(country_of_origin, grade_type) %>%
       summarize (grade_med = median(grade_rating))
-   
-   coffee_summ <- coffee %>%
-      group_by (country_of_origin) %>% 
-      summarize (
-         rating_med = median (total_cup_points),
-         rating_n = n ()
-         )
 ```
 
 
@@ -80,6 +84,7 @@ output: html_document
 
    library (scales)
 
+   #common theme elements acrdoss charts
    theme_all <- theme (
          plot.background = element_rect(fill= "#6F4E37", color = "#6F4E37"),
          plot.title = element_text (hjust = 0.5, vjust = 0, color = "white", size = 9, margin = margin(0,0,10,0)),
@@ -91,6 +96,7 @@ output: html_document
          legend.position = "none"
          )
 
+   #Overall rating number column
    plot_median <-
       ggplot (coffee_summ, aes (x = 1, y = reorder(country_of_origin, rating_med))) +
          geom_text(
@@ -101,6 +107,7 @@ output: html_document
          theme (axis.text.y = element_text (size = 8, color = "white")) +
          labs (title = "Overall")
 
+   #Rating sub-component point chart
    plot_grade <- 
       ggplot (coffee_grades, aes (x = grade_type, y = reorder(country_of_origin, grade_med))) +
          geom_point(aes (color = grade_med)) +
@@ -109,6 +116,7 @@ output: html_document
          theme (axis.text.x = element_text (size = 8, hjust = 0.5, vjust = 0.5, color = "white", angle = 80)) +
          labs (title = "Components")
 
+   #Count of entrants by country chart
    plot_count <- 
       ggplot (coffee_summ, aes (x = reorder(country_of_origin, rating_med), y = rating_n)) +
          geom_col(fill = "white", width = .15) +
@@ -117,6 +125,7 @@ output: html_document
          theme (axis.text.x = element_text (color = "white", size = 8)) +
          labs (title = "# of Entries")	  
 
+   #Overall rating distribution chart
    plot_distrib <-
       ggplot (coffee, aes (x = total_cup_points, y = reorder(country_of_origin, total_cup_points))) +
          geom_point(shape = "|", color = "white") +
