@@ -17,9 +17,6 @@ output: html_document
    coffee_raw <- coffee_all$coffee_ratings
    
    opts_chunk$set(warning = FALSE, message = FALSE, results = "hide")
-   
-   #https://github.com/Z3tt/TidyTuesday/blob/master/R/2020_16_BestRapArtists.Rmd
-   #https://raw.githubusercontent.com/Z3tt/TidyTuesday/master/plots/2020_16/2020_16_BestRapArtists.png
 ```
 
 
@@ -84,7 +81,11 @@ output: html_document
 
    library (scales)
 
-   #common theme elements acrdoss charts
+   #Inpsiration charts by Cédric Scherer
+      #https://github.com/Z3tt/TidyTuesday/blob/master/R/2020_16_BestRapArtists.Rmd
+      #https://raw.githubusercontent.com/Z3tt/TidyTuesday/master/plots/2020_16/2020_16_BestRapArtists.png
+
+   #common theme elements across charts
    theme_all <- theme (
          plot.background = element_rect(fill= "#6F4E37", color = "#6F4E37"),
          plot.title = element_text (hjust = 0.5, vjust = 0, color = "white", size = 9, margin = margin(0,0,10,0)),
