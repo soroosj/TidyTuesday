@@ -1,7 +1,7 @@
 ---
-title: "Coffee"
+title: "Astronauts"
 author: "Joel Soroos"
-date: "7/31/2020"
+date: "8/31/2020"
 output: html_document
 ---
 
@@ -12,9 +12,8 @@ output: html_document
    library(knitr)
    library(tidyverse)
 
-   coffee_all <- tidytuesdayR::tt_load('2020-07-07')
-
-   coffee_raw <- coffee_all$coffee_ratings
+   #coffee_all <- tidytuesdayR::tt_load('2020-07-14')
+   astronauts_raw <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-07-14/astronauts.csv')
    
    opts_chunk$set(warning = FALSE, message = FALSE, results = "hide")
 ```
@@ -26,12 +25,12 @@ output: html_document
    library(skimr)
    library(janitor)
 
-   coffee_raw %>%
-      tabyl (country_of_origin) %>%
-      arrange (-percent) %>%
-      head(20)
+   # ast_raw %>%
+   #    tabyl (country_of_origin) %>%
+   #    arrange (-percent) %>%
+   #    head(20)
 
-   skim (coffee_raw)
+   skim (astronauts_raw)
 ```
 
 
