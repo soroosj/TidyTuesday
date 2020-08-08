@@ -13,7 +13,7 @@ output: html_document
    library(tidyverse)
 
    #coffee_all <- tidytuesdayR::tt_load('2020-07-14')
-   astronauts_raw <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-07-14/astronauts.csv')
+   astronaut_raw <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-07-14/astronauts.csv')
    
    opts_chunk$set(warning = FALSE, message = FALSE, results = "hide")
    
@@ -27,102 +27,77 @@ output: html_document
    library(skimr)
    library(janitor)
 
-   skim (astronauts_raw)
+   skim (astronaut_raw)
 ```
 
 
 ### 3.  Transform data
 ```{r transform}
-   
-   #Identify countries with at least 10 submissions
-   astronauts <- astronauts_raw %>%
-      select (name, nationality, sex, year_of_birth, total_number_of_missions, total_hrs_sum, mission_title, year_of_mission, hours_mission) %>%
-      rename (
-         year_birth = year_of_birth,
-         year_mission = year_of_mission,
-         mission_count = total_number_of_missions,
-         mission_hours = hours_mission,
-         space_hours = total_hrs_sum
-      )
+
+   #https://en.wikipedia.org/wiki/List_of_spaceflight-related_accidents_and_incidents
+
+   astronaut_fatality <- astronaut_raw %>%
+      filter (mission_title %in% c("Soyuz 1","Soyuz 11","STS-107", "STS-51L","STS-51-L", "STS 51-L")) %>%
+      pull (name)
+
+   astronaut <- astronaut_raw %>%
+      select (name, nationality, year_of_birth, total_number_of_missions, total_hrs_sum, hours_mission) %>%
+      group_by (name) %>%
+      summarize (
+         mission_hours = round(max (hours_mission),0),
+         mission_count = max(total_number_of_missions),
+         birth_year = max(year_of_birth),
+         space_hours = max(total_hrs_sum),
+         nationality = last(nationality)
+         ) %>%
+      filter (name %in% astronaut_fatality)
 ```
 
 
 ### 4.  Visualize - indvidual charts
 ```{r visualize_med}
 
-   library (scales)
-
-   #Inpsiration charts by Cédric Scherer
-      #https://github.com/Z3tt/TidyTuesday/blob/master/R/2020_16_BestRapArtists.Rmd
-      #https://raw.githubusercontent.com/Z3tt/TidyTuesday/master/plots/2020_16/2020_16_BestRapArtists.png
-
-   #common theme elements across charts
-   theme_all <- theme (
-         plot.background = element_rect(fill= "#6F4E37", color = "#6F4E37"),
-         plot.title = element_text (hjust = 0.5, vjust = 0, color = "white", size = 9, margin = margin(0,0,10,0)),
-         panel.background = element_rect(fill= "#6F4E37"),
-         panel.grid = element_blank(),
-         axis.title = element_blank (),
-         axis.text = element_blank (),
-         axis.ticks = element_blank (),
-         legend.position = "none"
-         )
-
-   #Overall rating number column
-   plot_median <-
-      ggplot (coffee_summ, aes (x = 1, y = reorder(country_of_origin, rating_med))) +
-         geom_text(
-            aes (label = format(round(rating_med, 1), 1,format="f")),
-            color = "white", size = 3, hjust = 0.5
-            ) +
-         theme_all +
-         theme (axis.text.y = element_text (size = 8, color = "white")) +
-         labs (title = "Overall")
-
    #Rating sub-component point chart
-   plot_grade <- 
-      ggplot (coffee_grades, aes (x = grade_type, y = reorder(country_of_origin, grade_med))) +
-         geom_point(aes (color = grade_med)) +
-         scale_color_gradient (low = "#6F4E37", high = "white") +
-         theme_all +
-         theme (axis.text.x = element_text (size = 8, hjust = 0.5, vjust = 0.5, color = "white", angle = 80)) +
-         labs (title = "Components")
-
-   #Count of entrants by country chart
-   plot_count <- 
-      ggplot (coffee_summ, aes (x = reorder(country_of_origin, rating_med), y = rating_n)) +
-         geom_col(fill = "white", width = .15) +
-         coord_flip () +
-         theme_all +
-         theme (axis.text.x = element_text (color = "white", size = 8)) +
-         labs (title = "# of Entries")	  
-
-   #Overall rating distribution chart
-   plot_distrib <-
-      ggplot (coffee, aes (x = total_cup_points, y = reorder(country_of_origin, total_cup_points))) +
-         geom_point(shape = "|", color = "white") +
-         theme_all +
-         theme (axis.text.x = element_text (color = "white", size = 8)) +
-         labs (title = "Overall Ratings Distribution")
+   # astronaut_plot <-
+      ggplot (astronaut) +
+         geom_text(
+            aes (x = 0, y = 0, label = mission_hours),
+            size = 3, hjust = 0
+            ) +
+         geom_text(
+            aes (x = 0, y = 1, label = birth_year),
+            size = 3, hjust = 0
+            ) +
+         geom_text(
+            aes (x = 1, y = 0, label = mission_count),
+            size = 3, hjust = 0
+            ) +
+         geom_text(
+            aes (x = 1, y = 1, label = nationality),
+            size = 3, hjust = 1
+            ) +
+         theme_void() +
+         facet_wrap (vars(name))
+         #labs (title = "Overall")
 ```   
 
 
 ### 4b.  Visualize - combine plots
 ```{r visualize_all}
 
-   library (patchwork)
-   library (here)
-
-   plot_median + plot_grade + plot_count + plot_distrib + plot_layout(widths = c(.13, .44, .4, .65)) +
-   plot_annotation (
-      title = "Coffee Quality Institute 2017 Ratings",
-      caption = "Visualization: Joel Soroos @soroosj  |  Data: Coffee Quality Institute via Kaggle via R4DS Tidy Tuesday",
-      theme = theme (
-         plot.background = element_rect(fill= "#6F4E37", color = "#6F4E37"),
-         plot.title = element_text(hjust = 0.5, vjust = 0.5, size = 14, face = "bold", margin = margin (0,0,20,0), color = "white"),
-         plot.subtitle = element_text (hjust = 0.5, vjust = 0, size = 10, margin = margin (0,0,25,0), color = "white"),
-         plot.caption = element_text (hjust = 1, size = 7, margin = margin (15,0,0,0), color = "white") 
-         )
-      ) +
-   ggsave(here("2020-07-07", "output", "coffee.png"))
+   # library (patchwork)
+   # library (here)
+   # 
+   # astronaut_plot + astronaut_plot + plot_layout(widths = c(.05,.05)) +
+   # plot_annotation (
+   #    title = "Coffee Quality Institute 2017 Ratings",
+   #    caption = "Visualization: Joel Soroos @soroosj  |  Data: Coffee Quality Institute via Kaggle via R4DS Tidy Tuesday",
+   #    theme = theme (
+   #       plot.background = element_rect(fill= "#6F4E37", color = "#6F4E37"),
+   #       plot.title = element_text(hjust = 0.5, vjust = 0.5, size = 14, face = "bold", margin = margin (0,0,20,0), color = "white"),
+   #       plot.subtitle = element_text (hjust = 0.5, vjust = 0, size = 10, margin = margin (0,0,25,0), color = "white"),
+   #       plot.caption = element_text (hjust = 1, size = 7, margin = margin (15,0,0,0), color = "white")
+   #       )
+   #    ) +
+   # ggsave(here("2020-07-14", "output", "astronaut.png"))
 ``` 
