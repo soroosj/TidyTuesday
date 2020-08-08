@@ -12,12 +12,9 @@ output: html_document
    library(knitr)
    library(tidyverse)
 
-   #coffee_all <- tidytuesdayR::tt_load('2020-07-14')
    astronaut_raw <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-07-14/astronauts.csv')
    
    opts_chunk$set(warning = FALSE, message = FALSE, results = "hide")
-   
-   #https://en.wikipedia.org/wiki/List_of_spaceflight-related_accidents_and_incidents
 ```
 
 
@@ -34,30 +31,34 @@ output: html_document
 ### 3.  Transform data
 ```{r transform}
 
+   library (glue)
+   
    #https://en.wikipedia.org/wiki/List_of_spaceflight-related_accidents_and_incidents
-
    astronaut_fatality <- astronaut_raw %>%
       filter (mission_title %in% c("Soyuz 1","Soyuz 11","STS-107", "STS-51L","STS-51-L", "STS 51-L")) %>%
       pull (name)
 
    astronaut <- astronaut_raw %>%
-      select (name, nationality, year_of_birth, total_number_of_missions, total_hrs_sum, hours_mission) %>%
       group_by (name) %>%
       summarize (
          mission_hours = round(max (hours_mission),0),
          mission_count = max(total_number_of_missions),
          birth_year = max(year_of_birth),
+         death_year = max (year_of_mission),
          space_hours = max(total_hrs_sum),
          nationality = last(nationality)
          ) %>%
-      filter (name %in% astronaut_fatality)
+      filter (name %in% astronaut_fatality) %>%
+      mutate (
+         life_years = glue ("{birth_year} - {death_year}")
+         ) %>%
+      select (name, nationality, year_of_birth, year_of_mission, total_number_of_missions, total_hrs_sum, hours_mission) %>%
 ```
 
 
 ### 4.  Visualize - indvidual charts
 ```{r visualize_med}
 
-   #Rating sub-component point chart
    # astronaut_plot <-
       ggplot (astronaut) +
          geom_text(
