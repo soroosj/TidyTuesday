@@ -36,23 +36,23 @@ output: html_document
    #https://en.wikipedia.org/wiki/List_of_spaceflight-related_accidents_and_incidents
    astronaut_fatality <- astronaut_raw %>%
       filter (mission_title %in% c("Soyuz 1","Soyuz 11","STS-107", "STS-51L","STS-51-L", "STS 51-L")) %>%
-      pull (name)
+      pull (mission_title)
 
    astronaut <- astronaut_raw %>%
       group_by (name) %>%
-      summarize (
-         mission_hours = round(max (hours_mission),0),
-         mission_count = max(total_number_of_missions),
-         birth_year = max(year_of_birth),
-         death_year = max (year_of_mission),
-         space_hours = max(total_hrs_sum),
-         nationality = last(nationality)
-         ) %>%
-      filter (name %in% astronaut_fatality) %>%
+      arrange (-mission_number) %>%
+      filter (mission_title %in% astronaut_fatality) %>%
+      slice(1) %>%
       mutate (
-         life_years = glue ("{birth_year} - {death_year}")
+         birth_death = glue ("{year_of_birth} - {year_of_mission}"),
+         nationality = ifelse (nationality == "U.S.S.R/Russia", "Russia",nationality),
+         missions_hours = round(total_hrs_sum,0)
          ) %>%
-      select (name, nationality, life_years, mission_count, space_hours, mission_hours) 
+      rename (
+         global_number = number,
+         missions_count = total_number_of_missions
+         ) %>%
+      select (name, nationality, birth_death, global_number, nationwide_number, mission_title, occupation, missions_count, missions_hours) 
 ```
 
 
@@ -63,15 +63,15 @@ output: html_document
    # astronaut_plot <-
       ggplot (astronaut) +
          geom_text(
-            aes (x = 0, y = 0, label = mission_hours),
+            aes (x = 0, y = 0, label = missions_hours),
             size = 3, hjust = 0
             ) +
          geom_text(
-            aes (x = 0, y = 1, label = life_years),
+            aes (x = 0, y = 1, label = birth_death),
             size = 3, hjust = 0
             ) +
          geom_text(
-            aes (x = 1, y = 0, label = mission_count),
+            aes (x = 1, y = 0, label = missions_count),
             size = 3, hjust = 0
             ) +
          geom_text(
@@ -79,6 +79,8 @@ output: html_document
             size = 3, hjust = 1
             ) +
          theme_void() +
+         theme (
+         ) +
          facet_wrap (vars(name)) +
          ggsave(here("2020-07-14", "output", "astronaut.png"))
          #labs (title = "Overall")
