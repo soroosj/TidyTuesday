@@ -52,13 +52,14 @@ output: html_document
       mutate (
          life_years = glue ("{birth_year} - {death_year}")
          ) %>%
-      select (name, nationality, year_of_birth, year_of_mission, total_number_of_missions, total_hrs_sum, hours_mission) %>%
+      select (name, nationality, life_years, mission_count, space_hours, mission_hours) 
 ```
 
 
 ### 4.  Visualize - indvidual charts
 ```{r visualize_med}
 
+   library (here)
    # astronaut_plot <-
       ggplot (astronaut) +
          geom_text(
@@ -66,7 +67,7 @@ output: html_document
             size = 3, hjust = 0
             ) +
          geom_text(
-            aes (x = 0, y = 1, label = birth_year),
+            aes (x = 0, y = 1, label = life_years),
             size = 3, hjust = 0
             ) +
          geom_text(
@@ -78,7 +79,8 @@ output: html_document
             size = 3, hjust = 1
             ) +
          theme_void() +
-         facet_wrap (vars(name))
+         facet_wrap (vars(name)) +
+         ggsave(here("2020-07-14", "output", "astronaut.png"))
          #labs (title = "Overall")
 ```   
 
