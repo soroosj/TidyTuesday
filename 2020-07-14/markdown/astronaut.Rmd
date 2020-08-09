@@ -34,6 +34,9 @@ output: html_document
 ```{r transform}
 
    library (glue)
+   library (countrycode)
+
+   
    
    #https://en.wikipedia.org/wiki/List_of_spaceflight-related_accidents_and_incidents
    astronaut_fatality <- astronaut_raw %>%
@@ -47,7 +50,8 @@ output: html_document
       slice(1) %>%
       mutate (
          birth_death = glue ("{year_of_birth} - {year_of_mission}"),
-         nationality = ifelse (nationality == "U.S.S.R/Russia", "Russia",nationality),
+         nationality_name = ifelse (nationality == "U.S.S.R/Russia", "Russia",nationality),
+         nationality_code = countrycode(nationality_name, origin = "country.name", destination = "iso2c"),
          missions_hours = round(total_hrs_sum,0)
          ) %>%
       rename (
@@ -55,7 +59,7 @@ output: html_document
          missions_count = total_number_of_missions
          ) %>%
       left_join (astronaut_photos) %>%
-      select (name, nationality, birth_death, global_number, nationwide_number, mission_title, occupation, missions_count, missions_hours, photo) 
+      select (name, nationality_name, nationality_code, birth_death, global_number, nationwide_number, mission_title, occupation, missions_count, missions_hours, photo) 
 ```
 
 
@@ -80,14 +84,12 @@ output: html_document
             aes (x = 1, y = 0, label = missions_count),
             size = 3, hjust = 0
             ) +
-         geom_text(
-            aes (x = 1, y = 1.25, label = nationality),
-            size = 3, hjust = 1
+         geom_flag(
+            aes (x = 1.25, y = 1.25, image = nationality_code),
+            size = 0.25, hjust = 1
             ) +
-         geom_image(aes(x=0.5, y=0.5, image = photo),size = 0.4) +
+         geom_image(aes(x=0.5, y=0.5, image = photo),size = 0.25) +
          theme_void() +
-         theme (
-         ) +
          facet_wrap (vars(name)) +
          ggsave(here("2020-07-14", "output", "astronaut.png"))
          #labs (title = "Overall")
