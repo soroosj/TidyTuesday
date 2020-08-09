@@ -11,8 +11,10 @@ output: html_document
 
    library(knitr)
    library(tidyverse)
+   library(here)
 
    astronaut_raw <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-07-14/astronauts.csv')
+   astronaut_photos <- read_csv(here("2020-07-14", "source", "astronaut photos.csv"))
    
    opts_chunk$set(warning = FALSE, message = FALSE, results = "hide")
 ```
@@ -22,7 +24,7 @@ output: html_document
 ```{r explore}
 
    library(skimr)
-   library(janitor)
+   library(here)
 
    skim (astronaut_raw)
 ```
@@ -41,7 +43,7 @@ output: html_document
    astronaut <- astronaut_raw %>%
       group_by (name) %>%
       arrange (-mission_number) %>%
-      filter (mission_title %in% astronaut_fatality) %>%
+      filter (mission_title %in% astronaut_fatality)%>%
       slice(1) %>%
       mutate (
          birth_death = glue ("{year_of_birth} - {year_of_mission}"),
@@ -52,14 +54,18 @@ output: html_document
          global_number = number,
          missions_count = total_number_of_missions
          ) %>%
-      select (name, nationality, birth_death, global_number, nationwide_number, mission_title, occupation, missions_count, missions_hours) 
+      left_join (astronaut_photos) %>%
+      select (name, nationality, birth_death, global_number, nationwide_number, mission_title, occupation, missions_count, missions_hours, photo) 
 ```
 
 
 ### 4.  Visualize - indvidual charts
 ```{r visualize_med}
 
-   library (here)
+   library (ggimage)
+
+   #https://github.com/GuangchuangYu/ggimage/issues/6
+
    # astronaut_plot <-
       ggplot (astronaut) +
          geom_text(
@@ -67,7 +73,7 @@ output: html_document
             size = 3, hjust = 0
             ) +
          geom_text(
-            aes (x = 0, y = 1, label = birth_death),
+            aes (x = 0, y = 1.25, label = birth_death),
             size = 3, hjust = 0
             ) +
          geom_text(
@@ -75,9 +81,10 @@ output: html_document
             size = 3, hjust = 0
             ) +
          geom_text(
-            aes (x = 1, y = 1, label = nationality),
+            aes (x = 1, y = 1.25, label = nationality),
             size = 3, hjust = 1
             ) +
+         geom_image(aes(x=0.5, y=0.5, image = photo),size = 0.4) +
          theme_void() +
          theme (
          ) +
