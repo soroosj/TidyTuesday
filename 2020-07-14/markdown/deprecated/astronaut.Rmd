@@ -1,0 +1,144 @@
+---
+title: "Astronauts"
+author: "Joel Soroos"
+date: "8/31/2020"
+output: html_document
+---
+
+
+### 1. Source data
+```{r source, warning = FALSE, results = "hide", message = FALSE}
+
+   library(knitr)
+   library(tidyverse)
+   library(here)
+
+   astronaut_raw <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-07-14/astronauts.csv')
+   astronaut_photos <- read_csv(here("2020-07-14", "source", "astronaut photos.csv"))
+   
+   opts_chunk$set(warning = FALSE, message = FALSE, results = "hide")
+```
+
+
+### 2.  Explore data
+```{r explore}
+
+   library(skimr)
+   library(here)
+
+   skim (astronaut_raw)
+```
+
+
+### 3.  Transform data
+```{r transform}
+
+   library (glue)
+   library (countrycode)
+   
+   #https://en.wikipedia.org/wiki/List_of_spaceflight-related_accidents_and_incidents
+   astronaut_fatality <- astronaut_raw %>%
+      filter (mission_title %in% c("Soyuz 1","Soyuz 11","STS-107", "STS-51L","STS-51-L", "STS 51-L")) %>%
+      pull (name)
+
+   astronaut <- astronaut_raw %>%
+      group_by (name) %>%
+      arrange (-mission_number) %>%
+      filter (name %in% astronaut_fatality)%>%
+      slice(1) %>%
+      mutate (
+         birth_death = glue ("{year_of_birth} - {year_of_mission}"),
+         nationality_name = ifelse (nationality == "U.S.S.R/Russia", "Russia",nationality),
+         nationality_code = countrycode(nationality_name, origin = "country.name", destination = "iso2c"),
+         missions_hours = round(total_hrs_sum,0)
+         ) %>%
+      rename (
+         global_number = number,
+         missions_count = total_number_of_missions
+         ) %>%
+      left_join (astronaut_photos) %>%
+      select (name, nationality_code, birth_death, global_number, nationwide_number, mission_title, occupation, missions_count, missions_hours, photo) 
+```
+
+
+### 4.  Visualize - indvidual charts
+```{r visualize_med}
+
+   library (ggimage)
+
+   #https://github.com/GuangchuangYu/ggimage/issues/6
+
+   astronaut_plot = function(name) {
+         idx<- which (astronaut$name == name)
+         ggplot (astronaut) +
+         geom_text(
+            aes (x = 0, y = 0, label = missions_hours[idx]),
+            size = 3, hjust = 0
+            ) +
+         geom_text(
+            aes (x = 0, y = 1.25, label = birth_death[idx]),
+            size = 3, hjust = 0
+            ) +
+         geom_text(
+            aes (x = 1, y = 0, label = missions_count[idx]),
+            size = 3, hjust = 0
+            ) +
+         geom_flag(
+            aes (x = 1.25, y = 1.25, image = nationality_code[idx]),
+            size = 0.25, hjust = 1
+            ) +
+         geom_image(aes(x=0.5, y=0.5, image = photo[idx]),size = 0.25) +
+         theme_void() +
+         labs (title = name)
+   }
+   
+   astronaut_plots <- map(astronaut_fatality, astronaut_plot)
+   astronaut_plots
+```
+
+
+### 4b.  Visualize - combine plots
+```{r visualize_all}
+
+   # library (patchwork)
+   # library (here)
+   # 
+   # astronaut_plot + astronaut_plot + plot_layout(widths = c(.05,.05)) +
+   # plot_annotation (
+   #    title = "Coffee Quality Institute 2017 Ratings",
+   #    caption = "Visualization: Joel Soroos @soroosj  |  Data: Coffee Quality Institute via Kaggle via R4DS Tidy Tuesday",
+   #    theme = theme (
+   #       plot.background = element_rect(fill= "#6F4E37", color = "#6F4E37"),
+   #       plot.title = element_text(hjust = 0.5, vjust = 0.5, size = 14, face = "bold", margin = margin (0,0,20,0), color = "white"),
+   #       plot.subtitle = element_text (hjust = 0.5, vjust = 0, size = 10, margin = margin (0,0,25,0), color = "white"),
+   #       plot.caption = element_text (hjust = 1, size = 7, margin = margin (15,0,0,0), color = "white")
+   #       )
+   #    ) +
+   # ggsave(here("2020-07-14", "output", "astronaut.png"))
+``` 
+
+```{r}
+      astronaut %>%
+         filter (name=="Anderson, Michael P.") %>%
+      ggplot () +
+         geom_text(
+            aes (x = 0, y = 0, label = missions_hours),
+            size = 3, hjust = 0
+            ) +
+         # geom_text(
+         #    aes (x = 0, y = 1.25, label = birth_death),
+         #    size = 3, hjust = 0
+         #    ) +
+         # geom_text(
+         #    aes (x = 1, y = 0, label = missions_count),
+         #    size = 3, hjust = 0
+         #    ) +
+         # geom_flag(
+         #    aes (x = 1.25, y = 1.25, image = nationality_code),
+         #    size = 0.25, hjust = 1
+         #    ) +
+         # geom_image(aes(x=0.5, y=0.5, image = photo),size = 0.25) +
+         theme_void() +
+         labs (title = astronaut$name)
+```
+
