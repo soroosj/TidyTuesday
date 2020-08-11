@@ -50,13 +50,13 @@ output: html_document
          name_life = glue ("{name}\n({year_of_birth} - {year_of_mission})"),
          nationality_name = ifelse (nationality == "U.S.S.R/Russia", "Russia",nationality),
          nationality_code = countrycode(nationality_name, origin = "country.name", destination = "iso2c"),
-         number_global_nation = glue ("{number} / {nationwide_number}"),
+         number_global_nation = glue ("{number}/{nationwide_number}"),
          mission_hours = round(total_hrs_sum,0),
-         mission_hours_count= glue ("{mission_hours} / {total_number_of_missions})")
+         mission_hours_count= glue ("{mission_hours}/{total_number_of_missions}")
          ) %>%
       left_join (astronaut_photos) %>%
-      select (name_life, nationality_code, number_global_nation, mission_title, occupation, mission_hours_count, photo) %>%
-      head(10)
+      select (name_life, nationality_code, number_global_nation, mission_title, occupation, mission_hours_count, photo) 
+     # head(10)
 ```
 
 
@@ -68,17 +68,21 @@ output: html_document
    #https://github.com/GuangchuangYu/ggimage/issues/6
 
    ggplot (astronaut) +
-      geom_flag(
-         aes (x = 1.25, y = 1, image = nationality_code),
-         size = 0.25, hjust = 1, vjust = 0
-         ) +
       geom_text(
          aes (x = 0, y = 0, label = number_global_nation),
-         size = 3, hjust = 0, color = "white"
+         size = 3, hjust = 0, vjust = 0, color = "white"
          ) +
       geom_text(
          aes (x = 1, y = 0, label = mission_hours_count),
-         size = 3, hjust = 0, color = "white"
+         size = 3, hjust = 1, vjust = 0, color = "white"
+         ) +
+      geom_flag(
+         aes (x = 0.5, y = 0, image = nationality_code),
+         size = 0.2, hjust = 0.5, vjust = 0
+         ) +
+      geom_text(
+         aes (x = 0, y = 1, label = number_global_nation),
+         size = 3, hjust = 0, vjust = 0, color = "black"
          ) +
       #geom_image(aes(x=0.5, y=0.5, image = photo),size = 0.25) +
       theme_void() +
