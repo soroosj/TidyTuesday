@@ -35,18 +35,16 @@ output: html_document
 
    library (glue)
    library (countrycode)
-
-   
    
    #https://en.wikipedia.org/wiki/List_of_spaceflight-related_accidents_and_incidents
    astronaut_fatality <- astronaut_raw %>%
       filter (mission_title %in% c("Soyuz 1","Soyuz 11","STS-107", "STS-51L","STS-51-L", "STS 51-L")) %>%
-      pull (mission_title)
+      pull (name)
 
    astronaut <- astronaut_raw %>%
       group_by (name) %>%
       arrange (-mission_number) %>%
-      filter (mission_title %in% astronaut_fatality)%>%
+      filter (name %in% astronaut_fatality)%>%
       slice(1) %>%
       mutate (
          birth_death = glue ("{year_of_birth} - {year_of_mission}"),
@@ -59,7 +57,7 @@ output: html_document
          missions_count = total_number_of_missions
          ) %>%
       left_join (astronaut_photos) %>%
-      select (name, nationality_name, nationality_code, birth_death, global_number, nationwide_number, mission_title, occupation, missions_count, missions_hours, photo) 
+      select (name, nationality_code, birth_death, global_number, nationwide_number, mission_title, occupation, missions_count, missions_hours, photo) 
 ```
 
 
@@ -70,30 +68,33 @@ output: html_document
 
    #https://github.com/GuangchuangYu/ggimage/issues/6
 
-   # astronaut_plot <-
-      ggplot (astronaut) +
+   astronaut_plot = function(name) {
+         idx<- which (astronaut$name == name)
+         ggplot (astronaut) +
          geom_text(
-            aes (x = 0, y = 0, label = missions_hours),
+            aes (x = 0, y = 0, label = missions_hours[idx]),
             size = 3, hjust = 0
             ) +
          geom_text(
-            aes (x = 0, y = 1.25, label = birth_death),
+            aes (x = 0, y = 1.25, label = birth_death[idx]),
             size = 3, hjust = 0
             ) +
          geom_text(
-            aes (x = 1, y = 0, label = missions_count),
+            aes (x = 1, y = 0, label = missions_count[idx]),
             size = 3, hjust = 0
             ) +
          geom_flag(
-            aes (x = 1.25, y = 1.25, image = nationality_code),
+            aes (x = 1.25, y = 1.25, image = nationality_code[idx]),
             size = 0.25, hjust = 1
             ) +
-         geom_image(aes(x=0.5, y=0.5, image = photo),size = 0.25) +
+         geom_image(aes(x=0.5, y=0.5, image = photo[idx]),size = 0.25) +
          theme_void() +
-         facet_wrap (vars(name)) +
-         ggsave(here("2020-07-14", "output", "astronaut.png"))
-         #labs (title = "Overall")
-```   
+         labs (title = name)
+   }
+   
+   astronaut_plots <- map(astronaut_fatality, astronaut_plot)
+   astronaut_plots
+```
 
 
 ### 4b.  Visualize - combine plots
@@ -115,3 +116,29 @@ output: html_document
    #    ) +
    # ggsave(here("2020-07-14", "output", "astronaut.png"))
 ``` 
+
+```{r}
+      astronaut %>%
+         filter (name=="Anderson, Michael P.") %>%
+      ggplot () +
+         geom_text(
+            aes (x = 0, y = 0, label = missions_hours),
+            size = 3, hjust = 0
+            ) +
+         # geom_text(
+         #    aes (x = 0, y = 1.25, label = birth_death),
+         #    size = 3, hjust = 0
+         #    ) +
+         # geom_text(
+         #    aes (x = 1, y = 0, label = missions_count),
+         #    size = 3, hjust = 0
+         #    ) +
+         # geom_flag(
+         #    aes (x = 1.25, y = 1.25, image = nationality_code),
+         #    size = 0.25, hjust = 1
+         #    ) +
+         # geom_image(aes(x=0.5, y=0.5, image = photo),size = 0.25) +
+         theme_void() +
+         labs (title = astronaut$name)
+```
+
