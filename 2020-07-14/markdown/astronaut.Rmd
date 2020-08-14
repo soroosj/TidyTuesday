@@ -82,18 +82,21 @@ output: html_document
          aes (x = 0.5, y = 0, image = nationality_code),
          size = 0.2, hjust = 0.5, vjust = 0
          ) +
+      geom_rect(
+         aes (xmin = 0, xmax = 1, ymin = 0.8, ymax = 1, fill = mission_title, color = mission_title),
+         size = 3, hjust = 0, vjust = 0
+         ) +
       geom_text(
-         aes (x = 0, y = 1, label = number_global_nation),
-         size = 3, hjust = 0, vjust = 0, color = "black"
+         aes (x = 0.5, y = 0.9, label = name_life),
+         size = 3, hjust = 0.5, vjust = 0.5, color = "white"
          ) +
       #geom_image(aes(x=0.5, y=0.5, image = photo),size = 0.25) +
       theme_void() +
       theme (
          panel.border = element_rect (color = "white", fill = NA),
          plot.background = element_rect(fill = "black"),
-         strip.background = element_rect(fill = "blue"),
+         strip.background = element_blank(),
          strip.text = element_blank()
-         #strip.text = element_text (color = "white")
       ) +
       facet_wrap (vars(name_life)) +
       ggsave(here("2020-07-14", "output", "astronaut.png"))
