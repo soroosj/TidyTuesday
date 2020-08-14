@@ -47,6 +47,8 @@ output: html_document
       filter (name %in% astronaut_fatality)%>%
       slice(1) %>%
       mutate (
+         name = glue ("{word(name,2)} {word (name, 1)}"),
+         name = str_remove(name,","),
          name_life = glue ("{name}\n({year_of_birth} - {year_of_mission})"),
          nationality_name = ifelse (nationality == "U.S.S.R/Russia", "Russia",nationality),
          nationality_code = countrycode(nationality_name, origin = "country.name", destination = "iso2c"),
@@ -90,7 +92,8 @@ output: html_document
          panel.border = element_rect (color = "white", fill = NA),
          plot.background = element_rect(fill = "black"),
          strip.background = element_rect(fill = "blue"),
-         strip.text = element_text (color = "white")
+         strip.text = element_blank()
+         #strip.text = element_text (color = "white")
       ) +
       facet_wrap (vars(name_life)) +
       ggsave(here("2020-07-14", "output", "astronaut.png"))
