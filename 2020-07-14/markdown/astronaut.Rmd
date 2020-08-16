@@ -14,10 +14,12 @@ output: html_document
    library(here)
 
    astronaut_raw <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-07-14/astronauts.csv')
+   
    astronaut_photos <- read_csv(here("2020-07-14", "source", "astronaut photos.csv"))
    
    space_img <- "https://cdn.wallpapersafari.com/83/9/z8eIEZ.jpg"
-   dev.set(dev.next())
+   
+
    
    opts_chunk$set(warning = FALSE, message = FALSE)
 ```
@@ -50,9 +52,9 @@ output: html_document
       filter (name %in% astronaut_fatality)%>%
       slice(1) %>%
       mutate (
-         name = glue ("{word(name,2)} {word (name, 1)}"),
-         name = str_remove(name,","),
-         name_life = glue ("{name}\n({year_of_birth} - {year_of_mission})"),
+         name_clean = glue ("{word(name,2)} {word (name, 1)}"),
+         name_clean = str_remove(name_clean,","),
+         name_life = glue ("{name_clean}\n({year_of_birth} - {year_of_mission})"),
          nationality_name = ifelse (nationality == "U.S.S.R/Russia", "Russia",nationality),
          nationality_code = countrycode(nationality_name, origin = "country.name", destination = "iso2c"),
          number_global_nation = glue ("{number}/{nationwide_number}"),
@@ -73,46 +75,43 @@ output: html_document
 
    library (ggimage)
 
-   #https://github.com/GuangchuangYu/ggimage/issues/6
+   dev.set(dev.next())
 
    g <- ggplot (astronaut) +
-      geom_text(
-         aes (x = 0, y = 0, label = number_global_nation),
-         size = 3, hjust = 0, vjust = 0, color = "white"
-         ) +
-      geom_text(
-         aes (x = 1, y = 0, label = mission_hours_count),
-         size = 3, hjust = 1, vjust = 0, color = "white"
-         ) +
-      geom_flag(
-         aes (x = 0.5, y = 0, image = nationality_code),
-         size = 0.2, hjust = 0.5, vjust = 0
-         ) +
-      geom_rect(
-         aes (xmin = 0, xmax = 1, ymin = 0.8, ymax = 1, fill = mission_title, color = mission_title),
-         size = 3
-         ) +
-      geom_text(
-         aes (x = 0.5, y = 0.9, label = name_life),
-         size = 3, hjust = 0.5, vjust = 0.5, color = "white"
-         ) +
+      #add box header
+         geom_rect(aes (xmin = 0, xmax = 1, ymin = 0.77, ymax = 1, fill = mission_title, color = mission_title), size = 3) +
+      #add astronaut name / years of life
+         geom_text(aes (x = 0.5, y = 0.9, label = name_life), size = 3, hjust = 0.5, vjust = 0.5, color = "white") +
+      #add astronaut photo
+         geom_image(aes(x=0.5, y=0.5, image = photo), size = 0.32) +
+      #add country flag
+         geom_flag(aes (x = 0.5, y = 0, image = nationality_code), size = 0.2, hjust = 0.5, vjust = 0) +
+     #add astronaut sequence number
+         geom_text(aes (x = 0, y = 0, label = number_global_nation), size = 3, hjust = 0, vjust = 0, color = "white") +
+      #add number of missions
+         geom_text (aes (x = 1, y = 0, label = mission_hours_count), size = 3, hjust = 1, vjust = 0, color = "white") +
       scale_color_viridis_d (end = .6) +
       scale_fill_viridis_d (end = .6) +
-      geom_image(aes(x=0.5, y=0.5, image = photo),size = 0.25) +
+      labs(
+         title = "In memory of the astronauts who died in space",
+         caption = "Visualization: Joel Soroos @soroosj  |  Data: Astronaut Database"
+      ) +
       theme_void() +
       theme (
-         panel.border = element_rect (color = "white", fill = NA),
+         plot.title = element_text (color = "white", margin = margin(0,0,15,0), hjust = 0.5, size = 14),
+         plot.title.position = "plot",
+         plot.caption = element_text (color = "white", margin = margin(15,0,3,0), hjust = 1, size = 8),
+         plot.caption.position = "plot",
          plot.background = element_rect(fill = "black"),
+         panel.border = element_rect (color = "white", fill = NA),
+         legend.text = element_text(color = "white", hjust = 0),
+         legend.position = "bottom",
+         legend.justification = "left",
+         legend.direction = "horizontal",
          strip.background = element_blank(),
-         strip.text = element_blank(),
-         legend.text = element_text(color = "white")
-         #legend.position = "bottom"
+         strip.text = element_blank()
       ) +
-      facet_wrap (vars(year_of_mission, mission_title, name_life)) +
-      labs(
-         title = "Space Memorial",
-         caption = "Visualization: Joel Soroos @soroosj  |  Data: Astronaut Database"
-      )
+      facet_wrap (vars(year_of_mission, mission_title, name_life)) 
    
       ggbackground (g, space_img, alpha = 0.2)
       ggsave(here("2020-07-14", "output", "astronaut.png"))
