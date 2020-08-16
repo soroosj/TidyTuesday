@@ -16,6 +16,9 @@ output: html_document
    astronaut_raw <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-07-14/astronauts.csv')
    astronaut_photos <- read_csv(here("2020-07-14", "source", "astronaut photos.csv"))
    
+   space_img <- "https://cdn.wallpapersafari.com/83/9/z8eIEZ.jpg"
+   dev.set(dev.next())
+   
    opts_chunk$set(warning = FALSE, message = FALSE)
 ```
 
@@ -61,7 +64,7 @@ output: html_document
       ungroup (name) %>%
       select (name_life, nationality_code, number_global_nation, mission_title, year_of_mission, mission_hours_count, photo) %>%
       arrange (mission_title)
-     # head(10)
+      #head(2)
 ```
 
 
@@ -72,7 +75,7 @@ output: html_document
 
    #https://github.com/GuangchuangYu/ggimage/issues/6
 
-   ggplot (astronaut) +
+   g<- ggplot (astronaut) +
       geom_text(
          aes (x = 0, y = 0, label = number_global_nation),
          size = 3, hjust = 0, vjust = 0, color = "white"
@@ -103,6 +106,11 @@ output: html_document
          strip.background = element_blank(),
          strip.text = element_blank()
       ) +
-      facet_wrap (vars(year_of_mission, mission_title, name_life))+
+      facet_wrap (vars(year_of_mission, mission_title, name_life))
+   
+      ggbackground (g, space_img, alpha = 0.2)
+   
       ggsave(here("2020-07-14", "output", "astronaut.png"))
+   
+
 ```
