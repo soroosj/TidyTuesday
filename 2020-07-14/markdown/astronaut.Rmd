@@ -75,7 +75,7 @@ output: html_document
 
    #https://github.com/GuangchuangYu/ggimage/issues/6
 
-   g<- ggplot (astronaut) +
+   ggplot (astronaut) +
       geom_text(
          aes (x = 0, y = 0, label = number_global_nation),
          size = 3, hjust = 0, vjust = 0, color = "white"
@@ -96,21 +96,24 @@ output: html_document
          aes (x = 0.5, y = 0.9, label = name_life),
          size = 3, hjust = 0.5, vjust = 0.5, color = "white"
          ) +
-      scale_color_viridis_d() +
-      scale_fill_viridis_d() +
-      #geom_image(aes(x=0.5, y=0.5, image = photo),size = 0.25) +
+      scale_color_viridis_d (end = .6) +
+      scale_fill_viridis_d (end = .6) +
+      geom_image(aes(x=0.5, y=0.5, image = photo),size = 0.25) +
       theme_void() +
       theme (
          panel.border = element_rect (color = "white", fill = NA),
          plot.background = element_rect(fill = "black"),
          strip.background = element_blank(),
-         strip.text = element_blank()
+         strip.text = element_blank(),
+         legend.text = element_text(color = "white")
+         #legend.position = "bottom"
       ) +
-      facet_wrap (vars(year_of_mission, mission_title, name_life))
+      facet_wrap (vars(year_of_mission, mission_title, name_life)) +
+      labs(
+         title = "Space Memorial",
+         caption = "Visualization: Joel Soroos @soroosj  |  Data: Astronaut Database"
+      )
    
-      ggbackground (g, space_img, alpha = 0.2)
-   
+      #ggbackground (g, space_img, alpha = 0.2)
       ggsave(here("2020-07-14", "output", "astronaut.png"))
-   
-
 ```
