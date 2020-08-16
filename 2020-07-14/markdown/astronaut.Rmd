@@ -75,7 +75,7 @@ output: html_document
 
    #https://github.com/GuangchuangYu/ggimage/issues/6
 
-   ggplot (astronaut) +
+   g <- ggplot (astronaut) +
       geom_text(
          aes (x = 0, y = 0, label = number_global_nation),
          size = 3, hjust = 0, vjust = 0, color = "white"
@@ -114,6 +114,6 @@ output: html_document
          caption = "Visualization: Joel Soroos @soroosj  |  Data: Astronaut Database"
       )
    
-      #ggbackground (g, space_img, alpha = 0.2)
+      ggbackground (g, space_img, alpha = 0.2)
       ggsave(here("2020-07-14", "output", "astronaut.png"))
 ```
