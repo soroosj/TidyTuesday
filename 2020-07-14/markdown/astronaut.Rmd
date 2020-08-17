@@ -6,7 +6,6 @@ output: html_document
 ---
 
 
-### 1. Source data
 ```{r source, warning = FALSE, message = FALSE}
 
    library(tidyverse)
@@ -23,7 +22,6 @@ output: html_document
 ```
 
 
-### 2.  Explore data
 ```{r explore}
 
    library(skimr)
@@ -33,7 +31,6 @@ output: html_document
 ```
 
 
-### 3.  Transform data
 ```{r transform}
 
    library (glue)
@@ -69,51 +66,47 @@ output: html_document
 ```
 
 
-### 4.  Visualize - indvidual charts
-```{r visualize_med}
+```{r visualize}
 
    library (ggimage)
 
-   #dev.set(dev.next())
-
-   g <- ggplot (astronaut) +
-      #add box header
-         geom_rect(aes (xmin = 0, xmax = 1, ymin = 0.77, ymax = 1, fill = mission_title, color = mission_title), size = 3) +
-      #add astronaut name
-         geom_text(aes (x = 0.5, y = 0.97, label = name_clean), size = 3, hjust = 0.5, color = "white") +
-      #add astronaut years of life
-         geom_text(aes (x = 0.5, y = 0.85, label = birth_death), size = 3, hjust = 0.5, vjust = 1, color = "white") +
-      #add astronaut photo
-         #geom_image(aes(x=0.5, y=0.5, image = photo), size = 0.32) +
-      #add country flag
-         geom_flag(aes (x = 0.09, y = 0.8, image = nationality_code), size = 0.2, hjust = 0.5, vjust = 0) +
-     #add astronaut sequence number
-         geom_text(aes (x = 0, y = 0, label = number_global_nation), size = 3, hjust = 0, vjust = 0, color = "white") +
-      #add number of missions
-         geom_text (aes (x = 1, y = 0, label = mission_hours_count), size = 3, hjust = 1, vjust = 0, color = "white") +
-      scale_color_viridis_d (end = .6) +
-      scale_fill_viridis_d (end = .6) +
-      labs(
-         title = "In memory of the astronauts who died in space",
-         caption = "Visualization: Joel Soroos @soroosj  |  Data: Astronaut Database"
-         ) +
-      theme_void() +
-      theme (
-         plot.title = element_text (color = "white", margin = margin(0,0,15,0), hjust = 0.5, size = 14),
-         plot.title.position = "plot",
-         plot.caption = element_text (color = "white", margin = margin(15,0,3,0), hjust = 1, size = 8),
-         plot.caption.position = "plot",
-         panel.border = element_rect (color = "white", fill = NA),
-         strip.background = element_blank(),
-         strip.text = element_blank(),
-         legend.title = element_blank(),
-         legend.text = element_text(color = "white", hjust = 0),
-         legend.position = "bottom",
-         legend.justification = "left",
-         legend.direction = "horizontal"
-         ) +
-      facet_wrap (vars(year_of_mission, mission_title, name_clean)) 
+   astronaut_plot <-
+      ggplot (astronaut) +
+         #add box header
+            geom_rect(aes (xmin = 0, xmax = 1, ymin = 0, ymax = 1, fill = mission_title, color = mission_title), size = 3) +
+         #add astronaut name
+            geom_text(aes (x = 0.5, y = 0.97, label = name_clean), size = 3, hjust = 0.5, color = "white") +
+         #add country flag
+            geom_flag(aes (x = 0.09, y = 0.8, image = nationality_code), size = 0.17, hjust = 0.5) +
+         #add astronaut years of life
+            geom_text(aes (x = 0.5, y = 0.85, label = birth_death), size = 3, hjust = 0.5, vjust = 1, color = "white") +
+         #add astronaut photo
+            geom_image(aes(x=0.5, y=0.4, image = photo), size = 0.5) +
+         #add astronaut sequence number
+            geom_text(aes (x = 0, y = 0, label = number_global_nation), size = 3, hjust = 0, vjust = 0, color = "white") +
+         #add number of missions
+            geom_text (aes (x = 1, y = 0, label = mission_hours_count), size = 3, hjust = 1, vjust = 0, color = "white") +
+         scale_color_viridis_d (end = .6) +
+         scale_fill_viridis_d (end = .6) +
+         labs(
+            title = "In memory of the 18 astronauts who died in space",
+            caption = "Visualization: Joel Soroos @soroosj  |  Data: Astronaut Database"
+            ) +
+         theme_void() +
+         theme (
+            plot.title = element_text (color = "white", margin = margin(0,0,15,0), hjust = 0.5, size = 14),
+            plot.caption = element_text (color = "white", margin = margin(15,0,3,0), hjust = 1, size = 8),
+            panel.border = element_rect (color = "white", fill = NA),
+            strip.background = element_blank(),
+            strip.text = element_blank(),
+            legend.title = element_blank(),
+            legend.text = element_text(color = "white", hjust = 0),
+            legend.position = "bottom",
+            legend.justification = "left",
+            legend.direction = "horizontal"
+            ) +
+         facet_wrap (vars(year_of_mission, mission_title, name_clean)) 
    
-      ggbackground (g, space_img, alpha = 0.2)
-      ggsave(here("2020-07-14", "output", "astronaut.png"))
+      ggbackground (astronaut_plot, space_img, alpha = 0.2)
+      ggsave(here("2020-07-14", "output", "astronaut.png"), height = 11, width = 12)
 ```
