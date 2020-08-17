@@ -9,19 +9,17 @@ output: html_document
 ### 1. Source data
 ```{r source, warning = FALSE, message = FALSE}
 
-   library(knitr)
    library(tidyverse)
    library(here)
 
+   #download astronaut mission data
    astronaut_raw <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-07-14/astronauts.csv')
    
+   #download astronaut photos
    astronaut_photos <- read_csv(here("2020-07-14", "source", "astronaut photos.csv"))
    
+   #download outer space image for chart background
    space_img <- "https://cdn.wallpapersafari.com/83/9/z8eIEZ.jpg"
-   
-
-   
-   opts_chunk$set(warning = FALSE, message = FALSE)
 ```
 
 
@@ -57,9 +55,9 @@ output: html_document
          name_life = glue ("{name_clean}\n({year_of_birth} - {year_of_mission})"),
          nationality_name = ifelse (nationality == "U.S.S.R/Russia", "Russia",nationality),
          nationality_code = countrycode(nationality_name, origin = "country.name", destination = "iso2c"),
-         number_global_nation = glue ("{number}/{nationwide_number}"),
+         number_global_nation = glue ("{nationwide_number}/{number}"),
          mission_hours = round(total_hrs_sum,0),
-         mission_hours_count= glue ("{mission_hours}/{total_number_of_missions}"),
+         mission_hours_count= glue ("{total_number_of_missions}/{mission_hours}"),
          mission_title = recode (mission_title, "STS-51-L" = "STS-51L", "STS 51-L" = "STS-51L")
          ) %>%
       left_join (astronaut_photos) %>%
@@ -95,7 +93,7 @@ output: html_document
       labs(
          title = "In memory of the astronauts who died in space",
          caption = "Visualization: Joel Soroos @soroosj  |  Data: Astronaut Database"
-      ) +
+         ) +
       theme_void() +
       theme (
          plot.title = element_text (color = "white", margin = margin(0,0,15,0), hjust = 0.5, size = 14),
@@ -104,13 +102,13 @@ output: html_document
          plot.caption.position = "plot",
          plot.background = element_rect(fill = "black"),
          panel.border = element_rect (color = "white", fill = NA),
+         strip.background = element_blank(),
+         strip.text = element_blank()
          legend.text = element_text(color = "white", hjust = 0),
          legend.position = "bottom",
          legend.justification = "left",
-         legend.direction = "horizontal",
-         strip.background = element_blank(),
-         strip.text = element_blank()
-      ) +
+         legend.direction = "horizontal"
+         ) +
       facet_wrap (vars(year_of_mission, mission_title, name_life)) 
    
       ggbackground (g, space_img, alpha = 0.2)
