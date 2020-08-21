@@ -69,6 +69,8 @@ output: html_document
 ```{r visualize}
 
    library (ggimage)
+   library (cowplot)
+   library (extrafont)
 
    astronaut_plot <-
       ggplot (astronaut) +
@@ -86,15 +88,6 @@ output: html_document
             geom_text(aes (x = 0, y = 0, label = number_global_nation), size = 5, hjust = 0, vjust = 0, color = "white") +
          #add number of missions
             geom_text (aes (x = 1, y = 0, label = mission_hours_count), size = 5, hjust = 1, vjust = 0, color = "white") +
-         # annotate("text",
-         #    label = "Astronaut sequential number for country / overall",
-         #    size = 3, hjust = 0, color = "green", x = 0.7, y = 0.2
-         #    ) +
-         # # geom_curve(
-         # #    aes(x = -83.2, y = 36.2, xend = -81.7, yend = 36.27),
-         # #    arrow = arrow(length = unit(0.2, "cm")),
-         # #    size = 0.4, color = "green", curvature = -0.4
-         # #    ) +
          scale_color_viridis_d (end = .6) +
          scale_fill_viridis_d (end = .6) +
          labs(
@@ -103,18 +96,27 @@ output: html_document
             ) +
          theme_void() +
          theme (
-            plot.title = element_text (color = "white", margin = margin(0,0,20,0), hjust = 0.5, size = 22),
-            plot.caption = element_text (color = "white", margin = margin(15,0,3,0), hjust = 1, size = 14),
+            plot.title = element_text (color = "white", margin = margin(0,0,30,0), hjust = 0.5, size = 22),
+            plot.caption = element_text (color = "white", margin = margin(22,0,3,0), hjust = 1, size = 14),
             strip.background = element_blank(),
             strip.text = element_blank(),
-            legend.title = element_blank(),
+            legend.title = element_text(color = "white", hjust = 1, size = 13),
             legend.text = element_text(color = "white", hjust = 0, size = 13),
             legend.position = "bottom",
-            legend.justification = "left",
+            legend.justification = "right",
             legend.direction = "horizontal"
             ) +
          facet_wrap (vars(year_of_mission, mission_title, name_clean)) 
+
+   #add outer space background
+   astronaut_plot_2 <-  ggbackground (astronaut_plot, space_img, alpha = 0.2)
+      
+   #add label/line keys
+   ggdraw(astronaut_plot_2) + 
+      draw_label("Astronaut number: country/global", x = .73, y = .18, color = "white") +
+      draw_line(x = c(0.76, 0.76), y = c(0.24, 0.28), color = "white") +
+      draw_label("Number of missions / total mission hours", x = .85, y = .23, color = "white") +
+      draw_line(x = c(0.64, 0.64), y = c(0.19, 0.28), color = "white")
    
-      ggbackground (astronaut_plot, space_img, alpha = 0.2)
-      ggsave(here("2020-07-14", "output", "astronaut.png"), height = 11, width = 12)
+   ggsave(here("2020-07-14", "output", "astronaut.png"), height = 11, width = 12)
 ```
