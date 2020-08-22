@@ -1,7 +1,7 @@
 ---
 title: "Astronauts"
 author: "Joel Soroos"
-date: "8/31/2020"
+date: "8/21/2020"
 output: html_document
 ---
 
@@ -70,7 +70,10 @@ output: html_document
 
    library (ggimage)
    library (cowplot)
-   library (extrafont)
+   library (showtext)
+   
+   font_add("Lato", "Lato-Regular.ttf")
+   showtext_auto() 
 
    astronaut_plot <-
       ggplot (astronaut) +
@@ -83,26 +86,28 @@ output: html_document
          #add country flag
             geom_flag(aes (x = 0.09, y = 0.81, image = nationality_code), size = 0.17, hjust = 0.5) +
          #add astronaut photo
-            geom_image(aes(x=0.5, y=0.4, image = photo), size = 0.45) +
+            geom_image(aes(x=0.5, y=0.4, image = photo), size = 0.41) +
          #add astronaut sequence number
-            geom_text(aes (x = 0, y = 0, label = number_global_nation), size = 5, hjust = 0, vjust = 0, color = "white") +
+            geom_text(aes (x = 0, y = 0, label = number_global_nation), size = 5, hjust = 0, vjust = 0, color = "white", family = "Lato") +
          #add number of missions
-            geom_text (aes (x = 1, y = 0, label = mission_hours_count), size = 5, hjust = 1, vjust = 0, color = "white") +
+            geom_text (aes (x = 1, y = 0, label = mission_hours_count), size = 5, hjust = 1, vjust = 0, color = "white", family = "Lato") +
          scale_color_viridis_d (end = .6) +
          scale_fill_viridis_d (end = .6) +
          labs(
-            title = "In memory of the 18 astronauts who died in space",
-            caption = "Visualization: Joel Soroos @soroosj  |  Data: Astronaut Database"
+            title = "IN MEMORY OF THE 18 ASTRONAUTS WHO DIED IN SPACE",
+            subtitle = "Soyuz 1: parachute failure upon landing.\nSoyuz 11: suffocation due to a faulty valve during landing.\nSTS-107: Space Shuttle Challenger destroyed 73 seconds after lift-off due to failed O-ring seal.\nSTS-51L: Space Shuttle Columbia broke apart during rentry due to thermal protection system damage.",
+            caption = "Visualization: Joel Soroos @soroosj  |  Data: Astronaut Database, Wikipedia"
             ) +
          theme_void() +
          theme (
-            plot.title = element_text (color = "white", margin = margin(0,0,30,0), hjust = 0.5, size = 22),
-            plot.caption = element_text (color = "white", margin = margin(22,0,3,0), hjust = 1, size = 14),
+            plot.title = element_text (color = "white", margin = margin(0,0,5,0), hjust = 0.5, size = 29, family = "Lato"),
+            plot.subtitle = element_text (color = "white", margin = margin(0,0,37,0), hjust = 0.5, size = 14, family = "Lato"),
+            plot.caption = element_text (color = "white", margin = margin(36,0,3,0), hjust = 0.5, size = 11, family = "Lato"),
             strip.background = element_blank(),
             strip.text = element_blank(),
-            legend.title = element_text(color = "white", hjust = 1, size = 13),
-            legend.text = element_text(color = "white", hjust = 0, size = 13),
-            legend.position = "bottom",
+            legend.title = element_blank(),
+            legend.text = element_text(color = "white", hjust = 0, size = 13, family = "Lato"),
+            legend.position = c(.98, .03),
             legend.justification = "right",
             legend.direction = "horizontal"
             ) +
@@ -112,11 +117,11 @@ output: html_document
    astronaut_plot_2 <-  ggbackground (astronaut_plot, space_img, alpha = 0.2)
       
    #add label/line keys
-   ggdraw(astronaut_plot_2) + 
-      draw_label("Astronaut number: country/global", x = .73, y = .18, color = "white") +
-      draw_line(x = c(0.76, 0.76), y = c(0.24, 0.28), color = "white") +
-      draw_label("Number of missions / total mission hours", x = .85, y = .23, color = "white") +
-      draw_line(x = c(0.64, 0.64), y = c(0.19, 0.28), color = "white")
+   ggdraw(astronaut_plot_2) +
+      draw_label("Astronaut number: country/global", x = .73, y = .16, color = "white") +
+      draw_line(x = c(0.76, 0.76), y = c(0.22, 0.26), color = "white") +
+      draw_label("Number of missions / total mission hours", x = .84, y = .21, color = "white") +
+      draw_line(x = c(0.64, 0.64), y = c(0.17, 0.26), color = "white")
    
    ggsave(here("2020-07-14", "output", "astronaut.png"), height = 11, width = 12)
 ```
