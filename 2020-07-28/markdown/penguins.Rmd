@@ -1,0 +1,48 @@
+---
+title: "Penguins"
+author: "Joel Soroos"
+date: "9/30/2020"
+output: html_document
+---
+
+
+```{r source, warning = FALSE, message = FALSE}
+
+   library(tidyverse)
+   library(palmerpenguins)
+   library(janitor)
+
+   penguins_raw <- read_csv(path_to_file("penguins_raw.csv")) %>%
+      clean_names()
+      
+   
+```
+
+
+```{r explore}
+
+   library(skimr)
+
+   skim (penguins_raw)
+```
+
+
+```{r transform}
+
+   library (glue)
+   
+   penguins <- penguins_raw %>%
+
+      mutate (
+         study_sample = glue ("{study_name}-{sample_number}"),
+         species = word (species, 1)
+         ) %>%
+      rename (
+         bill_length = culmen_length_mm,
+         bill_depth = culmen_depth_mm,
+         flipper_length = flipper_length_mm,
+         body_mass = body_mass_g
+         ) %>%
+      select (study_sample, species, island, bill_length, bill_depth, flipper_length, body_mass) %>%
+      drop_na
+```
