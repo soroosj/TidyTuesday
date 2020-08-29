@@ -51,7 +51,9 @@ output: html_document
    
    set.seed(42)
    
-   kmeans(penguins, 3)
+   #https://www.tidymodels.org/learn/statistics/k-means/
+   
+   penguins_clust <- kmeans(penguins, 3)
    
 ```
 
