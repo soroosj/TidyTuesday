@@ -14,8 +14,6 @@ output: html_document
 
    penguins_raw <- read_csv(path_to_file("penguins_raw.csv")) %>%
       clean_names()
-      
-   
 ```
 
 
@@ -43,6 +41,17 @@ output: html_document
          flipper_length = flipper_length_mm,
          body_mass = body_mass_g
          ) %>%
-      select (study_sample, species, island, bill_length, bill_depth, flipper_length, body_mass) %>%
+      select (bill_length, bill_depth, flipper_length, body_mass) %>%
       drop_na
 ```
+
+```{r}
+
+   library(tidymodels)
+   
+   set.seed(42)
+   
+   kmeans(penguins, 3)
+   
+```
+
