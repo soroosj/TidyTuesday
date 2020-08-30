@@ -21,7 +21,7 @@ output: html_document
 
    library(skimr)
 
-   skim (penguins_raw)
+   #skim (penguins_raw)
 ```
 
 
@@ -49,11 +49,36 @@ output: html_document
 
    library(tidymodels)
    
-   set.seed(42)
+   set.seed(45)
    
    #https://www.tidymodels.org/learn/statistics/k-means/
    
-   penguins_clust <- kmeans(penguins, 3)
+   penguins_clust_all <- 
+      tibble (k = 1:9) %>%
+      mutate (
+         cluster = map(k, ~kmeans(penguins, .x)),
+         tidied = map(cluster, tidy),
+         glanced = map(cluster, glance),
+         augmented = map(cluster, augment, penguins)
+      )
    
+   penguins_clusterings <- penguins_clust_all %>%
+      unnest (glanced) %>%
+      select (-cluster, -tidied, -augmented) %>%
+      clean_names
+   
+   penguins_clusters <- penguins_clust_all %>%
+      unnest (tidied, names_repair = "unique") %>%
+      rename (cluster = cluster...9) %>%
+      select (-cluster...2, -glanced, -augmented) %>%
+      relocate (cluster, .after = k) %>%
+      mutate (cluster = as.integer(cluster))
+   
+   penguins_assignments <- penguins_clust_all %>%
+      unnest (augmented) %>%
+      select (-cluster, -glanced, -tidied) %>%
+      rename (cluster = .cluster) %>%
+      relocate (cluster, .after = k)  %>%
+      mutate (cluster = as.integer(cluster))
 ```
 
