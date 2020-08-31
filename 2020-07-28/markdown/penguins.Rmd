@@ -30,15 +30,19 @@ output: html_document
    library (glue)
    
    penguins <- penguins_raw %>%
-      mutate (
-         study_sample = glue ("{study_name}-{sample_number}"),
-         species = word (species, 1)
-         ) %>%
       rename (
          bill_length = culmen_length_mm,
          bill_depth = culmen_depth_mm,
          flipper_length = flipper_length_mm,
          body_mass = body_mass_g
+         ) %>%
+      mutate (
+         study_sample = glue ("{study_name}-{sample_number}"),
+         species = word (species, 1),
+         bill_length = scale(bill_length),
+         bill_depth = scale(bill_depth),
+         flipper_length = scale(flipper_length),
+         body_mass = scale(body_mass)
          ) %>%
       select (bill_length, bill_depth, flipper_length, body_mass) %>%
       drop_na
@@ -46,7 +50,7 @@ output: html_document
 
 ```{r}
 
-   library(tidymodels)
+   library(broom)
    library(here)
    
    set.seed(45)
