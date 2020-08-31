@@ -30,7 +30,6 @@ output: html_document
    library (glue)
    
    penguins <- penguins_raw %>%
-
       mutate (
          study_sample = glue ("{study_name}-{sample_number}"),
          species = word (species, 1)
@@ -48,6 +47,7 @@ output: html_document
 ```{r}
 
    library(tidymodels)
+   library(here)
    
    set.seed(45)
    
@@ -65,20 +65,23 @@ output: html_document
    penguins_clusterings <- penguins_clust_all %>%
       unnest (glanced) %>%
       select (-cluster, -tidied, -augmented) %>%
-      clean_names
+      clean_names %>%
+      write_csv (here("2020-07-28","output", "model.csv"))
    
    penguins_clusters <- penguins_clust_all %>%
       unnest (tidied, names_repair = "unique") %>%
       rename (cluster = cluster...9) %>%
       select (-cluster...2, -glanced, -augmented) %>%
       relocate (cluster, .after = k) %>%
-      mutate (cluster = as.integer(cluster))
+      mutate (cluster = as.integer(cluster)) %>%
+      write_csv (here("2020-07-28","output", "clusters.csv"))
    
    penguins_assignments <- penguins_clust_all %>%
       unnest (augmented) %>%
       select (-cluster, -glanced, -tidied) %>%
       rename (cluster = .cluster) %>%
       relocate (cluster, .after = k)  %>%
-      mutate (cluster = as.integer(cluster))
+      mutate (cluster = as.integer(cluster)) %>%
+      write_csv (here("2020-07-28","output", "assignments.csv"))
 ```
 
