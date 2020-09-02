@@ -53,7 +53,7 @@ output: html_document
    library(broom)
    library(here)
    
-   set.seed(45)
+   set.seed(100)
    
    #https://www.tidymodels.org/learn/statistics/k-means/
    #https://www.guru99.com/r-k-means-clustering.html
@@ -91,7 +91,11 @@ output: html_document
 ```
 
 ```{r}
-   fviz_cluster(penguins_kmeans_3, geom = "point", data = penguins) +
+
+   library (factoextra)
+      
+   fviz_cluster(
+      penguins_kmeans_3, geom = "point", data = penguins) +
       labs(
          title = "Penguin Clustering",
          caption = "Visualization: Joel Soroos @soroosj  |  Data: palmerpenguins R package"
@@ -99,12 +103,10 @@ output: html_document
       theme (
          plot.title = element_text (margin = margin(0,0,5,0), hjust = 0.5, size = 15, family = "Lato"),
          plot.subtitle = element_text (margin = margin(0,0,37,0), hjust = 0.5, size = 14, family = "Lato"),
-         plot.caption = element_text (margin = margin(36,0,3,0), hjust = 0.5, size = 11, family = "Lato"),
+         plot.caption = element_text (margin = margin(36,0,3,0), hjust = 1, size = 8, family = "Lato"),
          plot.background = element_blank(),
-         legend.text = element_text(hjust = 0, size = 13, family = "Lato"),
-         legend.position = c(.98, .03),
-         legend.justification = "right",
-         legend.direction = "horizontal"
+         legend.text = element_text(hjust = 0, size = 13, family = "Lato")
+         #legend.position = c(.98, .03),
          ) +
       ggsave (here("2020-07-28","output", "cluster.png"))
 ```
