@@ -9,8 +9,8 @@ output: html_document
 ```{r source, warning = FALSE, message = FALSE}
 
    library(tidyverse)
-   library(palmerpenguins)
    library(janitor)
+   library(palmerpenguins)
 
    penguins_raw <- read_csv(path_to_file("penguins_raw.csv")) %>%
       clean_names()
@@ -21,14 +21,12 @@ output: html_document
 
    library(skimr)
 
-   #skim (penguins_raw)
+   skim (penguins_raw)
 ```
 
 
 ```{r transform}
 
-   library (glue)
-   
    penguins <- penguins_raw %>%
       rename (
          bill_length = culmen_length_mm,
@@ -37,23 +35,25 @@ output: html_document
          body_mass = body_mass_g
          ) %>%
       mutate (
-         study_sample = glue ("{study_name}-{sample_number}"),
+         id = row_number(),
          species = word (species, 1),
          bill_length = scale(bill_length),
          bill_depth = scale(bill_depth),
          flipper_length = scale(flipper_length),
          body_mass = scale(body_mass)
          ) %>%
-      select (bill_length, bill_depth, flipper_length, body_mass) %>%
+      select (id, species, island, bill_length, bill_depth, flipper_length, body_mass) %>%
       drop_na
 ```
 
+
+#Identify optimal number of clusters.
 ```{r model}
 
    library(broom)
    library(here)
    
-   set.seed(100)
+   set.seed(150)
    
    #https://www.tidymodels.org/learn/statistics/k-means/
    #https://www.guru99.com/r-k-means-clustering.html
@@ -61,7 +61,7 @@ output: html_document
    penguins_clust_all <- 
       tibble (k = 1:10) %>%
       mutate (
-         cluster = map(k, ~kmeans(penguins, .x)),
+         cluster = map(k, ~kmeans(penguins[4:7], .x)),
          tidied = map(cluster, tidy),
          glanced = map(cluster, glance),
          augmented = map(cluster, augment, penguins)
@@ -80,22 +80,33 @@ output: html_document
       relocate (cluster, .after = k) %>%
       write_csv (here("2020-07-28","output", "clusters.csv"))
    
-   penguins_assignments <- penguins_clust_all %>%
-      unnest (augmented) %>%
-      select (-cluster, -glanced, -tidied) %>%
-      rename (cluster = .cluster) %>%
-      relocate (cluster, .after = k)  %>%
-      write_csv (here("2020-07-28","output", "assignments.csv"))
-   
-   penguins_kmeans_3 <- kmeans(penguins, 3)
+   # penguins_assignments <- penguins_clust_all %>%
+   #    unnest (augmented) %>%
+   #    select (-cluster, -glanced, -tidied) %>%
+   #    rename (cluster = .cluster) %>%
+   #    relocate (cluster, .after = k)  %>%
+   #    write_csv (here("2020-07-28","output", "assignments.csv"))
 ```
 
+#Calculate k-means for optimized 3 clusters
+```{r}
+   penguins_kmeans <- kmeans(penguins[4:7], 3)
+
+   penguins_kmeans_extended <- penguins_kmeans %>%
+      augment (penguins) %>%
+      rename (cluster = .cluster) %>%
+      select (cluster, species, island, id) %>%
+      write_csv (here("2020-07-28","output", "assignments.csv"))
+```
+
+
+#Visualize cluster points
 ```{r}
 
    library (factoextra)
       
    fviz_cluster(
-      penguins_kmeans_3, geom = "point", data = penguins) +
+      penguins_kmeans, geom = "point", data = penguins[4:7]) +
       labs(
          title = "Penguin Clustering",
          caption = "Visualization: Joel Soroos @soroosj  |  Data: palmerpenguins R package"
@@ -106,9 +117,21 @@ output: html_document
          plot.caption = element_text (margin = margin(36,0,3,0), hjust = 1, size = 8, family = "Lato"),
          plot.background = element_blank(),
          legend.text = element_text(hjust = 0, size = 13, family = "Lato")
-         #legend.position = c(.98, .03),
          ) +
       ggsave (here("2020-07-28","output", "cluster.png"))
 ```
+
+
+```{r}
+
+   penguins_kmeans_extended %>%
+      count(species,island) %>%
+      ggplot(aes(x=species, y=island, fill = n)) + 
+         geom_tile() +
+      ggsave (here("2020-07-28","output", "heat_map.png"))
+```
+
+
+
 
 
