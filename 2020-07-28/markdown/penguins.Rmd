@@ -125,10 +125,16 @@ output: html_document
 ```{r}
 
    penguins_kmeans_extended %>%
-      count(species,island) %>%
-      ggplot(aes(x=species, y=island, fill = n)) + 
+      count(species,cluster) %>%
+      ggplot(aes(x=species, y=cluster, fill = n)) + 
          geom_tile() +
-      ggsave (here("2020-07-28","output", "heat_map.png"))
+      ggsave (here("2020-07-28","output", "species_heatmap.png"))
+
+   penguins_kmeans_extended %>%
+      count(island,cluster) %>%
+      ggplot(aes(x=island, y=cluster, fill = n)) + 
+         geom_tile() +
+      ggsave (here("2020-07-28","output", "island_heatmap.png"))
 ```
 
 
