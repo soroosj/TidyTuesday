@@ -90,7 +90,7 @@ output: html_document
 
 #Calculate k-means for optimized 3 clusters
 ```{r}
-   penguins_kmeans <- kmeans(penguins[4:7], 5)
+   penguins_kmeans <- kmeans(penguins[4:7], 4)
 
    penguins_kmeans_extended <- penguins_kmeans %>%
       augment (penguins) %>%
