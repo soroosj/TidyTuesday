@@ -59,9 +59,9 @@ output: html_document
    #https://www.guru99.com/r-k-means-clustering.html
    
    penguins_clust_all <- 
-      tibble (k = 1:10) %>%
+      tibble (k = 1:15) %>%
       mutate (
-         cluster = map(k, ~kmeans(penguins[4:7], .x)),
+         cluster = map(k, ~kmeans(penguins[4:6], .x)),
          tidied = map(cluster, tidy),
          glanced = map(cluster, glance),
          augmented = map(cluster, augment, penguins)
@@ -71,14 +71,24 @@ output: html_document
       unnest (glanced) %>%
       select (-cluster, -tidied, -augmented) %>%
       clean_names %>%
-      write_csv (here("2020-07-28","output", "model.csv"))
+      write_csv (here("2020-07-28","output", "model.csv")) %>%
+      rename (
+         total = totss,
+         intra_cluster = tot_withinss,
+         inter_cluster = betweenss
+      ) %>%
+      pivot_longer (
+         cols = total:inter_cluster,
+         names_to = "residual_type",
+         values_to = "residual_sum"
+      )
    
    penguins_clusters <- penguins_clust_all %>%
       unnest (tidied, names_repair = "unique") %>%
-      rename (cluster = cluster...9) %>%
+      rename (cluster = cluster...8) %>%
       select (-cluster...2, -glanced, -augmented) %>%
       relocate (cluster, .after = k) %>%
-      write_csv (here("2020-07-28","output", "clusters.csv"))
+      write_csv (here("2020-07-28","output", "clusters.csv")) 
    
    # penguins_assignments <- penguins_clust_all %>%
    #    unnest (augmented) %>%
@@ -88,9 +98,20 @@ output: html_document
    #    write_csv (here("2020-07-28","output", "assignments.csv"))
 ```
 
+
+#Identify optimal number of clusters
+```{r}
+   penguins_clusterings %>%
+      filter (residual_type != "total") %>%
+      ggplot (aes(x = k, y= residual_sum, fill = residual_type)) +
+         geom_col () +
+         ggsave (here("2020-07-28","output", "elbow_test.png"))
+```
+
+
 #Calculate k-means for optimized 3 clusters
 ```{r}
-   penguins_kmeans <- kmeans(penguins[4:7], 4)
+   penguins_kmeans <- kmeans(penguins[4:7], 3)
 
    penguins_kmeans_extended <- penguins_kmeans %>%
       augment (penguins) %>%
