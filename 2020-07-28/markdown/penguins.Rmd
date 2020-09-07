@@ -73,11 +73,12 @@ output: html_document
    
    #https://www.tidymodels.org/learn/statistics/k-means/
    #https://www.guru99.com/r-k-means-clustering.html
+   #https://afit-r.github.io/kmeans_clustering
    
    penguins_clust <- 
       tibble (k = 1:10) %>%
       mutate (
-         cluster = map(k, ~kmeans(penguins[5:8], .x)),
+         cluster = map(k, ~kmeans(penguins[5:7], .x, nstart=25)),
          glanced = map(cluster, glance)
          ) %>%
       unnest (glanced) %>%
@@ -101,15 +102,20 @@ output: html_document
 ```{r}
 
    ggplot (penguins_clust, aes(x = k, y= residual_sum, fill = residual_type)) +
-      geom_col (data = penguins_clust %>% filter (residual_type != "total")) +
-      geom_line (data = penguins_clust %>% filter (residual_type == "intra_cluster")) +
-      ggsave (here("2020-07-28","output", "elbow_test.png"))
+      geom_col (data = penguins_clust %>% filter (residual_type != "total")) + 
+      geom_line (data = penguins_clust %>% filter (residual_type == "intra_cluster")) 
+
+   fviz_nbclust(penguins[5:7], kmeans, method = "wss") +
+      ggsave (here("2020-07-28","output", "optimal_k_wss.png"))
+   
+    fviz_nbclust(penguins[5:7], kmeans, method = "silhouette") +
+      ggsave (here("2020-07-28","output", "optimal_k_silhouette.png"))
 ```
 
 
 #Calculate k-means for optimized 3 clusters
 ```{r}
-   penguins_kmeans <- kmeans(penguins[5:8], 3)
+   penguins_kmeans <- kmeans(penguins[5:7], 3)
 
    penguins_kmeans_extended <- penguins_kmeans %>%
       augment (penguins) %>%
@@ -125,7 +131,7 @@ output: html_document
    library (factoextra)
       
    fviz_cluster(
-      penguins_kmeans, geom = "point", data = penguins[5:8]) +
+      penguins_kmeans, geom = "point", data = penguins[5:7]) +
       labs(
          title = "Penguin Clustering",
          caption = "Visualization: Joel Soroos @soroosj  |  Data: palmerpenguins R package"
