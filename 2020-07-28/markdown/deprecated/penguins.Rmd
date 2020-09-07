@@ -11,12 +11,9 @@ output: html_document
    library(tidyverse)
    library(janitor)
    library(palmerpenguins)
-   library(knitr)
 
    penguins_raw <- read_csv(path_to_file("penguins_raw.csv")) %>%
       clean_names()
-   
-   opts_chunk$set(warning = FALSE, message = FALSE)
 ```
 
 
@@ -50,17 +47,17 @@ output: html_document
 ```
 
 
-```{r}
-
-    library (GGally)
-
-    ggpairs(
-       data = penguins_raw,
-       columns = c(10:14),
-       diag = list(continuous = wrap("barDiag", colour = "blue")),
-       upper = list(continuous = wrap("cor", size = 6))
-         )
-```
+# ```{r}
+# 
+#    library (GGally)
+# 
+#    ggpairs(
+#       data = penguins_raw,
+#       columns = c(10:14),
+#       diag = list(continuous = wrap("barDiag", colour = "blue")),
+#       upper = list(continuous = wrap("cor", size = 6))
+#         )
+# ```
 
 
 #Identify optimal number of clusters.
@@ -98,6 +95,13 @@ output: html_document
          names_to = "residual_type",
          values_to = "residual_sum"
       )
+   
+   penguins_clusters <- penguins_clust_all %>%
+      unnest (tidied, names_repair = "unique") %>%
+      rename (cluster = cluster...9) %>%
+      select (-cluster...2, -glanced, -augmented) %>%
+      relocate (cluster, .after = k) %>%
+      write_csv (here("2020-07-28","output", "clusters.csv")) 
 ```
 
 
@@ -165,3 +169,8 @@ output: html_document
          geom_tile() +
       ggsave (here("2020-07-28","output", "sex_heatmap.png"))
 ```
+
+
+
+
+
