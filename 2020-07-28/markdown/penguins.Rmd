@@ -74,18 +74,14 @@ output: html_document
    #https://www.tidymodels.org/learn/statistics/k-means/
    #https://www.guru99.com/r-k-means-clustering.html
    
-   penguins_clust_all <- 
+   penguins_clust <- 
       tibble (k = 1:10) %>%
       mutate (
          cluster = map(k, ~kmeans(penguins[5:8], .x)),
-         tidied = map(cluster, tidy),
-         glanced = map(cluster, glance),
-         augmented = map(cluster, augment, penguins)
-         )
-   
-   penguins_clusterings <- penguins_clust_all %>%
+         glanced = map(cluster, glance)
+         ) %>%
       unnest (glanced) %>%
-      select (-cluster, -tidied, -augmented) %>%
+      select (-cluster) %>%
       clean_names %>%
       write_csv (here("2020-07-28","output", "model.csv")) %>%
       rename (
@@ -104,9 +100,9 @@ output: html_document
 #Identify optimal number of clusters
 ```{r}
 
-   ggplot (penguins_clusterings, aes(x = k, y= residual_sum, fill = residual_type)) +
-      geom_col (data = penguins_clusterings %>% filter (residual_type != "total")) +
-      geom_line (data = penguins_clusterings %>% filter (residual_type == "intra_cluster")) +
+   ggplot (penguins_clust, aes(x = k, y= residual_sum, fill = residual_type)) +
+      geom_col (data = penguins_clust %>% filter (residual_type != "total")) +
+      geom_line (data = penguins_clust %>% filter (residual_type == "intra_cluster")) +
       ggsave (here("2020-07-28","output", "elbow_test.png"))
 ```
 
