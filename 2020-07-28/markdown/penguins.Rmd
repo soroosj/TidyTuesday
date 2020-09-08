@@ -54,7 +54,7 @@ output: html_document
 ```
 
 
-```{r}
+```{r warnings = F, message = F}
 
     library (GGally)
 
@@ -88,37 +88,6 @@ output: html_document
 ```
 
 
-#Identify optimal number of clusters.
-```{r model}
-
-   library(broom)
-   library(here)
-   
-   set.seed(920)
-   
-   penguins_clust <- 
-      tibble (k = 1:10) %>%
-      mutate (
-         cluster = map(k, ~kmeans(penguins[5:7], .x, nstart=25)),
-         glanced = map(cluster, glance)
-         ) %>%
-      unnest (glanced) %>%
-      select (-cluster) %>%
-      clean_names %>%
-      write_csv (here("2020-07-28","output", "model.csv")) %>%
-      rename (
-         total = totss,
-         intra_cluster = tot_withinss,
-         inter_cluster = betweenss
-      ) %>%
-      pivot_longer (
-         cols = total:inter_cluster,
-         names_to = "residual_type",
-         values_to = "residual_sum"
-      )
-```
-
-
 #Identify optimal number of clusters
 ```{r}
 
@@ -132,7 +101,7 @@ output: html_document
 ```
 
 
-#Copmpare optimized clusters relative to labeled data
+#Compare optimized clusters to labeled data
 ```{r}
    penguins_kmeans_extended <- 
       kmeans(penguins[5:7], 2) %>%
@@ -140,14 +109,15 @@ output: html_document
       rename (cluster = .cluster) %>%
       select (cluster, species, island, sex, id)
 
-   criteria <- c("species", "island", "sex")
+   attribute <- c("species", "island", "sex")
    
-   cluster_compare <- function (criteria) {
+   cluster_compare <- function (attribute) {
+      attribute = ensym (attribute)
       penguins_kmeans_extended %>%
-      count(criteria,cluster) %>%
-      ggplot(aes(x=criteria, y=cluster, fill = n)) + 
+      count(!!attribute,cluster) %>%
+      ggplot(aes(x=!!attribute, y=cluster, fill = n)) + 
          geom_tile() 
       }
 
-   map (criteria,cluster_compare)
+   map (attribute,cluster_compare)
 ```
