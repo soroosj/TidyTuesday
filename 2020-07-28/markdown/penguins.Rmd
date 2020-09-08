@@ -17,6 +17,10 @@ output: html_document
       clean_names()
    
    opts_chunk$set(warning = FALSE, message = FALSE)
+   
+   #https://www.tidymodels.org/learn/statistics/k-means/
+   #https://www.guru99.com/r-k-means-clustering.html
+   #https://afit-r.github.io/kmeans_clustering
 ```
 
 
@@ -63,6 +67,27 @@ output: html_document
 ```
 
 
+#Visualize potential clusters
+```{r}
+
+   library(factoextra)
+   library(glue)
+
+   kmeans_flex <- function (k) {
+      penguins_kmeans <- kmeans(penguins[5:7], k) 
+      fviz_cluster(penguins_kmeans, geom = "point", data = penguins[5:7]) +
+      labs(title = glue("{k} clusters")) +
+      theme (
+         plot.title = element_text (margin = margin(0,0,5,0), hjust = 0.5, size = 15, family = "Lato"),
+         plot.background = element_blank(),
+         legend.text = element_text(hjust = 0, size = 13, family = "Lato")
+         ) 
+      }
+
+   map (1:10, kmeans_flex)
+```
+
+
 #Identify optimal number of clusters.
 ```{r model}
 
@@ -70,10 +95,6 @@ output: html_document
    library(here)
    
    set.seed(920)
-   
-   #https://www.tidymodels.org/learn/statistics/k-means/
-   #https://www.guru99.com/r-k-means-clustering.html
-   #https://afit-r.github.io/kmeans_clustering
    
    penguins_clust <- 
       tibble (k = 1:10) %>%
@@ -105,65 +126,28 @@ output: html_document
       geom_col (data = penguins_clust %>% filter (residual_type != "total")) + 
       geom_line (data = penguins_clust %>% filter (residual_type == "intra_cluster")) 
 
-   fviz_nbclust(penguins[5:7], kmeans, method = "wss") +
-      ggsave (here("2020-07-28","output", "optimal_k_wss.png"))
+   fviz_nbclust(penguins[5:7], kmeans, method = "wss") 
    
-    fviz_nbclust(penguins[5:7], kmeans, method = "silhouette") +
-      ggsave (here("2020-07-28","output", "optimal_k_silhouette.png"))
+   fviz_nbclust(penguins[5:7], kmeans, method = "silhouette") 
 ```
 
 
-#Calculate k-means for optimized 3 clusters
+#Copmpare optimized clusters relative to labeled data
 ```{r}
-   penguins_kmeans <- kmeans(penguins[5:7], 3)
-
-   penguins_kmeans_extended <- penguins_kmeans %>%
+   penguins_kmeans_extended <- 
+      kmeans(penguins[5:7], 2) %>%
       augment (penguins) %>%
       rename (cluster = .cluster) %>%
-      select (cluster, species, island, sex, id) %>%
-      write_csv (here("2020-07-28","output", "assignments.csv"))
-```
+      select (cluster, species, island, sex, id)
 
-
-#Visualize cluster points
-```{r}
-
-   library (factoextra)
-      
-   fviz_cluster(
-      penguins_kmeans, geom = "point", data = penguins[5:7]) +
-      labs(
-         title = "Penguin Clustering",
-         caption = "Visualization: Joel Soroos @soroosj  |  Data: palmerpenguins R package"
-         ) +
-      theme (
-         plot.title = element_text (margin = margin(0,0,5,0), hjust = 0.5, size = 15, family = "Lato"),
-         plot.subtitle = element_text (margin = margin(0,0,37,0), hjust = 0.5, size = 14, family = "Lato"),
-         plot.caption = element_text (margin = margin(36,0,3,0), hjust = 1, size = 8, family = "Lato"),
-         plot.background = element_blank(),
-         legend.text = element_text(hjust = 0, size = 13, family = "Lato")
-         ) +
-      ggsave (here("2020-07-28","output", "cluster.png"))
-```
-
-
-```{r}
-
-   penguins_kmeans_extended %>%
-      count(species,cluster) %>%
-      ggplot(aes(x=species, y=cluster, fill = n)) + 
-         geom_tile() +
-      ggsave (here("2020-07-28","output", "species_heatmap.png"))
-
-   penguins_kmeans_extended %>%
-      count(island,cluster) %>%
-      ggplot(aes(x=island, y=cluster, fill = n)) + 
-         geom_tile() +
-      ggsave (here("2020-07-28","output", "island_heatmap.png"))
+   criteria <- c("species", "island", "sex")
    
-   penguins_kmeans_extended %>%
-      count(sex,cluster) %>%
-      ggplot(aes(x=sex, y=cluster, fill = n)) + 
-         geom_tile() +
-      ggsave (here("2020-07-28","output", "sex_heatmap.png"))
+   cluster_compare <- function (criteria) {
+      penguins_kmeans_extended %>%
+      count(criteria,cluster) %>%
+      ggplot(aes(x=criteria, y=cluster, fill = n)) + 
+         geom_tile() 
+      }
+
+   map (criteria,cluster_compare)
 ```
