@@ -27,8 +27,16 @@ output: html_document
 ```{r explore}
 
    library(skimr)
+   library (GGally)
 
    skim (penguins_raw)
+   
+   ggpairs(
+      data = penguins_raw,
+      columns = c(10:14),
+      diag = list(continuous = wrap("barDiag", colour = "blue")),
+      upper = list(continuous = wrap("cor", size = 6))
+         )
 ```
 
 
@@ -54,23 +62,11 @@ output: html_document
 ```
 
 
-```{r warnings = F, message = F}
-
-    library (GGally)
-
-    ggpairs(
-       data = penguins_raw,
-       columns = c(10:14),
-       diag = list(continuous = wrap("barDiag", colour = "blue")),
-       upper = list(continuous = wrap("cor", size = 6))
-         )
-```
-
-
 #Visualize potential clusters
 ```{r}
 
    library(factoextra)
+   library(patchwork)
    library(glue)
 
    kmeans_flex <- function (k) {
@@ -78,22 +74,27 @@ output: html_document
       fviz_cluster(penguins_kmeans, geom = "point", data = penguins[5:7]) +
       labs(title = glue("{k} clusters")) +
       theme (
-         plot.title = element_text (margin = margin(0,0,5,0), hjust = 0.5, size = 15, family = "Lato"),
+         plot.title = element_text (margin = margin(0,0,5,0), hjust = 0.5, size = 8, family = "Lato"),
          plot.background = element_blank(),
-         legend.text = element_text(hjust = 0, size = 13, family = "Lato")
+         legend.text = element_text(hjust = 0, size = 8, family = "Lato"),
+         legend.position = "bottom",
+         legend.title = element_text(size = 8),
+         #legend.key.size = unit(0.5),
+         axis.title = element_text (size = 8)
          ) 
       }
 
-   map (1:10, kmeans_flex)
+   cluster_possibles <- map (1:9, kmeans_flex)
+   
+   cluster_possibles[[1]] + cluster_possibles[2] + cluster_possibles[3] +
+      cluster_possibles[[4]] + cluster_possibles[5] + cluster_possibles[6] +
+      cluster_possibles[[7]] + cluster_possibles[8] + cluster_possibles[9]
+   
 ```
 
 
 #Identify optimal number of clusters
 ```{r}
-
-   ggplot (penguins_clust, aes(x = k, y= residual_sum, fill = residual_type)) +
-      geom_col (data = penguins_clust %>% filter (residual_type != "total")) + 
-      geom_line (data = penguins_clust %>% filter (residual_type == "intra_cluster")) 
 
    fviz_nbclust(penguins[5:7], kmeans, method = "wss") 
    
@@ -103,17 +104,17 @@ output: html_document
 
 #Compare optimized clusters to labeled data
 ```{r}
-   penguins_kmeans_extended <- 
-      kmeans(penguins[5:7], 2) %>%
-      augment (penguins) %>%
-      rename (cluster = .cluster) %>%
-      select (cluster, species, island, sex, id)
+
+   library (broom)
 
    attribute <- c("species", "island", "sex")
    
    cluster_compare <- function (attribute) {
       attribute = ensym (attribute)
-      penguins_kmeans_extended %>%
+      kmeans(penguins[5:7], 2) %>%
+      augment (penguins) %>%
+      rename (cluster = .cluster) %>%
+      select (cluster, species, island, sex, id) %>%
       count(!!attribute,cluster) %>%
       ggplot(aes(x=!!attribute, y=cluster, fill = n)) + 
          geom_tile() 
