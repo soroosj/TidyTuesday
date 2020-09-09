@@ -24,7 +24,7 @@ output: html_document
 ```
 
 
-```{r explore}
+```{r explore, warning = F, message =F}
 
    library(skimr)
    library (GGally)
@@ -68,6 +68,7 @@ output: html_document
    library(factoextra)
    library(patchwork)
    library(glue)
+   library(here)
 
    kmeans_flex <- function (k) {
       penguins_kmeans <- kmeans(penguins[5:7], k) 
@@ -79,7 +80,6 @@ output: html_document
          legend.text = element_text(hjust = 0, size = 8, family = "Lato"),
          legend.position = "bottom",
          legend.title = element_text(size = 8),
-         #legend.key.size = unit(0.5),
          axis.title = element_text (size = 8)
          ) 
       }
@@ -89,7 +89,7 @@ output: html_document
    cluster_possibles[[1]] + cluster_possibles[2] + cluster_possibles[3] +
       cluster_possibles[[4]] + cluster_possibles[5] + cluster_possibles[6] +
       cluster_possibles[[7]] + cluster_possibles[8] + cluster_possibles[9]
-   
+      ggsave(here("2020-07-28", "output", "cluster_possibles.png"))
 ```
 
 
