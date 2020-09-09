@@ -103,7 +103,6 @@ output: html_document
       } 
    
    map (methodologies,cluster_optimal)
-   
 ```
 
 
