@@ -78,7 +78,7 @@ output: html_document
          plot.title = element_text (margin = margin(0,0,5,0), hjust = 0.5, size = 8, family = "Lato"),
          plot.background = element_blank(),
          legend.text = element_text(hjust = 0, size = 8, family = "Lato"),
-         legend.position = "bottom",
+         legend.position = "none",
          legend.title = element_text(size = 8),
          axis.title = element_text (size = 8)
          ) 
@@ -96,9 +96,14 @@ output: html_document
 #Identify optimal number of clusters
 ```{r}
 
-   fviz_nbclust(penguins[5:7], kmeans, method = "wss") 
+   methodologies <- c("wss", "silhouette", "gap_stat")
+
+   cluster_optimal <- function(x) {
+      fviz_nbclust(penguins[5:7], kmeans, method = x)
+      } 
    
-   fviz_nbclust(penguins[5:7], kmeans, method = "silhouette") 
+   map (methodologies,cluster_optimal)
+   
 ```
 
 
