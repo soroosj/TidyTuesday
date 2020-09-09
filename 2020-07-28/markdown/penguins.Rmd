@@ -66,7 +66,6 @@ output: html_document
 ```{r}
 
    library(factoextra)
-   library(patchwork)
    library(glue)
    library(here)
 
@@ -86,23 +85,24 @@ output: html_document
 
    cluster_possibles <- map (1:9, kmeans_flex)
    
-   cluster_possibles[[1]] + cluster_possibles[2] + cluster_possibles[3] +
-      cluster_possibles[[4]] + cluster_possibles[5] + cluster_possibles[6] +
-      cluster_possibles[[7]] + cluster_possibles[8] + cluster_possibles[9]
+   cluster_possibles[[1]] + cluster_possibles[[2]] + cluster_possibles[[3]] +
+      cluster_possibles[[4]] + cluster_possibles[[5]] + cluster_possibles[[6]] +
+      cluster_possibles[[7]] + cluster_possibles[[8]] + cluster_possibles[[9]]
       ggsave(here("2020-07-28", "output", "cluster_possibles.png"))
 ```
 
 
 #Identify optimal number of clusters
 ```{r}
+   
+   library(patchwork)
 
    methodologies <- c("wss", "silhouette", "gap_stat")
-
-   cluster_optimal <- function(x) {
-      fviz_nbclust(penguins[5:7], kmeans, method = x)
-      } 
    
-   map (methodologies,cluster_optimal)
+   cluster_optimal <- map (methodologies, ~fviz_nbclust (penguins[5:7], kmeans, method = .x))
+   
+   cluster_optimal[[1]] + cluster_optimal[[2]] + cluster_optimal[[3]]
+   ggsave(here("2020-07-28", "output", "cluster_optimal.png"))
 ```
 
 
