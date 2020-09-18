@@ -152,9 +152,7 @@ There is a significant inflextion point at 3, which would be the optimal number 
 
 ####Method 3 - Silhouette
 
-The [silhouette value](https://en.wikipedia.org/wiki/Silhouette_(clustering)) was designed by Kaufman and Rousseeuw in 1990.
-
-a measure of how similar an object is to its own cluster compared to other clusters. The silhouette ranges from −1 to +1, where a high value indicates that the object is well matched to its own cluster and poorly matched to neighboring clusters. 
+The [silhouette value](https://en.wikipedia.org/wiki/Silhouette_(clustering)) indicates the similarity of a data point to its own cluster compared to other clusters. The silhouette ranges from −1 to +1, where a high value indicates the point is well-matched to its cluster and poorly matched to neighboring clusters. 
 ```{r}
 
    cluster_optimal[[2]]
@@ -163,14 +161,25 @@ The average silhouette length begins to decrease after 2 clusters.  Accordingly 
 
 
 ####Method 4 - Gap Statistic
-[The gap statistic test](https://statweb.stanford.edu/~gwalther/gap) is a more recent method proposed in 2001 by Stanford researchers R. Tibshirani, G. Walther, and T. Hastie.
-
-The gap statistic compares the total within intra-cluster variation for different values of k with their expected values under null reference distribution of the data. The estimate of the optimal clusters will be value that maximize the gap statistic (i.e, that yields the largest gap statistic). This means that the clustering structure is far away from the random uniform distribution of points.
+[The gap statistic test](https://statweb.stanford.edu/~gwalther/gap) compares the total within intra-cluster variation for different values of k with  expected values under null reference distribution of the data. The optimal cluster estimate that maximizes the gap statistic (i.e, that yields the largest gap statistic). This means that the clustering structure is far away from the random uniform distribution of points.
 ```{r}
 
    cluster_optimal[[3]]
 ```
 The gap statistic test calls for a cluster size (k) of 3.
+
+Method 5: 
+
+```{r}
+   library (NbClust)
+
+   #https://www.r-bloggers.com/10-tips-for-choosing-the-optimal-number-of-clusters/
+
+   res.nbclust <- NbClust(data = penguins[5:7], distance = "euclidean", min.nc = 2, max.nc = 9, method = "complete", index ="all")
+   
+   fviz_nbclust(res.nbclust) + theme_minimal() + ggtitle("NbClust's optimal number of clusters")
+```
+
 
 
 ## Conclusion
