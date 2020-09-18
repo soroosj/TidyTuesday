@@ -168,7 +168,8 @@ The average silhouette length begins to decrease after 2 clusters.  Accordingly 
 ```
 The gap statistic test calls for a cluster size (k) of 3.
 
-Method 5: 
+####Method 5: Multiple indexes
+The NbClust package provides 30 indices for determining the relevant number of clusters and proposes to users the best clustering scheme from the different results obtained by varying all combinations of number of clusters, distance measures, and clustering methods.
 
 ```{r}
    library (NbClust)
@@ -179,8 +180,8 @@ Method 5:
    
    fviz_nbclust(res.nbclust) + theme_minimal() + ggtitle("NbClust's optimal number of clusters")
 ```
-
+The 30 indexes seem to suggest 3 is the optimal number of clusters.
 
 
 ## Conclusion
-The kmeans study indicates penguin size is optimally grouped into either 2 or 3 clusters.  The blunt visual test suggested 2 or 3 clusters.  The quantitative tests were no more conclusive with three clusters recommmended by the elbow and gap statistic tests while two clusters by the silhoutte algorithm.
+The kmeans study indicates penguin size is optimally grouped into 3 clusters.  The blunt visual test suggested 2 or 3 clusters.  The quantitative tests were no more conclusive with three clusters recommmended by the elbow and gap statistic tests while two clusters by the silhoutte algorithm.  The 30 indexes tipped the results toward 3.
