@@ -26,11 +26,6 @@ Data is sourced from the palmerpenguins package via its path_to_file function.  
       clean_names()
    
    opts_chunk$set(warning = FALSE, message = FALSE)
-   
-   #https://www.tidymodels.org/learn/statistics/k-means/
-   #https://www.guru99.com/r-k-means-clustering.html
-   #https://afit-r.github.io/kmeans_clustering
-   #https://www.datanovia.com/en/lessons/determining-the-optimal-number-of-clusters-3-must-know-methods/
 ```
 
 
@@ -101,7 +96,7 @@ There are assorted methodologies to identify the approriate k.  Tests range from
 ####Method 1 - Visual Inspection
 The most blunt method is to visualize cluster data for assorted values of k.
 
-We will be largely using the excellent factoextra package.  The package contains a wide array of clustering algorithms and visualizations, along with tools to identify the optimal number of clusters.  Even more helpful is factoextra's clustering visualizations output in ggplot format, which simplifies further chart adjustments by leveraging the standard ggplot functions. 
+We will be largely using the excellent [factoextra package](https://cran.r-project.org/web/packages/factoextra/factoextra.pdf) by Alboukadel Kassambara and Fabian Mundt.  The package contains a wide array of clustering algorithms and visualizations, along with tools to identify the optimal number of clusters.  Even more helpful is factoextra's clustering visualizations output in ggplot format, which simplifies further chart adjustments by leveraging the standard ggplot functions. 
 
 Fviz_cluster is a useful function to visualize clusters for a given k.  The function creates a scatterplot with points in a cluster color-coordinated and encircled with a polygram.  Clustering on greater than two fields is difficult to visualize so fields are helpfully automatically converted to two dimensions via principal component analysis (PCA).
 
@@ -118,9 +113,8 @@ Multiple fviz_cluster visualizations can be easily created in R.  First, the fac
       fviz_cluster(penguins_kmeans, geom = "point", data = penguins[5:7]) +
       labs(title = glue("{k} clusters")) +
       theme (
-         plot.title = element_text (margin = margin(0,0,5,0), hjust = 0.5, size = 12, color = "grey", family = "Lato"),
          plot.background = element_blank(),
-         panel.background = element_blank(),
+         panel.background = element_blank(),plot.title = element_text (margin = margin(0,0,5,0), hjust = 0.5, size = 12, color = "grey", family = "Lato"),
          legend.text = element_text(hjust = 0, size = 8, family = "Lato"),
          legend.position = "none",
          legend.title = element_text(size = 8),
@@ -133,10 +127,19 @@ Multiple fviz_cluster visualizations can be easily created in R.  First, the fac
    
    cluster_possibles[[1]] + cluster_possibles[[2]] + cluster_possibles[[3]] +
       cluster_possibles[[4]] + cluster_possibles[[5]] + cluster_possibles[[6]] +
-      cluster_possibles[[7]] + cluster_possibles[[8]] + cluster_possibles[[9]]
+      cluster_possibles[[7]] + cluster_possibles[[8]] + cluster_possibles[[9]] +
+      plot_annotation (
+         title = "Kmeans Clustering of Penguins across potential number of clusters \U0022k\U0022 ",
+         caption = "Visualization: Joel Soroos @soroosj  |  Data: R palmerpenguins package via R4DS Tidy Tuesday",
+         theme = theme (
+            plot.title = element_text(hjust = 0.5, vjust = 0.5, size = 14, face = "bold", margin = margin (0,0,20,0)),
+            plot.caption = element_text (hjust = 1, size = 7, margin = margin (15,0,0,0)) 
+            )
+         )
+
       ggsave(here("2020-07-28", "output", "cluster_possibles.png"))
 ```
-Results indicate a significant gap of white space in middle of the chart so clearly a k of 1 is too small.  Two or three clusters look promising as minimal overlap.  Clusters greater than three have significant overlap so seem less optimal.
+Results indicate a significant white space in middle of the chart so clearly a k of 1 is too small; therefore, clustering will add insight.  Two or three clusters look promising as minimal overlap.  Clusters greater than three have significant overlap so seem less optimal.
 
 The visualizations did not provide a clear answer whether a cluster size of 2 or 3 is optimal.  We need to proceed to more sophisticated methodologies.
 
@@ -180,12 +183,10 @@ The gap statistic test calls for a cluster size (k) of 3.
 
 
 ####Method 5: Multiple indexes
-The NbClust package which provides 30 indices for determining the relevant number of clusters by varying combinations of number of clusters and clustering methods.
+The [NbClust package](https://rdrr.io/cran/NbClust/man/NbClust.html) by Malika Charrad, Nadia Ghazzali and Azam Niknafs provides 30 indices for determining the relevant number of clusters by varying combinations of number of clusters and clustering methods.
 
 ```{r}
    library (NbClust)
-
-   #https://www.r-bloggers.com/10-tips-for-choosing-the-optimal-number-of-clusters/
 
    cluster_30_indexes <- NbClust(data = penguins[5:7], distance = "euclidean", min.nc = 2, max.nc = 9, method = "complete", index ="all")
    
