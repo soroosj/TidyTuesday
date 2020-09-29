@@ -1,0 +1,41 @@
+---
+title: "Crop Yields"
+author: "Joel Soroos"
+date: "9/30/2020"
+output: html_document
+---
+
+
+##1. Source data
+```{r source, warning = FALSE, message = FALSE}
+
+   library(tidyverse)
+   library(tidytuesdayR)
+   library(knitr)
+
+   tuesdata <- tidytuesdayR::tt_load('2020-09-01') 
+   crops_raw <- tuesdata$key_crop_yields
+   
+   opts_chunk$set(warning = FALSE, message = FALSE)
+```
+
+
+##2. Exploratory Data Analysis
+```{r skim, warning = F, message =F}
+
+   library(skimr)
+
+   skim (crops_raw)
+```
+
+
+##3. Data wrangling
+```{r transform}
+
+   crops <- crops_raw %>%
+      pivot_longer (cols = 4:14, names_to = "commodity", values_to = "yield") %>%
+      mutate (
+         commodity = if_else (commodity == "Cocoa beans (tonnes per hectare)", word(commodity, 1, 2), word (commodity, 1))
+      )
+
+```

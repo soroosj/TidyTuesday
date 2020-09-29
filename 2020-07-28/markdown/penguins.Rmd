@@ -129,7 +129,7 @@ Multiple fviz_cluster visualizations can be easily created in R.  First, the fac
       cluster_possibles[[4]] + cluster_possibles[[5]] + cluster_possibles[[6]] +
       cluster_possibles[[7]] + cluster_possibles[[8]] + cluster_possibles[[9]] +
       plot_annotation (
-         title = "Kmeans Clustering of Penguins across potential number of clusters \U0022k\U0022 ",
+         title = "Kmeans Clustering of Penguins Across Potential Number of Clusters \U0022k\U0022 ",
          caption = "Visualization: Joel Soroos @soroosj  |  Data: R palmerpenguins package via R4DS Tidy Tuesday",
          theme = theme (
             plot.title = element_text(hjust = 0.5, vjust = 0.5, size = 14, face = "bold", margin = margin (0,0,20,0)),
