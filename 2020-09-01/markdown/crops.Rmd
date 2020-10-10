@@ -12,9 +12,11 @@ output: html_document
    library(tidyverse)
    library(tidytuesdayR)
    library(knitr)
+   library(janitor)
 
    tuesdata <- tidytuesdayR::tt_load('2020-09-01') 
-   crops_raw <- tuesdata$key_crop_yields
+   crops_raw <- tuesdata$key_crop_yields %>%
+      clean_names()
    
    opts_chunk$set(warning = FALSE, message = FALSE)
 ```
@@ -32,10 +34,36 @@ output: html_document
 ##3. Data wrangling
 ```{r transform}
 
+   library (countrycode)
+
    crops <- crops_raw %>%
       pivot_longer (cols = 4:14, names_to = "commodity", values_to = "yield") %>%
+      rename (country = entity) %>%
       mutate (
-         commodity = if_else (commodity == "Cocoa beans (tonnes per hectare)", word(commodity, 1, 2), word (commodity, 1))
-      )
-
+         commodity = if_else (commodity == "cocoa_beans_tonnes_per_hectare", word(commodity, 1, sep = "_"), word (commodity, sep = "_")),
+         commodity = str_to_title(commodity),
+         continent = countrycode (code, origin = 'iso3c', destination = 'continent'),
+         region = countrycode (code, origin = 'iso3c', destination = 'region23'),
+         ) %>%
+      drop_na (code, yield) %>%
+      select (continent, region, country, commodity, year, yield) %>%
+      arrange (continent, region, country, commodity, year) %>%
+      group_by (region) 
 ```
+
+
+#4.  Visualizing
+```{r}
+
+   library(gt)
+
+   crops %>%
+      filter (year == 2018, commodity == "Bananas", continent == "Africa") %>%
+      arrange (region, -yield) %>%
+      select (country, yield) %>%
+      gt () %>%
+         tab_header (title = "Banana Yields across Africa in 2018") %>%
+         tab_source_note ("Table: Joel Soroos @soroosj  | Data: Placeholder") %>%
+         gtsave("crops.png")
+```
+
