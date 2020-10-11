@@ -27,7 +27,7 @@ output: html_document
 
    library(skimr)
 
-   skim (crops_raw)
+   #skim (crops)
 ```
 
 
@@ -58,12 +58,18 @@ output: html_document
    library(gt)
 
    crops %>%
-      filter (year == 2018, commodity == "Bananas", continent == "Africa") %>%
+      filter (year == 2018, commodity == "Bananas", region == "Middle Africa") %>%
       arrange (region, -yield) %>%
       select (country, yield) %>%
       gt () %>%
          tab_header (title = "Banana Yields across Africa in 2018") %>%
          tab_source_note ("Table: Joel Soroos @soroosj  | Data: Placeholder") %>%
+         data_color(
+            columns = vars(yield),
+            colors = scales::col_numeric(
+               palette = c("#ffffff", "#f2fbd2", "#c9ecb4", "#93d3ab", "#35b0ab"),
+               domain = NULL
+                  )
+            ) %>%
          gtsave("crops.png")
 ```
-
