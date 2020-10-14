@@ -27,14 +27,15 @@ output: html_document
 
    library(skimr)
 
-   #skim (crops)
+   skim (crops_raw)
 ```
 
 
-##3. Data wrangling
-```{r transform}
+##3a. Transform data
+```{r transform, message = F}
 
    library (countrycode)
+   library (glue)
 
    crops <- crops_raw %>%
       pivot_longer (cols = 4:14, names_to = "commodity", values_to = "yield") %>%
@@ -44,11 +45,22 @@ output: html_document
          commodity = str_to_title(commodity),
          continent = countrycode (code, origin = 'iso3c', destination = 'continent'),
          region = countrycode (code, origin = 'iso3c', destination = 'region23'),
+         decade = glue("{floor(year/10)*10}s")
          ) %>%
-      drop_na (code, yield) %>%
-      select (continent, region, country, commodity, year, yield) %>%
-      arrange (continent, region, country, commodity, year) %>%
-      group_by (region) 
+      drop_na () %>%
+      filter (commodity == "Wheat")%>%
+      select (continent, region, country, commodity, decade, year, yield) %>%
+      arrange (continent, region, country, commodity, year)
+```
+
+
+##3b. Calculate medians by decade
+```{r}
+   
+   crops_median <- crops %>%
+      group_by (continent, region, decade) %>%
+      summarize (median = round(median (yield),2)) %>%
+      pivot_wider (names_from = decade, values_from = median)
 ```
 
 
@@ -57,19 +69,22 @@ output: html_document
 
    library(gt)
 
-   crops %>%
-      filter (year == 2018, commodity == "Bananas", region == "Middle Africa") %>%
-      arrange (region, -yield) %>%
-      select (country, yield) %>%
+   crops_median %>%
+      group_by (continent) %>%
       gt () %>%
-         tab_header (title = "Banana Yields across Africa in 2018") %>%
-         tab_source_note ("Table: Joel Soroos @soroosj  | Data: Placeholder") %>%
+         tab_header (title =  md("**Banana Yields Across Regions by Decade**")) %>%
+         tab_source_note ("Table: Joel Soroos @soroosj  | Data: Our Wold in Data") %>%
          data_color(
-            columns = vars(yield),
+            columns = vars("1960s","1970s","1980s","1990s","2000s","2010s"),
             colors = scales::col_numeric(
                palette = c("#ffffff", "#f2fbd2", "#c9ecb4", "#93d3ab", "#35b0ab"),
                domain = NULL
                   )
+            ) %>%
+        summary_rows(
+           groups = TRUE,
+           columns = vars("1960s","1970s","1980s","1990s","2000s","2010s"),
+           fns = list(mean = "mean")
             ) %>%
          gtsave("crops.png")
 ```
