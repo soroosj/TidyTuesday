@@ -32,6 +32,7 @@ output: html_document
 ```{r transform, message = F}
 
    library(tidyverse)
+   library (countrycode)
    library (glue)
 
    crops <- crops_raw %>%
@@ -40,11 +41,14 @@ output: html_document
       mutate (
          commodity = if_else (commodity == "cocoa_beans_tonnes_per_hectare", word(commodity, 1, sep = "_"), word (commodity, sep = "_")),
          commodity = str_to_title(commodity),
+         #continent = countrycode (code, origin = 'iso3c', destination = 'continent'),
+         #region = countrycode (code, origin = 'iso3c', destination = 'region23'),
          decade = glue("d_{floor(year/10)*10}s")
          ) %>%
       drop_na () %>%
-      filter (commodity == "Bananas")%>%
-      select (country, commodity, decade, year, yield) 
+      filter (commodity == "Wheat")%>%
+      select (continent, region, country, commodity, decade, year, yield) %>%
+      arrange (continent, region, country, commodity, year)
 ```
 
 
@@ -52,17 +56,15 @@ output: html_document
 ```{r}
    
    crops_mean <- crops %>%
-      group_by (country, decade) %>%
-      summarize (mean = round(mean (yield),1)) %>%
+      group_by (continent, region, decade) %>%
+      summarize (mean = round(mean (yield),2)) %>%
       pivot_wider (names_from = decade, values_from = mean) %>%
       ungroup() %>%
-      rowwise(country) %>%
+      rowwise(region) %>%
       mutate (
          mean = mean (c(d_1960s,d_1970s,d_1980s,d_1990s,d_2000s,d_2010s), na.rm = T),
-         mean = round (mean, 1)
-         ) %>%
-      arrange (-mean) %>%
-      head (20)
+         mean = round (mean, 2)
+         )
 ```
 
 
@@ -72,31 +74,25 @@ output: html_document
    library(gt)
 
    crops_mean %>%
-      ungroup() %>%
+      group_by (continent) %>%
       gt () %>%
-         # summary_rows(
-         #    groups = FALSE,
-         #    columns = vars(d_1960s,d_1970s,d_1980s,d_1990s,d_2000s,d_2010s),
-         #    fns = list(mean = ~mean(.)),
-         #    ) %>%
+         summary_rows(
+            groups = TRUE,
+            columns = vars(d_1960s,d_1970s,d_1980s,d_1990s,d_2000s,d_2010s),
+            fns = list(mean = ~mean(.)),
+            ) %>%
          data_color(
-            columns = vars(d_1960s,d_1970s,d_1980s,d_1990s,d_2000s,d_2010s, mean),
+            columns = vars(d_1960s,d_1970s,d_1980s,d_1990s,d_2000s,d_2010s),
             colors = scales::col_numeric(
                palette = c("#ffffff", "#f2fbd2", "#c9ecb4", "#93d3ab", "#35b0ab"),
-               na.color = "#808080",
                domain = NULL
                ) 
             ) %>%
-         tab_header (title =  md("**Banana Mean Yields 1960-2018**")) %>%
+         tab_header (title =  md("**Banana Yields Across Regions**")) %>%
          tab_source_note ("Table: Joel Soroos @soroosj  | Data: Our World in Data") %>%
          tab_spanner(
-           label = "By Decade",
+           label = "Yields by Decade",
            columns = vars(d_1960s,d_1970s,d_1980s,d_1990s,d_2000s,d_2010s)
             ) %>%
-         # grand_summary_rows(
-         #    columns = vars(d_1960s, d_1970s, d_1980s, d_1990s, d_2000s, d_2010s),
-         #    fns = list(avg = ~mean(.))
-         #    ) %>%
-          cols_label(d_1960s = "1960s", d_1970s = "1970s", d_1980s = "1980s", d_1990s = "1990s", d_2000s = "2000s", d_2010s = "2010s") %>%
       gtsave("crops.png")
 ```
