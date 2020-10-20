@@ -44,7 +44,10 @@ output: html_document
          ) %>%
       drop_na () %>%
       filter (commodity == "Bananas")%>%
-      select (country, commodity, decade, year, yield) 
+      select (country, commodity, decade, year, yield)
+
+#https://gist.github.com/jthomasmock/5bba85b2ef3fdad94dce9c428b092a93
+#https://pbs.twimg.com/media/EiEhaOLXcAA5On3?format=jpg&name=4096x4096
 ```
 
 
@@ -62,6 +65,7 @@ output: html_document
          mean = round (mean, 1)
          ) %>%
       arrange (-mean) %>%
+      relocate (mean,.after = country) %>%
       head (20)
 ```
 
@@ -70,33 +74,39 @@ output: html_document
 ```{r}
 
    library(gt)
+   library(here)
 
    crops_mean %>%
       ungroup() %>%
       gt () %>%
-         # summary_rows(
-         #    groups = FALSE,
-         #    columns = vars(d_1960s,d_1970s,d_1980s,d_1990s,d_2000s,d_2010s),
-         #    fns = list(mean = ~mean(.)),
-         #    ) %>%
          data_color(
-            columns = vars(d_1960s,d_1970s,d_1980s,d_1990s,d_2000s,d_2010s, mean),
+            columns = 2:8,
             colors = scales::col_numeric(
                palette = c("#ffffff", "#f2fbd2", "#c9ecb4", "#93d3ab", "#35b0ab"),
-               na.color = "#808080",
+               na.color = "gray94",
                domain = NULL
                ) 
             ) %>%
          tab_header (title =  md("**Banana Mean Yields 1960-2018**")) %>%
          tab_source_note ("Table: Joel Soroos @soroosj  | Data: Our World in Data") %>%
          tab_spanner(
-           label = "By Decade",
-           columns = vars(d_1960s,d_1970s,d_1980s,d_1990s,d_2000s,d_2010s)
+           label = md("**By Decade**"),
+           columns = 3:8
             ) %>%
+         tab_style(
+            style = list(cell_text(weight = "bold")),
+            locations = list(cells_column_labels(gt::everything()))
+            ) %>%
+         fmt_missing(columns = everything(), rows = NULL, missing_text = "-") %>%
+         cols_label(country = "Country", d_1960s = "1960s", d_1970s = "1970s", d_1980s = "1980s", d_1990s = "1990s", d_2000s = "2000s", d_2010s = "2010s", mean = "Overall") %>%
          # grand_summary_rows(
-         #    columns = vars(d_1960s, d_1970s, d_1980s, d_1990s, d_2000s, d_2010s),
+         #    columns = 2:8,
          #    fns = list(avg = ~mean(.))
          #    ) %>%
-          cols_label(d_1960s = "1960s", d_1970s = "1970s", d_1980s = "1980s", d_1990s = "1990s", d_2000s = "2000s", d_2010s = "2010s") %>%
-      gtsave("crops.png")
+         # summary_rows(
+         #    groups = NULL,
+         #    columns = vars(d_1960s,d_1970s,d_1980s,d_1990s,d_2000s,d_2010s),
+         #    fns = list(mean = ~mean(.)),
+         #    ) %>%
+      gtsave(here("2020-09-01","output","crops.png"))
 ```
