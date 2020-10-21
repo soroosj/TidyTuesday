@@ -94,5 +94,14 @@ output: html_document
            label = "Yields by Decade",
            columns = vars(d_1960s,d_1970s,d_1980s,d_1990s,d_2000s,d_2010s)
             ) %>%
+               # grand_summary_rows(
+         #    columns = 2:8,
+         #    fns = list(avg = ~mean(.))
+         #    ) %>%
+         # summary_rows(
+         #    groups = NULL,
+         #    columns = vars(d_1960s,d_1970s,d_1980s,d_1990s,d_2000s,d_2010s),
+         #    fns = list(mean = ~mean(.)),
+         #    ) %>%
       gtsave("crops.png")
 ```

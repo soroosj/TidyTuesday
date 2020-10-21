@@ -62,10 +62,11 @@ output: html_document
       rowwise(country) %>%
       mutate (
          mean = mean (c(d_1960s,d_1970s,d_1980s,d_1990s,d_2000s,d_2010s), na.rm = T),
-         mean = round (mean, 1)
+         mean = round (mean, 1),
          ) %>%
       arrange (-mean) %>%
-      relocate (mean,.after = country) %>%
+      rowid_to_column("rank") %>%
+      select(country, d_1960s,d_1970s,d_1980s,d_1990s,d_2000s,d_2010s, mean, rank) %>%
       head (20)
 ```
 
@@ -91,22 +92,24 @@ output: html_document
          tab_source_note ("Table: Joel Soroos @soroosj  | Data: Our World in Data") %>%
          tab_spanner(
            label = md("**By Decade**"),
-           columns = 3:8
+           columns = 2:7
+            ) %>%
+         tab_spanner(
+           label = md("**All Periods**"),
+           columns = 8:9
             ) %>%
          tab_style(
-            style = list(cell_text(weight = "bold")),
-            locations = list(cells_column_labels(gt::everything()))
-            ) %>%
-         fmt_missing(columns = everything(), rows = NULL, missing_text = "-") %>%
-         cols_label(country = "Country", d_1960s = "1960s", d_1970s = "1970s", d_1980s = "1980s", d_1990s = "1990s", d_2000s = "2000s", d_2010s = "2010s", mean = "Overall") %>%
-         # grand_summary_rows(
-         #    columns = 2:8,
-         #    fns = list(avg = ~mean(.))
-         #    ) %>%
-         # summary_rows(
-         #    groups = NULL,
-         #    columns = vars(d_1960s,d_1970s,d_1980s,d_1990s,d_2000s,d_2010s),
-         #    fns = list(mean = ~mean(.)),
-         #    ) %>%
+            style = list(
+              cell_borders(
+                sides = c("left", "right"),
+                color = "black",
+                weight = px(2)
+               )
+              ),
+            locations = list(
+              cells_body(columns = vars(mean))
+              )
+            )%>%
+         cols_label(rank = "Rank", country = "Country", d_1960s = "1960s", d_1970s = "1970s", d_1980s = "1980s", d_1990s = "1990s", d_2000s = "2000s", d_2010s = "2010s", mean = "Mean") %>%
       gtsave(here("2020-09-01","output","crops.png"))
 ```
