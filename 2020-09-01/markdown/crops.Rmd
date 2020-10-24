@@ -63,10 +63,12 @@ output: html_document
       mutate (
          mean = mean (c(d_1960s,d_1970s,d_1980s,d_1990s,d_2000s,d_2010s), na.rm = T),
          mean = round (mean, 1),
+         st_dev = sd (c(d_1960s,d_1970s,d_1980s,d_1990s,d_2000s,d_2010s), na.rm = T),
+         st_dev = round (st_dev, 1),
          ) %>%
       arrange (-mean) %>%
       rowid_to_column("rank") %>%
-      select(country, d_1960s,d_1970s,d_1980s,d_1990s,d_2000s,d_2010s, mean, rank) %>%
+      select(country, rank, mean, st_dev, d_1960s,d_1970s,d_1980s,d_1990s,d_2000s,d_2010s) %>%
       head (20)
 ```
 
@@ -81,22 +83,26 @@ output: html_document
       ungroup() %>%
       gt () %>%
          data_color(
-            columns = 2:8,
+            columns = c(3, 5:10),
             colors = scales::col_numeric(
                palette = c("#ffffff", "#f2fbd2", "#c9ecb4", "#93d3ab", "#35b0ab"),
                na.color = "gray94",
                domain = NULL
                ) 
             ) %>%
-         tab_header (title =  md("**Banana Mean Yields 1960-2018**")) %>%
+         tab_header (title =  md("**Long-Term Top Yielding Banana-Producing Countries**")) %>%
          tab_source_note ("Table: Joel Soroos @soroosj  | Data: Our World in Data") %>%
-         tab_spanner(
-           label = md("**By Decade**"),
-           columns = 2:7
+         tab_footnote(
+           footnote = "2010s includes stub period from 2010-2018.",
+           locations = cells_column_labels(columns = vars(d_2010s))
             ) %>%
          tab_spanner(
-           label = md("**All Periods**"),
-           columns = 8:9
+           label = md("Average by Decade"),
+           columns = 5:10
+            ) %>%
+         tab_spanner(
+           label = md("All Periods"),
+           columns = 2:4
             ) %>%
          tab_style(
             style = list(
@@ -106,10 +112,8 @@ output: html_document
                 weight = px(2)
                )
               ),
-            locations = list(
-              cells_body(columns = vars(mean))
-              )
+            locations = cells_body(columns = vars(mean))
             )%>%
-         cols_label(rank = "Rank", country = "Country", d_1960s = "1960s", d_1970s = "1970s", d_1980s = "1980s", d_1990s = "1990s", d_2000s = "2000s", d_2010s = "2010s", mean = "Mean") %>%
+        cols_label(rank = "Rank", country = "Country", d_1960s = "1960s", d_1970s = "1970s", d_1980s = "1980s", d_1990s = "1990s", d_2000s = "2000s", d_2010s = "2010s", mean = "Avg", st_dev = "St Dev") %>%
       gtsave(here("2020-09-01","output","crops.png"))
 ```
