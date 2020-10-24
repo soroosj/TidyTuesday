@@ -19,7 +19,7 @@ output: html_document
 ```
 
 
-##2. Exploratory data analysis
+##2. Exploratory Data Analysis
 ```{r skim, warning = F, message =F}
 
    library(skimr)
@@ -50,20 +50,6 @@ output: html_document
 #https://pbs.twimg.com/media/EiEhaOLXcAA5On3?format=jpg&name=4096x4096
 ```
 
-```{r}
-
-   crops_nest <- crops %>%
-      nest (data = -country) %>%
-      mutate (
-         plot_code = map(data, ~ggplot(., aes(year, yield)) +
-            geom_point(color = "blue") +
-            theme(legend.position = "none")
-            )
-         ) %>%
-      select (-data)
-```
-
-
 
 ##3b. Calculate medians by decade
 ```{r}
@@ -79,16 +65,15 @@ output: html_document
          mean = round (mean, 1),
          st_dev = sd (c(d_1960s,d_1970s,d_1980s,d_1990s,d_2000s,d_2010s), na.rm = T),
          st_dev = round (st_dev, 1),
-         plot_image = NA
          ) %>%
+      arrange (-mean) %>%
       rowid_to_column("rank") %>%
-      select(country, rank, mean, st_dev, d_1960s,d_1970s,d_1980s,d_1990s,d_2000s,d_2010s, plot_image) %>%
-      head (20) %>%
-      left_join (crops_nest)
+      select(country, rank, mean, st_dev, d_1960s,d_1970s,d_1980s,d_1990s,d_2000s,d_2010s) %>%
+      head (20)
 ```
 
 
-#4.  Visualize
+#4.  Visualizing
 ```{r}
 
    library(gt)
