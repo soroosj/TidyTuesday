@@ -119,6 +119,11 @@ output: html_document
            label = md("All Periods"),
            columns = 2:4
             ) %>%
+         text_transform(
+            locations = cells_data(columns = vars(plot_image)),
+            fn = function(x) {map(crops_mean$plot_code, ggplot_image, height = px(200))}
+            ) %>%
+         cols_hide(vars(plot_code)) %>%
          tab_style(
             style = list(
               cell_borders(
@@ -130,5 +135,6 @@ output: html_document
             locations = cells_body(columns = vars(mean))
             )%>%
         cols_label(rank = "Rank", country = "Country", d_1960s = "1960s", d_1970s = "1970s", d_1980s = "1980s", d_1990s = "1990s", d_2000s = "2000s", d_2010s = "2010s", mean = "Avg", st_dev = "St Dev") %>%
+        
       gtsave(here("2020-09-01","output","crops.png"))
 ```
