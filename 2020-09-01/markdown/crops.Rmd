@@ -56,8 +56,10 @@ output: html_document
       nest (data = -country) %>%
       mutate (
          plot_code = map(data, ~ggplot(., aes(year, yield)) +
-            geom_point(color = "blue") +
-            theme(legend.position = "none")
+            geom_line(color = "blue", size = 4) +
+            theme(
+               legend.position = "none",
+               panel.background = element_rect(fill = "white"))
             )
          ) %>%
       select (-data)
@@ -81,8 +83,9 @@ output: html_document
          st_dev = round (st_dev, 1),
          plot_image = NA
          ) %>%
+      arrange (-mean) %>%
       rowid_to_column("rank") %>%
-      select(country, rank, mean, st_dev, d_1960s,d_1970s,d_1980s,d_1990s,d_2000s,d_2010s, plot_image) %>%
+      select(country, rank, mean, plot_image, d_1960s,d_1970s,d_1980s,d_1990s,d_2000s,d_2010s) %>%
       head (20) %>%
       left_join (crops_nest)
 ```
@@ -105,7 +108,7 @@ output: html_document
                domain = NULL
                ) 
             ) %>%
-         tab_header (title =  md("**Long-Term Top Yielding Banana-Producing Countries**")) %>%
+         tab_header(title =  md("**Long-Term Top Yielding Banana-Producing Countries**")) %>%
          tab_source_note ("Table: Joel Soroos @soroosj  | Data: Our World in Data") %>%
          tab_footnote(
            footnote = "2010s includes stub period from 2010-2018.",
@@ -121,7 +124,7 @@ output: html_document
             ) %>%
          text_transform(
             locations = cells_data(columns = vars(plot_image)),
-            fn = function(x) {map(crops_mean$plot_code, ggplot_image, height = px(200))}
+            fn = function(x) {map(crops_mean$plot_code, ggplot_image, height = 23, aspect_ratio = 2.5)}
             ) %>%
          cols_hide(vars(plot_code)) %>%
          tab_style(
@@ -134,7 +137,6 @@ output: html_document
               ),
             locations = cells_body(columns = vars(mean))
             )%>%
-        cols_label(rank = "Rank", country = "Country", d_1960s = "1960s", d_1970s = "1970s", d_1980s = "1980s", d_1990s = "1990s", d_2000s = "2000s", d_2010s = "2010s", mean = "Avg", st_dev = "St Dev") %>%
-        
+        cols_label(rank = "Rank", country = "Country", d_1960s = "1960s", d_1970s = "1970s", d_1980s = "1980s", d_1990s = "1990s", d_2000s = "2000s", d_2010s = "2010s", mean = "Avg", plot_image = "By Year") %>%
       gtsave(here("2020-09-01","output","crops.png"))
 ```
