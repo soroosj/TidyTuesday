@@ -24,7 +24,7 @@ output: html_document
 
    library(skimr)
 
-   #skim (crops_raw)
+   skim (crops_raw)
 ```
 
 
@@ -45,9 +45,6 @@ output: html_document
       drop_na () %>%
       filter (commodity == "Bananas")%>%
       select (country, commodity, decade, year, yield)
-
-#https://gist.github.com/jthomasmock/5bba85b2ef3fdad94dce9c428b092a93
-#https://pbs.twimg.com/media/EiEhaOLXcAA5On3?format=jpg&name=4096x4096
 ```
 
 
@@ -71,26 +68,27 @@ output: html_document
 ```
 
 
-#3c.  Create chart object
+##3c.  Create chart object
 ```{r}
 
    crops_nest <- crops %>%
       nest (data = -country) %>%
-      mutate (
-         plot_code = map(data, ~ggplot(., aes(year, yield)) +
-            geom_line(color = "blue", size = 4) +
-            theme(
-               legend.position = "none",
-               panel.background = element_rect(fill = "white"))
-            )
-         ) %>%
+      mutate (plot_code = map(
+            data, 
+            ~ggplot(., aes(year, yield)) +
+               geom_line(color = "blue", size = 4) +
+               theme(
+                  legend.position = "none",
+                  panel.background = element_rect(fill = "white"))
+                  )
+            ) %>%
       right_join (crops_mean) %>%
       select(country, rank, mean, plot_image, d_1960s,d_1970s,d_1980s,d_1990s,d_2000s,d_2010s, plot_code) %>%
       arrange(-mean)
 ```
 
 
-#4.  Visualize
+##4. Visualize
 ```{r}
 
    library(gt)
@@ -113,6 +111,7 @@ output: html_document
             fn = function(x) {map(crops_nest$plot_code, ggplot_image, height = 23, aspect_ratio = 2.5)}
             ) %>%
          cols_hide(vars(plot_code)) %>%
+         opt_table_font (google_font("Poppins")) %>%
          data_color(
             columns = c(3, 5:10),
             colors = scales::col_numeric(
