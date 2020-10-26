@@ -68,7 +68,7 @@ output: html_document
 ```
 
 
-##3c.  Create chart object
+##3c. Create chart object
 ```{r}
 
    crops_nest <- crops %>%
@@ -76,7 +76,7 @@ output: html_document
       mutate (plot_code = map(
             data, 
             ~ggplot(., aes(year, yield)) +
-               geom_line(color = "blue", size = 4) +
+               geom_line(color = "blue", size = 5) +
                theme(
                   legend.position = "none",
                   panel.background = element_rect(fill = "white"))
@@ -108,7 +108,7 @@ output: html_document
          tab_source_note ("Table: Joel Soroos @soroosj  |  Data: Our World in Data") %>%
          text_transform(
             locations = cells_data(columns = vars(plot_image)),
-            fn = function(x) {map(crops_nest$plot_code, ggplot_image, height = 23, aspect_ratio = 2.5)}
+            fn = function(x) {map(crops_nest$plot_code, ggplot_image, height = 20, aspect_ratio = 2.5)}
             ) %>%
          cols_hide(vars(plot_code)) %>%
          opt_table_font (google_font("Poppins")) %>%
