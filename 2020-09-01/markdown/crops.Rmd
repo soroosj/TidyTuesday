@@ -64,7 +64,7 @@ output: html_document
          ) %>%
       arrange (-mean) %>%
       rowid_to_column("rank") %>%
-      head (10) 
+      head (15) 
 ```
 
 
