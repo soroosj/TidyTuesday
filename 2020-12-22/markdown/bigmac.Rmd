@@ -1,0 +1,76 @@
+---
+title: "Big Mac Index"
+author: "Joel Soroos"
+date: "12/22/2020"
+output: html_document
+---
+
+
+##1. Source data
+```{r source, warning = FALSE, message = FALSE}
+
+   library(tidytuesdayR)
+   library(janitor)
+
+   tuesdata <- tidytuesdayR::tt_load('2020-12-22') 
+   
+   big_mac_raw <- tuesdata$`big-mac` %>%
+      clean_names()
+   
+   options(scipen=999)
+```
+
+
+##2. Explore data
+```{r skim, warning = F, message =F}
+
+   library(skimr)
+
+   skim (big_mac_raw)
+```
+
+
+```{r}
+
+big_mac_raw %>%
+   count (currency_code )
+```
+
+
+##3a. Transform data
+```{r transform, message = F}
+
+   library(tidyverse)
+   library(lubridate)
+  
+   big_mac <- big_mac_raw %>%
+      rename (
+         country_code = iso_a3,
+         country_name = name,
+         currency = currency_code,
+         price_loc = local_price,
+         fx_rate = dollar_ex,
+         price_usd = dollar_price
+         ) %>%
+      mutate (
+         price_loc = round (price_loc, 2),
+         fx_rate = round (fx_rate, 3),
+         price_usd = round (price_usd, 2)
+      ) %>%
+      select (date, country_name, currency, fx_rate, price_loc, price_usd, usd_raw)
+```
+
+
+```{r}
+   big_mac_usd <- big_mac %>%
+      filter (currency == "USD") %>%
+      select (date, price_usd) %>%
+      rename (price_usd_actual = price_usd)
+
+   big_mac_nok <- big_mac %>%
+      filter (currency == "NOK") %>%
+      left_join (big_mac_usd, by = "date") %>%
+      rename (price_usd_implied = price_usd) %>%
+      select (date, price_loc, price_usd_actual, price_usd_implied, fx_rate, usd_raw) %>%
+      write_csv ("big_mac_nok.csv")
+```
