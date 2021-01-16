@@ -30,13 +30,6 @@ output: html_document
 ```
 
 
-```{r}
-
-big_mac_raw %>%
-   count (currency_code )
-```
-
-
 ##3a. Transform data
 ```{r transform, message = F}
 
@@ -49,15 +42,15 @@ big_mac_raw %>%
          country_name = name,
          currency = currency_code,
          price_loc = local_price,
-         fx_rate = dollar_ex,
-         price_usd = dollar_price
+         price_usd = dollar_price,
+         fx_actual = dollar_ex,
          ) %>%
       mutate (
          price_loc = round (price_loc, 2),
-         fx_rate = round (fx_rate, 3),
+         fx_actual = round (fx_actual, 3),
          price_usd = round (price_usd, 2)
       ) %>%
-      select (date, country_name, currency, fx_rate, price_loc, price_usd, usd_raw)
+      select (date, country_name, currency, price_loc, price_usd, fx_actual)
 ```
 
 
@@ -71,6 +64,22 @@ big_mac_raw %>%
       filter (currency == "NOK") %>%
       left_join (big_mac_usd, by = "date") %>%
       rename (price_usd_implied = price_usd) %>%
-      select (date, price_loc, price_usd_actual, price_usd_implied, fx_rate, usd_raw) %>%
+      mutate(
+         fx_implied = price_loc / price_usd_actual,
+         fx_arbitrage = (fx_implied - fx_actual) / fx_actual
+         ) %>%
+      select (date, price_loc, price_usd_actual, price_usd_implied, fx_actual, fx_implied, fx_arbitrage) %>%
+      arrange (desc(date)) %>%
       write_csv ("big_mac_nok.csv")
 ```
+
+
+```{r}
+
+   library (heatwaveR)
+
+   ggplot (big_mac_nok, aes(x=date, y = fx_implied)) +
+      geom_flame (aes (y2 = fx_actual))
+
+```
+
