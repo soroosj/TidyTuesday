@@ -34,7 +34,6 @@ output: html_document
 ```{r transform, message = F}
 
    library(tidyverse)
-   library(lubridate)
   
    big_mac <- big_mac_raw %>%
       rename (
@@ -60,7 +59,7 @@ output: html_document
       select (date, price_usd) %>%
       rename (price_usd_actual = price_usd)
 
-   big_mac_nok <- big_mac %>%
+   big_mac_gbp <- big_mac %>%
       filter (currency == "GBP") %>%
       left_join (big_mac_usd, by = "date") %>%
       rename (price_usd_implied = price_usd) %>%
@@ -69,8 +68,7 @@ output: html_document
          fx_arbitrage = (fx_implied - fx_actual) / fx_actual
          ) %>%
       select (date, price_loc, price_usd_actual, price_usd_implied, fx_actual, fx_implied, fx_arbitrage) %>%
-      arrange (desc(date)) %>%
-      write_csv ("big_mac_nok.csv")
+      arrange (desc(date)) 
 ```
 
 
@@ -80,7 +78,7 @@ output: html_document
    library (here)
    library (ggdark)
 
-   ggplot (big_mac_nok, aes(x=date)) +
+   ggplot (big_mac_gbp, aes(x=date)) +
       geom_flame (aes (y = fx_implied, y2 = fx_actual), fill = "red") +
       geom_flame (aes (y2 = fx_implied, y = fx_actual), fill = "green") + 
       geom_line(
@@ -104,8 +102,8 @@ output: html_document
          label = "Implied FX rate", color="white", size=3, hjust=0.5, vjust=0, fontface="bold", angle = 312
          ) +
       annotate(
-         geom="text", x= as.Date("2003-01-30", "%Y-%m-%d"), y=0.6, 
-         label = "Actual FX rate", color="white", size=3, hjust=0.5, vjust=0, fontface="bold", angle = 300
+         geom="text", x= as.Date("2003-03-30", "%Y-%m-%d"), y=0.6, 
+         label = "Actual FX rate", color="white", size=3, hjust=0.5, vjust=0, fontface="bold", angle = 295
          ) +
       dark_theme_classic () +
          theme(
