@@ -17,6 +17,7 @@ output: html_document
    big_mac_raw <- tuesdata$`big-mac` %>%
       clean_names()
    
+   #remove scientific notation
    options(scipen=999)
 ```
 
@@ -30,7 +31,7 @@ output: html_document
 ```
 
 
-##3a. Transform data
+##3a. Simplify Big mac file
 ```{r transform, message = F}
 
    library(tidyverse)
@@ -53,12 +54,16 @@ output: html_document
 ```
 
 
+#3b.  Join non-USD Big Mac prices with USD prices
 ```{r}
+
+   #source Big Mac prices in USD per each date
    big_mac_usd <- big_mac %>%
       filter (currency == "USD") %>%
       select (date, price_usd) %>%
       rename (price_usd_actual = price_usd)
 
+   #join Big Mac price in USD with GBP for each date
    big_mac_gbp <- big_mac %>%
       filter (currency == "GBP") %>%
       left_join (big_mac_usd, by = "date") %>%
@@ -67,11 +72,11 @@ output: html_document
          fx_implied = price_loc / price_usd_actual,
          fx_arbitrage = (fx_implied - fx_actual) / fx_actual
          ) %>%
-      select (date, price_loc, price_usd_actual, price_usd_implied, fx_actual, fx_implied, fx_arbitrage) %>%
-      arrange (desc(date)) 
+      select (date, price_loc, price_usd_actual, price_usd_implied, fx_actual, fx_implied, fx_arbitrage) 
 ```
 
 
+#4.  Visualize
 ```{r}
 
    library (heatwaveR)
@@ -79,8 +84,10 @@ output: html_document
    library (ggdark)
 
    ggplot (big_mac_gbp, aes(x=date)) +
-      geom_flame (aes (y = fx_implied, y2 = fx_actual), fill = "red") +
-      geom_flame (aes (y2 = fx_implied, y = fx_actual), fill = "green") + 
+      #periods in which fx_actual > fx_implied
+         geom_flame (aes (y = fx_implied, y2 = fx_actual), fill = "red") +
+      #periods in which fx_actual < fx_implied
+         geom_flame (aes (y2 = fx_implied, y = fx_actual), fill = "green") + 
       geom_line(
           aes (y = fx_implied),
           size = 0.5, linetype = 1, color = "black"
@@ -98,12 +105,12 @@ output: html_document
          label = "GBP\novervalued", color="black", size=3, hjust=0.5, vjust=0, fontface="bold"
          ) +
       annotate(
-         geom="text", x= as.Date("2004-08-30", "%Y-%m-%d"), y=0.66, 
-         label = "Implied FX rate", color="white", size=3, hjust=0.5, vjust=0, fontface="bold", angle = 312
-         ) +
-      annotate(
          geom="text", x= as.Date("2003-03-30", "%Y-%m-%d"), y=0.6, 
          label = "Actual FX rate", color="white", size=3, hjust=0.5, vjust=0, fontface="bold", angle = 295
+         ) +
+      annotate(
+         geom="text", x= as.Date("2004-08-30", "%Y-%m-%d"), y=0.66, 
+         label = "Implied FX rate", color="white", size=3, hjust=0.5, vjust=0, fontface="bold", angle = 312
          ) +
       dark_theme_classic () +
          theme(
