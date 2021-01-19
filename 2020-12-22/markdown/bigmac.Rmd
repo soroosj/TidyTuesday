@@ -61,7 +61,7 @@ output: html_document
       rename (price_usd_actual = price_usd)
 
    big_mac_nok <- big_mac %>%
-      filter (currency == "NOK") %>%
+      filter (currency == "GBP") %>%
       left_join (big_mac_usd, by = "date") %>%
       rename (price_usd_implied = price_usd) %>%
       mutate(
@@ -77,9 +77,55 @@ output: html_document
 ```{r}
 
    library (heatwaveR)
+   library (here)
+   library (ggdark)
 
-   ggplot (big_mac_nok, aes(x=date, y = fx_implied)) +
-      geom_flame (aes (y2 = fx_actual))
-
+   ggplot (big_mac_nok, aes(x=date)) +
+      geom_flame (aes (y = fx_implied, y2 = fx_actual), fill = "red") +
+      geom_flame (aes (y2 = fx_implied, y = fx_actual), fill = "green") + 
+      geom_line(
+          aes (y = fx_implied),
+          size = 0.5, linetype = 1, color = "black"
+          ) +
+      geom_line(
+         aes (y = fx_actual),
+         size = 0.5, linetype = 1, color = "white"
+          ) +
+      annotate(
+         geom="text", x= as.Date("2018-04-30", "%Y-%m-%d"), y=0.68, 
+         label = "GBP undervalued", color="black", size=3, hjust=0.5, vjust=0.5, fontface="bold",
+         ) +
+      annotate(
+         geom="text", x= as.Date("2001-08-30", "%Y-%m-%d"), y=0.72, 
+         label = "GBP\novervalued", color="black", size=3, hjust=0.5, vjust=0, fontface="bold"
+         ) +
+      annotate(
+         geom="text", x= as.Date("2004-08-30", "%Y-%m-%d"), y=0.66, 
+         label = "Implied FX rate", color="white", size=3, hjust=0.5, vjust=0, fontface="bold", angle = 312
+         ) +
+      annotate(
+         geom="text", x= as.Date("2003-01-30", "%Y-%m-%d"), y=0.6, 
+         label = "Actual FX rate", color="white", size=3, hjust=0.5, vjust=0, fontface="bold", angle = 300
+         ) +
+      dark_theme_classic () +
+         theme(
+            plot.title = element_text(hjust = 0, vjust = 0, size = 19, face = "bold", margin = margin (0,0,4,0)),
+            plot.title.position = "plot",
+            plot.subtitle = element_text(hjust = 0, vjust = 0, size = 9, face = "bold", margin = margin (0,0,30,0)),
+            plot.caption = element_text (hjust = 0, size = 8, face = "plain", margin = margin (20,0,0,0), color="white"),
+            plot.caption.position = "plot",
+            panel.grid.major = element_line(colour="white", size=0.03),
+            axis.title.y = element_text (size = 9, hjust = 0.5),
+            axis.title.x = element_blank(),
+            ) +
+      labs(
+         title = "Forecasting currency movements via the Big Mac Index",
+         subtitle = "- Purchasing power parity theorizes the exchange rate between two currencies in long run should match ratio of prices\n  for a comparable good such as a McDonald's Big Mac hamburger.  If relative prices in one country are higher,\n  that country's currency will ultimately appreciate.",
+         y = "GBP per USD",
+         caption = "Visualization: Joel Soroos @soroosj  |  Data: The Economist via R4DS Tidy Tuesday"
+         ) +
+      ggsave(
+         here("2020-12-22","output","bigmac.png"),
+         width = 20, height = 14, units = "cm"
+         )
 ```
-
